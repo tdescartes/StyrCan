@@ -1,0 +1,82 @@
+name: CI/CD Pipeline for Frontend
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run tests
+        working-directory: ./frontend
+        run: npm run test -- --ci --reporters=default --coverage
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build Application
+    needs: test  # This ensures build only runs after tests pass
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build the application
+        working-directory: ./frontend
+        run: npm run build
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to GitHub Pages
+    needs: build  # This ensures deploy only runs after build is successful
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Install gh-pages
+        working-directory: ./frontend
+        run: npm install gh-pages --save-dev
+
+      - name: Deploy to GitHub Pages
+        working-directory: ./frontend
+        run: |
+          npm run deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # This is automatically provided by GitHub for actions
