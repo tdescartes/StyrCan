@@ -28,7 +28,8 @@ jobs:
 
       - name: Run tests
         working-directory: ./frontend
-        run: npm run test -- --coverage --reporter=default
+        run: |
+          npm run test -- "--coverage" "--reporter=default"
 
   build:
     runs-on: ubuntu-latest
