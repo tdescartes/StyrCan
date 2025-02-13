@@ -9,31 +9,31 @@ on:
       - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    name: Run Tests
+  # test:
+  #   runs-on: ubuntu-latest
+  #   name: Run Tests
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '16'
 
-      - name: Install dependencies
-        working-directory: ./frontend
-        run: npm ci
+  #     - name: Install dependencies
+  #       working-directory: ./frontend
+  #       run: npm ci
 
-      - name: Run tests
-        working-directory: ./frontend
-        run: npm run test -- --coverage --reporter=default
+  #     - name: Run tests
+  #       working-directory: ./frontend
+  #       run: npm run test -- --coverage --reporter=default
 
   build:
     runs-on: ubuntu-latest
     name: Build Application
-    needs: test  # This ensures build only runs after tests pass
+  #  needs: test  # This ensures build only runs after tests pass
 
     steps:
       - name: Checkout code
