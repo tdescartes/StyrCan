@@ -5,33 +5,34 @@ on:
     branches: [main]
     paths:
       - 'frontend/**'
-
 jobs:
-  deploy:
-    name: Deploy to GitHub Pages
+  build-and-deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' # Optional: Only deploy on pushes to main
     steps:
-      - uses: actions/checkout@v3  # Checkout at the root
+      - uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
-          cache: 'npm'
+          node-version: 16 # Or your preferred Node.js version
+          cache: 'npm' # Cache node_modules for faster builds
 
       - name: Install Dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm ci # Use npm ci for consistent installs
+
+      - name: Run Tests (Optional)
+        working-directory: ./frontend
+        run: npm run test # Only if you have a test script
 
       - name: Build Frontend
         working-directory: ./frontend
         run: npm run build
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: JamesIves/github-pages-deploy-action@v5
         with:
-          branch: gh-pages
-          folder: ./frontend/dist # Or your correct build output path
-          repository-name: ${{ github.repository }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages # Deploy to the gh-pages branch
+          folder: ./frontend/dist # Path to your build output
+          repository-name: ${{ github.repository }} # Use built-in variable
+          token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN secret
