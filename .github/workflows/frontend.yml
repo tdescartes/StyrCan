@@ -1,10 +1,10 @@
 name: Deploy Frontend
-permissions:
-  contents: write
+
 on:
   push:
     branches: [ main ]
-   
+    paths:
+      - 'frontend/**'
 
 jobs:
   build-and-deploy:
@@ -23,11 +23,13 @@ jobs:
       working-directory: ./frontend
 
     - name: Build Frontend
-      run: npm run build
+      run: |
+          npm ci
+          npm run build
       working-directory: ./frontend
 
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@4.1.4
       with:
         branch: gh-pages
-        folder: ../frontend/build/
+        folder: frontend/build
