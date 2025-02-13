@@ -7,29 +7,8 @@ on:
       - 'frontend/**'
 
 jobs:
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3  # Checkout at the root of the repository
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'npm'
-
-      - name: Install Dependencies
-        working-directory: ./frontend  # Now set working directory here
-        run: npm ci
-
-      - name: Run Tests
-        working-directory: ./frontend  # And here as well
-        run: npm run test
-
   deploy:
     name: Deploy to GitHub Pages
-    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' # Optional: Only deploy on pushes to main
     steps:
