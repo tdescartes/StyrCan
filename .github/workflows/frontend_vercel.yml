@@ -20,11 +20,11 @@ jobs:
 
     - name: Install Dependencies
       run: npm install
-      working-directory: ./frontshelter
+      working-directory: ./frontend
 
     - name: Build Frontend
       run: npm run build
-      working-directory: ./frontshelter
+      working-directory: ./frontend
 
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@4.1.4
