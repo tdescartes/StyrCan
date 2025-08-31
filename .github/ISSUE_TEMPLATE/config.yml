@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📋 Development Roadmap
+    url: https://github.com/tdescartes/StyrCan/blob/main/DEVELOPMENT_ROADMAP.md
+    about: View the complete development roadmap and issue overview
+  - name: 📚 Issue Creation Guide
+    url: https://github.com/tdescartes/StyrCan/blob/main/.github/ISSUE_CREATION_GUIDE.md
+    about: Learn how to properly create and manage issues for this project

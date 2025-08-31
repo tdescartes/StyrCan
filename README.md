@@ -100,3 +100,34 @@ StyrCan is built with modern technologies to ensure high performance, scalabilit
 4. Employees can communicate with each other or administrators through the messaging feature.
 5. Track financial transactions like income and expenses through an intuitive dashboard.
 6. Generate reports for better decision-making in areas such as payroll compliance or financial health.
+
+---
+
+## **Development Status & Contributing**
+
+**Current Status**: 🚧 In Development - Foundation Phase
+
+StyrCan is currently in active development. We have created a comprehensive roadmap with detailed GitHub issues for all features that need to be implemented.
+
+### **For Developers**
+- 📋 **[Development Roadmap](DEVELOPMENT_ROADMAP.md)** - Complete overview of all features to be implemented
+- 📚 **[Issue Creation Guide](.github/ISSUE_CREATION_GUIDE.md)** - How to create and manage development issues
+- 🗂️ **Issue Templates** - 12 detailed templates in `.github/ISSUE_TEMPLATE/` covering all major features
+
+### **Implementation Progress**
+- ✅ Frontend Foundation (React + TypeScript + Vite)  
+- ⏳ Backend Infrastructure (FastAPI + Oracle DB) - *Planned*
+- ⏳ Authentication System - *Planned*  
+- ⏳ Employee Management - *Planned*
+- ⏳ Financial Management - *Planned*
+- ⏳ Payroll System - *Planned*
+- ⏳ Messaging System - *Planned*
+- ⏳ Dashboard & Analytics - *Planned*
+
+### **Get Involved**
+1. Review the [Development Roadmap](DEVELOPMENT_ROADMAP.md)
+2. Check existing [GitHub Issues](../../issues) or create new ones using our templates
+3. Pick an issue and start contributing!
+4. Follow the development phases for optimal workflow
+
+**Estimated Total Development Time**: 6-9 months for a full development team
