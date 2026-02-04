@@ -1,0 +1,121 @@
+# .gitignore for StyrCan Project
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.log
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database
+*.db
+*.sqlite3
+*.sql.bak
+
+# Docker
+docker-compose.override.yml
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Node.js
+node_modules/
+.npm
+.eslintcache
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# Build outputs
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Kubernetes secrets (if using real secrets)
+kubernetes/secrets-*.yaml
+
+# Alembic
+alembic/versions/*.pyc
+
+# Redis dump
+dump.rdb
+
+# Editor directories
+.vscode/
+.idea/
+*.sublime-*
+
+# Certificate files
+*.pem
+*.key
+*.crt
+
+# Backup files
+*.backup
+*~
+
+# Test coverage
+coverage/
+.nyc_output/
