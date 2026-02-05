@@ -10,11 +10,13 @@ import logging
 
 from .config import settings
 from .database import init_db, close_db
+from .mongodb import connect_mongodb, close_mongodb
 from .middleware.error_handler import add_error_handlers
 from .middleware.logging import setup_logging
+from .middleware.audit import AuditLogMiddleware
 
 # Import routers
-from .routers import auth_router
+from .routers import auth_router, messaging_router, notifications_router
 
 # Setup logging
 setup_logging()
@@ -28,14 +30,18 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
     logger.info(f"Environment: {settings.environment}")
     init_db()
-    logger.info("Database initialized")
+    logger.info("PostgreSQL database initialized")
+    await connect_mongodb()
+    logger.info("MongoDB initialized")
     
     yield
     
     # Shutdown
     logger.info("Shutting down application")
     close_db()
-    logger.info("Database connections closed")
+    logger.info("PostgreSQL connections closed")
+    await close_mongodb()
+    logger.info("MongoDB connections closed")
 
 
 # Create FastAPI application
@@ -57,6 +63,9 @@ app.add_middleware(
     allow_methods=settings.cors_methods,
     allow_headers=settings.cors_headers,
 )
+
+# Audit logging middleware
+app.add_middleware(AuditLogMiddleware)
 
 
 # Request timing middleware
@@ -99,10 +108,11 @@ async def root():
 
 # Include routers
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(messaging_router, prefix="/api/messages", tags=["Messaging"])
+app.include_router(notifications_router, prefix="/api/notifications", tags=["Notifications"])
 # app.include_router(employees_router, prefix="/api/employees", tags=["Employees"])
 # app.include_router(finances_router, prefix="/api/finances", tags=["Finances"])
 # app.include_router(payroll_router, prefix="/api/payroll", tags=["Payroll"])
-# app.include_router(messaging_router, prefix="/api/messages", tags=["Messaging"])
 # app.include_router(dashboard_router, prefix="/api/dashboard", tags=["Dashboard"])
 
 
