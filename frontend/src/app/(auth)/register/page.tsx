@@ -67,7 +67,16 @@ export default function RegisterPage() {
 
     const onSubmit = async (data: RegisterFormData) => {
         try {
-            await registerUser(data.email, data.password, data.fullName, data.companyName);
+            const [firstName, ...lastNameParts] = data.fullName.split(" ");
+            const lastName = lastNameParts.join(" ") || firstName;
+
+            await registerUser({
+                email: data.email,
+                password: data.password,
+                first_name: firstName,
+                last_name: lastName,
+                company_name: data.companyName,
+            });
             toast.success("Account created successfully!");
             router.push("/dashboard");
         } catch (error) {
@@ -172,8 +181,8 @@ export default function RegisterPage() {
                                             <div
                                                 key={req.label}
                                                 className={`flex items-center gap-2 text-xs ${req.regex.test(password)
-                                                        ? "text-success"
-                                                        : "text-muted-foreground"
+                                                    ? "text-success"
+                                                    : "text-muted-foreground"
                                                     }`}
                                             >
                                                 <CheckCircle className="h-3 w-3" />
