@@ -1,50 +1,111 @@
-# React + TypeScript + Vite
+# StyrCan Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Modern, responsive frontend for the StyrCan Business Management Platform built with Next.js 14.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Dashboard**: Real-time business metrics and KPIs
+- **Employee Management**: Employee profiles, PTO tracking, shift scheduling
+- **Financial Management**: Cash flow monitoring, expense tracking, reporting
+- **Payroll Processing**: Automated payroll, tax deductions, pay stubs
+- **Messaging System**: Real-time team communication
+- **Notifications**: Stay updated with business activities
+- **Settings**: User profile, company settings, preferences
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript 5.4
+- **Styling**: Tailwind CSS 3.4
+- **UI Components**: shadcn/ui + Radix UI
+- **State Management**: Zustand
+- **Data Fetching**: TanStack Query (React Query)
+- **Forms**: React Hook Form + Zod
+- **Charts**: Recharts
+- **Icons**: Lucide React
 
-- Configure the top-level `parserOptions` property like this:
+## Getting Started
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Prerequisites
+
+- Node.js 20+
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Copy the environment file:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+4. Update the environment variables in `.env.local`
+
+5. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000)
+
+## Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run type-check` - Run TypeScript type checking
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── (auth)/            # Authentication pages (login, register)
+│   ├── (dashboard)/       # Dashboard pages (protected)
+│   ├── layout.tsx         # Root layout
+│   ├── page.tsx           # Landing page
+│   └── providers.tsx      # Context providers
+├── components/
+│   └── ui/                # Reusable UI components
+├── lib/
+│   ├── api/               # API client
+│   └── utils.ts           # Utility functions
+├── stores/                # Zustand stores
+└── types/                 # TypeScript types
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Docker
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+Build and run with Docker:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+docker build -t styrcan-frontend .
+docker run -p 3000:3000 styrcan-frontend
 ```
+
+Or use Docker Compose from the project root:
+
+```bash
+docker-compose up frontend
+```
+
+## Environment Variables
+
+| Variable               | Description      | Default                        |
+| ---------------------- | ---------------- | ------------------------------ |
+| `NEXT_PUBLIC_API_URL`  | Backend API URL  | `http://localhost:8000/api/v1` |
+| `NEXT_PUBLIC_APP_NAME` | Application name | `StyrCan`                      |
+| `NEXT_PUBLIC_APP_URL`  | Frontend URL     | `http://localhost:3000`        |
+
+## License
+
+Proprietary - All rights reserved.
