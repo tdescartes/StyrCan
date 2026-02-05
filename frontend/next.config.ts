@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   output: "export",
   trailingSlash: true,
+  basePath: "/StyrCan",
+  assetPrefix: "/StyrCan/",
   images: {
     unoptimized: true,
   },
