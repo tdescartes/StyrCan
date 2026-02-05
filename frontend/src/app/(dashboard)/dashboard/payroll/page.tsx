@@ -178,7 +178,8 @@ export default function PayrollPage() {
         : payrollRuns;
 
     // Get payroll items for the current/pending run
-    const payrollItems = selectedRunDetails?.items || [];
+    // selectedRunDetails is an array of PayrollItem[]
+    const payrollItems = Array.isArray(selectedRunDetails) ? selectedRunDetails : [];
 
     // Calculate stats from API data
     const currentRun = pendingRun || payrollRuns[0];
@@ -493,16 +494,16 @@ export default function PayrollPage() {
                                                 </div>
                                             </td>
                                             <td className="py-3 px-4 text-right font-medium">
-                                                {formatCurrency(item.gross_pay)}
+                                                {formatCurrency(item.gross_pay || item.base_salary || 0)}
                                             </td>
                                             <td className="py-3 px-4 text-right text-red-500">
-                                                -{formatCurrency(item.total_deductions)}
+                                                -{formatCurrency(item.total_deductions || item.deductions || 0)}
                                             </td>
                                             <td className="py-3 px-4 text-right font-medium text-green-500">
-                                                {formatCurrency(item.net_pay)}
+                                                {formatCurrency(item.net_pay || item.net_amount || 0)}
                                             </td>
                                             <td className="py-3 px-4">
-                                                {item.is_paid ? (
+                                                {item.is_paid || item.payment_status === "paid" ? (
                                                     <Badge className="bg-green-500/10 text-green-500">Paid</Badge>
                                                 ) : (
                                                     <Badge className="bg-yellow-500/10 text-yellow-500">Pending</Badge>
@@ -596,15 +597,15 @@ export default function PayrollPage() {
                                                     </p>
                                                 </div>
                                             </td>
-                                            <td className="py-3 px-4 text-sm">{run.employee_count} employees</td>
+                                            <td className="py-3 px-4 text-sm">{run.employee_count || 0} employees</td>
                                             <td className="py-3 px-4 text-right font-medium">
-                                                {formatCurrency(run.total_gross)}
+                                                {formatCurrency(run.total_gross || 0)}
                                             </td>
                                             <td className="py-3 px-4 text-right text-muted-foreground">
-                                                {formatCurrency(run.total_deductions)}
+                                                {formatCurrency(run.total_deductions || 0)}
                                             </td>
                                             <td className="py-3 px-4 text-right font-medium text-green-500">
-                                                {formatCurrency(run.total_net)}
+                                                {formatCurrency(run.total_net || 0)}
                                             </td>
                                             <td className="py-3 px-4">{getStatusBadge(run.status)}</td>
                                             <td className="py-3 px-4 text-right">
