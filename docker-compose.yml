@@ -38,6 +38,27 @@ services:
       timeout: 5s
       retries: 5
 
+  # MongoDB for audit logs, messaging, and analytics
+  mongodb:
+    image: mongo:7.0
+    container_name: styrcan-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: styrcan
+      MONGO_INITDB_ROOT_PASSWORD: styrcan_mongo_password
+      MONGO_INITDB_DATABASE: styrcan_logs
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - styrcan-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # FastAPI Backend
   backend:
     build:
@@ -46,6 +67,7 @@ services:
     container_name: styrcan-backend
     environment:
       DATABASE_URL: postgresql://styrcan:styrcan_password@postgres:5432/styrcan_db
+      MONGODB_URL: mongodb://styrcan:styrcan_mongo_password@mongodb:27017/styrcan_logs?authSource=admin
       REDIS_HOST: redis
       REDIS_PORT: 6379
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
@@ -60,6 +82,8 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      mongodb:
         condition: service_healthy
     networks:
       - styrcan-network
@@ -90,6 +114,8 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  mongodb_data:
+  mongodb_config:
   backend_uploads:
 
 networks:
