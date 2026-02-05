@@ -16,7 +16,15 @@ from .middleware.logging import setup_logging
 from .middleware.audit import AuditLogMiddleware
 
 # Import routers
-from .routers import auth_router, messaging_router, notifications_router
+from .routers import (
+    auth_router,
+    messaging_router,
+    notifications_router,
+    employees_router,
+    finances_router,
+    payroll_router,
+    dashboard_router,
+)
 
 # Setup logging
 setup_logging()
@@ -110,10 +118,10 @@ async def root():
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(messaging_router, prefix="/api/messages", tags=["Messaging"])
 app.include_router(notifications_router, prefix="/api/notifications", tags=["Notifications"])
-# app.include_router(employees_router, prefix="/api/employees", tags=["Employees"])
-# app.include_router(finances_router, prefix="/api/finances", tags=["Finances"])
-# app.include_router(payroll_router, prefix="/api/payroll", tags=["Payroll"])
-# app.include_router(dashboard_router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(employees_router, prefix="/api/employees", tags=["Employees"])
+app.include_router(finances_router, prefix="/api/finances", tags=["Finances"])
+app.include_router(payroll_router, prefix="/api/payroll", tags=["Payroll"])
+app.include_router(dashboard_router, prefix="/api/dashboard", tags=["Dashboard"])
 
 
 if __name__ == "__main__":
