@@ -98,7 +98,7 @@ export default function EmployeesPage() {
     const queryClient = useQueryClient();
 
     // Fetch employees from API
-    const { data: employeesData, isLoading, error } = useQuery({
+    const { data: employeesData, isLoading, error } = useQuery<{ employees: Employee[]; total: number }>({
         queryKey: ["employees", selectedDepartment, selectedStatus, currentPage],
         queryFn: () => apiClient.getEmployees({
             skip: (currentPage - 1) * itemsPerPage,
