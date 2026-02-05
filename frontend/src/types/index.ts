@@ -4,8 +4,11 @@ export interface User {
     email: string;
     first_name: string;
     last_name: string;
+    full_name?: string;
+    avatar?: string;
     role: UserRole;
     company_id: string;
+    company?: Company;
     is_active: boolean;
     created_at: string;
     last_login?: string;
@@ -117,24 +120,32 @@ export interface PayrollRun {
     period_end: string;
     status: PayrollStatus;
     total_amount?: number;
+    total_gross?: number;
+    total_deductions?: number;
+    total_net?: number;
+    employee_count?: number;
     processed_by?: string;
     processed_at?: string;
     created_at: string;
 }
 
-export type PayrollStatus = "draft" | "processing" | "completed" | "failed";
+export type PayrollStatus = "draft" | "pending" | "processing" | "completed" | "failed";
 
 export interface PayrollItem {
     id: string;
     payroll_run_id: string;
     employee_id: string;
     base_salary: number;
+    gross_pay?: number;
     overtime_hours: number;
     overtime_amount: number;
     bonuses: number;
     deductions: number;
+    total_deductions?: number;
     tax_amount: number;
     net_amount: number;
+    net_pay?: number;
+    is_paid?: boolean;
     payment_status: PaymentStatus;
     payment_date?: string;
 }
