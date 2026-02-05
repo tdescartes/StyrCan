@@ -1,16 +1,70 @@
 ---
-# Ingress for external access
+# Ingress for StyrCan - Split routing for marketing and app
+# Marketing site: styrcan.com -> landing-service
+# Application: use.styrcan.com -> frontend-service + backend-service
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: styrcan-ingress
   namespace: styrcan
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    # Uncomment when using cert-manager for TLS
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  # TLS configuration - uncomment when certificates are provisioned
+  # tls:
+  #   - hosts:
+  #       - styrcan.com
+  #       - www.styrcan.com
+  #     secretName: styrcan-marketing-tls
+  #   - hosts:
+  #       - use.styrcan.com
+  #     secretName: styrcan-app-tls
   rules:
+    # Marketing site (static landing page)
+    - host: styrcan.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: landing-service
+                port:
+                  number: 80
+    # WWW redirect to main domain
+    - host: www.styrcan.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: landing-service
+                port:
+                  number: 80
+    # Application (Next.js app + API)
+    - host: use.styrcan.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 8000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 3000
+    # Local development fallback
     - host: styrcan.local
       http:
         paths:
