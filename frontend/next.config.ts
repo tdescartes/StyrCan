@@ -5,16 +5,8 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   output: "export",
   trailingSlash: true,
-  basePath: process.env.NODE_ENV === 'production' ? '/StyrCan' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/StyrCan/' : '',
   images: {
     unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-    ],
   },
 };
 
