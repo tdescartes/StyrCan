@@ -34,6 +34,12 @@ class Settings(BaseSettings):
     redis_db: int = 0
     redis_password: str = ""
     
+    # MongoDB
+    mongodb_url: str = "mongodb://localhost:27017/styrcan_logs"
+    mongodb_host: str = "localhost"
+    mongodb_port: int = 27017
+    mongodb_db: str = "styrcan_logs"
+    
     # CORS
     cors_origins: List[str] = ["http://localhost:3000"]
     cors_credentials: bool = True
