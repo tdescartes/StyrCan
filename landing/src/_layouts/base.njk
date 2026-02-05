@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - BizPulse</title>
+    <meta name="description" content="{{ description | default('The Operating System for Small Business. Payroll, employee management, and financial tracking in one platform.') }}">
+    <meta name="keywords" content="business management, employee management, payroll, finances, small business">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/styles.css">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ title }} - BizPulse">
+    <meta property="og:description" content="{{ description | default('The Operating System for Small Business.') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://styrcan.com{{ page.url }}">
+    
+    {% block head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-white font-sans text-black">
+    <!-- Structural Grid Background -->
+    <div class="grid-background"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar" id="navbar">
+        <div class="container nav-inner">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                </div>
+                <span class="logo-text">BIZPULSE</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Platform</a>
+                <a href="#dashboard" class="nav-link">Operations</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+                <div class="nav-divider"></div>
+                <a href="https://use.styrcan.com/login" class="nav-link">Log in</a>
+                <a href="https://use.styrcan.com/register" class="btn btn-primary">Get started</a>
+            </div>
+
+            <button class="mobile-menu-btn" aria-label="Toggle menu" id="mobile-menu-btn">
+                <svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+                <svg class="close-icon hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobile-nav">
+        <div class="mobile-nav-links">
+            <a href="#features">Platform</a>
+            <a href="#dashboard">Operations</a>
+            <a href="#pricing">Pricing</a>
+            <hr>
+            <a href="https://use.styrcan.com/login">Log in</a>
+            <a href="https://use.styrcan.com/register" class="btn btn-primary">Get started</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        {{ content | safe }}
+    </main>
+
+    <!-- Minimal Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="logo logo-sm">
+                        <div class="logo-icon logo-icon-sm">
+                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                        </div>
+                        <span class="logo-text-sm">BizPulse</span>
+                    </a>
+                    <p class="footer-tagline">
+                        Professional operating system for small business units. Built for efficiency.
+                    </p>
+                </div>
+                <div class="footer-links">
+                    <p class="footer-links-title">Solutions</p>
+                    <ul>
+                        <li><a href="#">Payroll</a></li>
+                        <li><a href="#">Staffing</a></li>
+                        <li><a href="#">Compliance</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <p class="footer-links-title">Support</p>
+                    <ul>
+                        <li><a href="#">Guides</a></li>
+                        <li><a href="#">Updates</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <p class="footer-links-title">Newsletter</p>
+                    <form class="newsletter-form-footer">
+                        <input type="email" placeholder="Email" required>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; {% year %} BizPulse Technologies Inc. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="/privacy">Privacy</a>
+                    <a href="/terms">Terms</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "styrcan-landing",
+  "version": "1.0.0",
+  "description": "StyrCan Marketing & Landing Page - Built with Eleventy",
+  "scripts": {
+    "start": "eleventy --serve",
+    "build": "eleventy",
+    "debug": "DEBUG=Eleventy* eleventy"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1"
+  },
+  "keywords": [
+    "styrcan",
+    "landing-page",
+    "eleventy",
+    "static-site"
+  ],
+  "author": "StyrCan Team",
+  "license": "PROPRIETARY"
+}
