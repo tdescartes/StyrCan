@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "TURBOPACK=0 next build",
+    "build": "cross-env TURBOPACK=0 next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
@@ -52,6 +52,7 @@
     "@types/react": "^19.2.11",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.24",
+    "cross-env": "^10.1.0",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.6",
     "postcss": "^8.5.6",
