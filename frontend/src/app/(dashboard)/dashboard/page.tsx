@@ -115,7 +115,7 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">
-                        Welcome back, {user?.full_name?.split(" ")[0] || "User"}!
+                        Welcome back, {user?.first_name || "User"}!
                     </h1>
                     <p className="text-muted-foreground">
                         Here's what's happening with your business today.
@@ -315,8 +315,8 @@ export default function DashboardPage() {
                                                 <td className="py-3 px-4 text-sm font-medium">
                                                     {new Date(payroll.period_start).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
                                                 </td>
-                                                <td className="py-3 px-4 text-sm">{payroll.employee_count} employees</td>
-                                                <td className="py-3 px-4 text-sm font-medium">{formatCurrency(payroll.total_net)}</td>
+                                                <td className="py-3 px-4 text-sm">{payroll.employee_count || 0} employees</td>
+                                                <td className="py-3 px-4 text-sm font-medium">{formatCurrency(payroll.total_net || 0)}</td>
                                                 <td className="py-3 px-4 text-sm">
                                                     {new Date(payroll.period_end).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                                                 </td>
