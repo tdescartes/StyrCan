@@ -1,0 +1,106 @@
+name: Deploy Landing Page
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "landing/**"
+      - ".github/workflows/landing.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "landing/**"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: landing/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./landing
+
+      - name: Build Eleventy site
+        run: npm run build
+        working-directory: ./landing
+
+      - name: Test build output
+        run: |
+          if [ ! -d "_site" ]; then
+            echo "Error: _site directory not found"
+            exit 1
+          fi
+          if [ ! -f "_site/index.html" ]; then
+            echo "Error: index.html not found in _site"
+            exit 1
+          fi
+          echo "Build successful!"
+        working-directory: ./landing
+
+      # Optional: Deploy to GitHub Pages
+      # - name: Deploy to GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   if: github.ref == 'refs/heads/main'
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./landing/_site
+      #     cname: styrcan.com
+
+      # Optional: Deploy to Netlify
+      # - name: Deploy to Netlify
+      #   uses: nwtgck/actions-netlify@v2
+      #   with:
+      #     publish-dir: './landing/_site'
+      #     production-branch: main
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     deploy-message: "Deploy landing page from GitHub Actions"
+      #   env:
+      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      #     NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      # Optional: Deploy to Vercel
+      # - name: Deploy to Vercel
+      #   uses: amondnet/vercel-action@v20
+      #   with:
+      #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+      #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_LANDING }}
+      #     working-directory: ./landing
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: landing-build
+          path: landing/_site
+          retention-days: 7
+
+    # Optional: Build and push Docker image
+    # - name: Set up Docker Buildx
+    #   uses: docker/setup-buildx-action@v3
+
+    # - name: Log in to Docker Hub
+    #   uses: docker/login-action@v3
+    #   with:
+    #     username: ${{ secrets.DOCKER_USERNAME }}
+    #     password: ${{ secrets.DOCKER_PASSWORD }}
+
+    # - name: Build and push Docker image
+    #   uses: docker/build-push-action@v5
+    #   with:
+    #     context: ./landing
+    #     push: true
+    #     tags: |
+    #       ${{ secrets.DOCKER_USERNAME }}/styrcan-landing:latest
+    #       ${{ secrets.DOCKER_USERNAME }}/styrcan-landing:${{ github.sha }}
+    #     cache-from: type=gha
+    #     cache-to: type=gha,mode=max
