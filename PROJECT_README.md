@@ -102,6 +102,13 @@ StyrCan is a comprehensive full-stack business management platform designed to s
 - **Forms**: React Hook Form + Zod validation
 - **Charts**: Recharts
 
+### Landing Page (Marketing)
+
+- **Generator**: Eleventy (11ty)
+- **Templating**: Nunjucks
+- **Styling**: Custom CSS
+- **Hosting**: Static files via Nginx
+
 ### Backend
 
 - **Framework**: FastAPI 0.110+
@@ -125,9 +132,17 @@ StyrCan is a comprehensive full-stack business management platform designed to s
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    CLIENT LAYER                         │
+│                  MARKETING LAYER (styrcan.com)          │
+│  Eleventy Static Site (Nunjucks + CSS)                │
+│  ├── Landing Page (Features, Pricing)                 │
+│  ├── Contact & About Pages                            │
+│  └── Newsletter Signup Forms                          │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│                 APP LAYER (use.styrcan.com)            │
 │  Next.js 14 (TypeScript + React + Tailwind CSS)       │
-│  ├── Public Pages (Landing, Features, Pricing)        │
+│  ├── Authentication (Login, Register)                 │
 │  ├── Protected Routes (Dashboard, Management)          │
 │  └── Real-time Updates (WebSocket client)             │
 └─────────────────────────────────────────────────────────┘
@@ -268,7 +283,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 #### Frontend Setup (Coming Soon)
 
 ```bash
-cd frontend-next
+cd frontend
 
 # Install dependencies
 npm install
@@ -308,7 +323,7 @@ flake8 app/
 ### Frontend Development (Coming Soon)
 
 ```bash
-cd frontend-next
+cd frontend
 
 # Development server with hot reload
 npm run dev
@@ -321,6 +336,22 @@ npm run start
 
 # Linting
 npm run lint
+```
+
+### Landing Page Development
+
+```bash
+cd landing
+
+# Install dependencies
+npm install
+
+# Development server with hot reload
+npm start
+
+# Build for production
+npm run build
+# Output in _site directory
 ```
 
 ### Database Management
@@ -360,11 +391,28 @@ StyrCan/
 │   ├── requirements.txt
 │   ├── Dockerfile
 │   └── README.md
-├── frontend-next/             # Next.js Frontend (To be created)
-│   ├── app/                   # Next.js App Router
-│   ├── components/            # React components
-│   ├── lib/                   # Utilities
+├── frontend/                  # Next.js App (use.styrcan.com)
+│   ├── src/
+│   │   ├── app/              # Next.js App Router
+│   │   ├── components/       # React components
+│   │   ├── lib/              # Utilities & API client
+│   │   ├── stores/           # Zustand stores
+│   │   └── types/            # TypeScript types
 │   ├── public/                # Static assets
+│   ├── package.json
+│   ├── Dockerfile
+│   └── README.md
+├── landing/                   # Eleventy Landing Page (styrcan.com)
+│   ├── src/
+│   │   ├── _layouts/         # Page layouts (Nunjucks)
+│   │   ├── _data/            # Global data files
+│   │   ├── css/              # Stylesheets
+│   │   ├── js/               # JavaScript files
+│   │   ├── assets/           # Static assets
+│   │   ├── index.njk         # Homepage
+│   │   ├── about.njk         # About page
+│   │   └── contact.njk       # Contact page
+│   ├── .eleventy.js          # Eleventy configuration
 │   ├── package.json
 │   ├── Dockerfile
 │   └── README.md
@@ -375,7 +423,8 @@ StyrCan/
 │   ├── postgres-deployment.yaml
 │   ├── backend-deployment.yaml
 │   ├── frontend-deployment.yaml
-│   └── ingress.yaml
+│   ├── landing-deployment.yaml  # Marketing site deployment
+│   └── ingress.yaml           # Routes styrcan.com & use.styrcan.com
 ├── docker-compose.yml         # Docker Compose config
 ├── Plan.md                    # Technical architecture
 ├── DEVELOPMENT_ROADMAP.md     # Development roadmap
@@ -475,7 +524,7 @@ curl -X POST http://localhost:8000/api/auth/login \
 docker build -t styrcan-backend:latest ./backend
 
 # Frontend (when created)
-docker build -t styrcan-frontend:latest ./frontend-next
+docker build -t styrcan-frontend:latest ./frontend
 ```
 
 ### Kubernetes Deployment
