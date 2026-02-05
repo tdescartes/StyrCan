@@ -206,11 +206,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                                     <Avatar className="h-9 w-9">
-                                        <AvatarImage src={user.avatar} alt={user.full_name} />
+                                        <AvatarImage src={user.avatar} alt={user.full_name || `${user.first_name} ${user.last_name}`} />
                                         <AvatarFallback>
-                                            {user.full_name
+                                            {(user.full_name || `${user.first_name} ${user.last_name}`)
                                                 .split(" ")
-                                                .map((n) => n[0])
+                                                .map((n: string) => n[0])
                                                 .join("")
                                                 .toUpperCase()}
                                         </AvatarFallback>
@@ -220,7 +220,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             <DropdownMenuContent className="w-56" align="end" forceMount>
                                 <DropdownMenuLabel className="font-normal">
                                     <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-medium leading-none">{user.full_name}</p>
+                                        <p className="text-sm font-medium leading-none">{user.full_name || `${user.first_name} ${user.last_name}`}</p>
                                         <p className="text-xs leading-none text-muted-foreground">
                                             {user.email}
                                         </p>
