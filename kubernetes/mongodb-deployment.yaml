@@ -40,62 +40,62 @@ spec:
         app: mongodb
     spec:
       containers:
-      - name: mongodb
-        image: mongo:7.0
-        ports:
-        - containerPort: 27017
-          name: mongodb
-        env:
-        - name: MONGO_INITDB_ROOT_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: styrcan-secrets
-              key: mongodb-username
-        - name: MONGO_INITDB_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: styrcan-secrets
-              key: mongodb-password
-        - name: MONGO_INITDB_DATABASE
-          value: "styrcan_logs"
-        volumeMounts:
-        - name: mongodb-storage
-          mountPath: /data/db
-        - name: mongodb-config
-          mountPath: /data/configdb
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
-        livenessProbe:
-          exec:
-            command:
-            - mongosh
-            - --eval
-            - db.adminCommand('ping')
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          exec:
-            command:
-            - mongosh
-            - --eval
-            - db.adminCommand('ping')
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
+        - name: mongodb
+          image: mongo:7.0
+          ports:
+            - containerPort: 27017
+              name: mongodb
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGODB_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGODB_PASSWORD
+            - name: MONGO_INITDB_DATABASE
+              value: "styrcan_logs"
+          volumeMounts:
+            - name: mongodb-storage
+              mountPath: /data/db
+            - name: mongodb-config
+              mountPath: /data/configdb
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          livenessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - db.adminCommand('ping')
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - db.adminCommand('ping')
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
       volumes:
-      - name: mongodb-storage
-        persistentVolumeClaim:
-          claimName: mongodb-pvc
-      - name: mongodb-config
-        emptyDir: {}
+        - name: mongodb-storage
+          persistentVolumeClaim:
+            claimName: mongodb-pvc
+        - name: mongodb-config
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -106,9 +106,9 @@ spec:
   selector:
     app: mongodb
   ports:
-  - name: mongodb
-    protocol: TCP
-    port: 27017
-    targetPort: 27017
-    nodePort: 30017
+    - name: mongodb
+      protocol: TCP
+      port: 27017
+      targetPort: 27017
+      nodePort: 30017
   type: NodePort
