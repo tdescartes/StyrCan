@@ -45,6 +45,21 @@ spec:
                 configMapKeyRef:
                   name: app-config
                   key: REDIS_PORT
+            - name: MONGODB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGODB_URL
+            - name: MONGODB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGODB_HOST
+            - name: MONGODB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGODB_PORT
             - name: APP_NAME
               valueFrom:
                 configMapKeyRef:
