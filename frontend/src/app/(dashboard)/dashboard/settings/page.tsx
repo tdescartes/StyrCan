@@ -84,7 +84,7 @@ export default function SettingsPage() {
     } = useForm<ProfileFormData>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
-            full_name: user?.full_name || "",
+            full_name: user?.full_name || `${user?.first_name || ""} ${user?.last_name || ""}`.trim(),
             email: user?.email || "",
         },
     });
@@ -195,7 +195,7 @@ export default function SettingsPage() {
                                         <Avatar className="h-20 w-20">
                                             <AvatarImage src={user?.avatar} />
                                             <AvatarFallback className="text-lg">
-                                                {user?.full_name ? getInitials(user.full_name) : "U"}
+                                                {user ? getInitials(user.full_name || `${user.first_name} ${user.last_name}`) : "U"}
                                             </AvatarFallback>
                                         </Avatar>
                                         <div>
