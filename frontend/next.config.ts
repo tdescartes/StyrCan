@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
   output: "export",
   trailingSlash: true,
   basePath: "/StyrCan",
-  assetPrefix: "/StyrCan/",
   images: {
     unoptimized: true,
   },
