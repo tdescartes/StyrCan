@@ -100,3 +100,24 @@ class LoginResponse(BaseModel):
 class RefreshTokenRequest(BaseModel):
     """Schema for refresh token request."""
     refresh_token: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    """Schema for forgot password request."""
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    """Schema for reset password request."""
+    token: str
+    new_password: str = Field(..., min_length=8, max_length=100)
+    confirm_password: str = Field(..., min_length=8, max_length=100)
+
+
+class ChangePasswordRequest(BaseModel):
+    """Schema for change password request."""
+    current_password: str
+    new_password: str = Field(..., min_length=8, max_length=100)
+    confirm_password: str = Field(..., min_length=8, max_length=100)
+    """Schema for refresh token request."""
+    refresh_token: str
