@@ -30,6 +30,81 @@ from ..auth import get_current_user, require_manager, require_admin
 router = APIRouter()
 
 
+# ============== Dashboard ==============
+
+@router.get("/dashboard", response_model=dict)
+async def get_finance_dashboard(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get finance dashboard KPIs."""
+    company_id = current_user["company_id"]
+    today = date.today()
+    month_start = today.replace(day=1)
+    
+    # Current month income
+    current_month_income = db.query(
+        func.coalesce(func.sum(Transaction.amount), 0)
+    ).filter(
+        Transaction.company_id == company_id,
+        Transaction.type == "income",
+        Transaction.transaction_date >= month_start
+    ).scalar()
+    
+    # Current month expenses
+    current_month_expenses = db.query(
+        func.coalesce(func.sum(Transaction.amount), 0)
+    ).filter(
+        Transaction.company_id == company_id,
+        Transaction.type == "expense",
+        Transaction.transaction_date >= month_start
+    ).scalar()
+    
+    # Year to date income
+    year_start = today.replace(month=1, day=1)
+    ytd_income = db.query(
+        func.coalesce(func.sum(Transaction.amount), 0)
+    ).filter(
+        Transaction.company_id == company_id,
+        Transaction.type == "income",
+        Transaction.transaction_date >= year_start
+    ).scalar()
+    
+    # Year to date expenses
+    ytd_expenses = db.query(
+        func.coalesce(func.sum(Transaction.amount), 0)
+    ).filter(
+        Transaction.company_id == company_id,
+        Transaction.type == "expense",
+        Transaction.transaction_date >= year_start
+    ).scalar()
+    
+    # Top expense categories this month
+    top_expenses = db.query(
+        Transaction.category,
+        func.sum(Transaction.amount).label('total')
+    ).filter(
+        Transaction.company_id == company_id,
+        Transaction.type == "expense",
+        Transaction.transaction_date >= month_start
+    ).group_by(Transaction.category).order_by(
+        func.sum(Transaction.amount).desc()
+    ).limit(5).all()
+    
+    return {
+        "current_month_income": Decimal(str(current_month_income)),
+        "current_month_expenses": Decimal(str(current_month_expenses)),
+        "current_month_net": Decimal(str(current_month_income)) - Decimal(str(current_month_expenses)),
+        "ytd_income": Decimal(str(ytd_income)),
+        "ytd_expenses": Decimal(str(ytd_expenses)),
+        "ytd_net": Decimal(str(ytd_income)) - Decimal(str(ytd_expenses)),
+        "top_expense_categories": [
+            {"category": cat or "Uncategorized", "total": Decimal(str(total))}
+            for cat, total in top_expenses
+        ]
+    }
+
+
 # ============== Transactions ==============
 
 @router.get("/transactions", response_model=TransactionListResponse)
