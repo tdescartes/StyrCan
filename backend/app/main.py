@@ -24,6 +24,7 @@ from .routers import (
     finances_router,
     payroll_router,
     dashboard_router,
+    settings_router,
 )
 
 # Setup logging
@@ -122,6 +123,7 @@ app.include_router(employees_router, prefix="/api/employees", tags=["Employees"]
 app.include_router(finances_router, prefix="/api/finances", tags=["Finances"])
 app.include_router(payroll_router, prefix="/api/payroll", tags=["Payroll"])
 app.include_router(dashboard_router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(settings_router, prefix="/api/settings", tags=["Settings"])
 
 
 if __name__ == "__main__":
