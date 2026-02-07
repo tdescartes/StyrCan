@@ -15,6 +15,10 @@ from ..schemas.auth import (
     Token,
     UserResponse,
     CompanyResponse,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+    ChangePasswordRequest,
+    UserUpdate,
 )
 from ..auth import (
     verify_password,
@@ -223,3 +227,164 @@ async def logout():
     Logout endpoint (client should discard tokens).
     """
     return {"message": "Successfully logged out"}
+
+
+@router.post("/forgot-password")
+async def forgot_password(
+    request: ForgotPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Request a password reset email.
+    
+    In production, this would send an email with a reset token.
+    For now, we'll return the token in the response (development only).
+    """
+    user = db.query(User).filter(User.email == request.email).first()
+    
+    # Always return success to prevent email enumeration
+    if not user:
+        return {
+            "success": True,
+            "message": "If an account exists with that email, a password reset link has been sent"
+        }
+    
+    # Generate a password reset token (valid for 1 hour)
+    from datetime import timedelta
+    reset_token = create_access_token(
+        data={"sub": user.id, "type": "password_reset"},
+        expires_delta=timedelta(hours=1)
+    )
+    
+    # TODO: In production, send email with reset link
+    # For now, return the token (development only)
+    return {
+        "success": True,
+        "message": "Password reset link has been sent to your email",
+        "reset_token": reset_token  # Remove this in production
+    }
+
+
+@router.post("/reset-password")
+async def reset_password(
+    request: ResetPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Reset password using a reset token.
+    """
+    # Validate passwords match
+    if request.new_password != request.confirm_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Passwords do not match"
+        )
+    
+    try:
+        payload = decode_token(request.token)
+        
+        # Verify token type
+        if payload.get("type") != "password_reset":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid token type"
+            )
+        
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid token"
+            )
+        
+        # Get user and update password
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Update password
+        user.hashed_password = get_password_hash(request.new_password)
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Password has been reset successfully"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token"
+        )
+
+
+@router.post("/change-password")
+async def change_password(
+    request: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Change password for the current authenticated user.
+    """
+    # Validate passwords match
+    if request.new_password != request.confirm_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New passwords do not match"
+        )
+    
+    # Verify current password
+    if not verify_password(request.current_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect"
+        )
+    
+    # Update password
+    current_user.hashed_password = get_password_hash(request.new_password)
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": "Password changed successfully"
+    }
+
+
+@router.put("/me", response_model=UserResponse)
+async def update_user_profile(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Update current user's profile information.
+    """
+    update_data = user_update.model_dump(exclude_unset=True)
+    
+    # Don't allow users to change their own role or active status through this endpoint
+    update_data.pop("role", None)
+    update_data.pop("is_active", None)
+    
+    # Check if email is being changed and if it's already taken
+    if "email" in update_data and update_data["email"] != current_user.email:
+        existing_user = db.query(User).filter(User.email == update_data["email"]).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already in use"
+            )
+    
+    # Update user fields
+    for field, value in update_data.items():
+        setattr(current_user, field, value)
+    
+    db.commit()
+    db.refresh(current_user)
+    
+    return UserResponse.from_orm(current_user)
