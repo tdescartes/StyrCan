@@ -35,6 +35,71 @@ from ..auth import get_current_user, require_admin, require_manager
 router = APIRouter()
 
 
+# ============== Dashboard ==============
+
+@router.get("/dashboard", response_model=dict)
+async def get_employees_dashboard(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get employee dashboard KPIs."""
+    company_id = current_user["company_id"]
+    
+    # Total employees
+    total_employees = db.query(func.count(Employee.id)).filter(
+        Employee.company_id == company_id
+    ).scalar()
+    
+    # Active employees
+    active_employees = db.query(func.count(Employee.id)).filter(
+        Employee.company_id == company_id,
+        Employee.status == "active"
+    ).scalar()
+    
+    # On leave
+    on_leave = db.query(func.count(Employee.id)).filter(
+        Employee.company_id == company_id,
+        Employee.status == "on_leave"
+    ).scalar()
+    
+    # Pending PTO requests
+    pending_pto = db.query(func.count(PTORequest.id)).join(Employee).filter(
+        Employee.company_id == company_id,
+        PTORequest.status == "pending"
+    ).scalar()
+    
+    # Employees by department
+    dept_counts = db.query(
+        Employee.department,
+        func.count(Employee.id).label('count')
+    ).filter(
+        Employee.company_id == company_id,
+        Employee.status == "active"
+    ).group_by(Employee.department).all()
+    
+    departments = [
+        {"name": dept, "count": count} 
+        for dept, count in dept_counts if dept
+    ]
+    
+    # Recent hires (last 30 days)
+    from datetime import timedelta
+    thirty_days_ago = date.today() - timedelta(days=30)
+    recent_hires = db.query(func.count(Employee.id)).filter(
+        Employee.company_id == company_id,
+        Employee.hire_date >= thirty_days_ago
+    ).scalar()
+    
+    return {
+        "total_employees": total_employees,
+        "active_employees": active_employees,
+        "on_leave": on_leave,
+        "pending_pto_requests": pending_pto,
+        "recent_hires": recent_hires,
+        "departments": departments
+    }
+
+
 # ============== Employee CRUD ==============
 
 @router.get("", response_model=EmployeeListResponse)
@@ -566,3 +631,45 @@ async def delete_shift(
     
     db.delete(shift)
     db.commit()
+
+
+@router.get("/export", response_model=dict)
+async def export_employees(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Export employees to CSV format."""
+    import csv
+    from io import StringIO
+    
+    employees = db.query(Employee).filter(
+        Employee.company_id == current_user["company_id"]
+    ).all()
+    
+    # Create CSV in memory
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow([
+        'ID', 'First Name', 'Last Name', 'Email', 'Phone',
+        'Position', 'Department', 'Hire Date', 'Employment Type',
+        'Status', 'Salary'
+    ])
+    
+    # Write data
+    for emp in employees:
+        writer.writerow([
+            emp.id, emp.first_name, emp.last_name, emp.email, emp.phone,
+            emp.position, emp.department, emp.hire_date, emp.employment_type,
+            emp.status, emp.salary_amount
+        ])
+    
+    csv_data = output.getvalue()
+    output.close()
+    
+    return {
+        "success": True,
+        "data": csv_data,
+        "filename": f"employees_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    }
