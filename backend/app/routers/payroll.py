@@ -31,6 +31,64 @@ from ..auth import get_current_user, require_manager, require_admin
 router = APIRouter()
 
 
+# ============== Dashboard ==============
+
+@router.get("/dashboard", response_model=dict)
+async def get_payroll_dashboard(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get payroll dashboard KPIs."""
+    company_id = current_user["company_id"]
+    today = date.today()
+    current_month = today.replace(day=1)
+    
+    # Current month payroll
+    current_payroll = db.query(PayrollRun).filter(
+        PayrollRun.company_id == company_id,
+        PayrollRun.period_start >= current_month
+    ).first()
+    
+    # Upcoming payroll (next month)
+    next_month = (current_month.replace(day=28) + timedelta(days=4)).replace(day=1)
+    upcoming_payroll = db.query(PayrollRun).filter(
+        PayrollRun.company_id == company_id,
+        PayrollRun.period_start >= next_month
+    ).first()
+    
+    # Total this year
+    year_start = today.replace(month=1, day=1)
+    ytd_total = db.query(
+        func.coalesce(func.sum(PayrollRun.total_amount), 0)
+    ).filter(
+        PayrollRun.company_id == company_id,
+        PayrollRun.period_start >= year_start,
+        PayrollRun.status == "completed"
+    ).scalar()
+    
+    # Number of employees paid
+    employees_count = db.query(func.count(func.distinct(PayrollItem.employee_id))).join(
+        PayrollRun
+    ).filter(
+        PayrollRun.company_id == company_id,
+        PayrollRun.status == "completed",
+        PayrollItem.payment_status == "paid"
+    ).scalar()
+    
+    # Recent payroll runs
+    recent_runs = db.query(PayrollRun).filter(
+        PayrollRun.company_id == company_id
+    ).order_by(PayrollRun.created_at.desc()).limit(5).all()
+    
+    return {
+        "current_payroll": PayrollRunResponse.model_validate(current_payroll) if current_payroll else None,
+        "upcoming_payroll": PayrollRunResponse.model_validate(upcoming_payroll) if upcoming_payroll else None,
+        "ytd_total_payroll": Decimal(str(ytd_total)),
+        "employees_paid_this_year": employees_count,
+        "recent_payroll_runs": [PayrollRunResponse.model_validate(pr) for pr in recent_runs]
+    }
+
+
 # ============== Payroll Runs ==============
 
 @router.get("/runs", response_model=PayrollRunListResponse)
