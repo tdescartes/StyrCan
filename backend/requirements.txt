@@ -30,14 +30,11 @@ hiredis==2.3.2
 # WebSocket support
 websockets==12.0
 
-# CORS
-python-cors==1.0.0
-
 # Environment variables
 python-dotenv==1.0.1
 
 # Testing
-pytest==8.0.0
+pytest==7.4.4
 pytest-asyncio==0.23.4
 httpx==0.26.0
 
