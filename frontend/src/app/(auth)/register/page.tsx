@@ -78,7 +78,7 @@ export default function RegisterPage() {
                 company_name: data.companyName,
             });
             toast.success("Account created successfully!");
-            router.push("/dashboard");
+            router.push("/");
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Registration failed");
         }
