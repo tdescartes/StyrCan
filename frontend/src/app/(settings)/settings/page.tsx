@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn, getInitials } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
+import { apiClient } from "@/lib/api/client";
 
 const profileSchema = z.object({
     full_name: z.string().min(2, "Name must be at least 2 characters"),
@@ -112,11 +113,18 @@ export default function SettingsPage() {
     const onProfileSubmit = async (data: ProfileFormData) => {
         setIsLoading(true);
         try {
-            // API call would go here
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const nameParts = data.full_name.split(" ");
+            const first_name = nameParts[0];
+            const last_name = nameParts.slice(1).join(" ") || "";
+            await apiClient.updateProfile({
+                first_name,
+                last_name,
+                email: data.email,
+                ...(data.phone ? { phone: data.phone } : {}),
+            });
             toast.success("Profile updated successfully");
-        } catch (error) {
-            toast.error("Failed to update profile");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update profile");
         } finally {
             setIsLoading(false);
         }
@@ -125,10 +133,14 @@ export default function SettingsPage() {
     const onCompanySubmit = async (data: CompanyFormData) => {
         setIsLoading(true);
         try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await apiClient.updateCompanySettings({
+                name: data.name,
+                ...(data.phone ? { phone: data.phone } : {}),
+                ...(data.address ? { address: data.address } : {}),
+            });
             toast.success("Company settings updated successfully");
-        } catch (error) {
-            toast.error("Failed to update company settings");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update company settings");
         } finally {
             setIsLoading(false);
         }
@@ -137,11 +149,15 @@ export default function SettingsPage() {
     const onPasswordSubmit = async (data: PasswordFormData) => {
         setIsLoading(true);
         try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await apiClient.changePassword({
+                current_password: data.currentPassword,
+                new_password: data.newPassword,
+                confirm_password: data.confirmPassword,
+            });
             toast.success("Password changed successfully");
             resetPassword();
-        } catch (error) {
-            toast.error("Failed to change password");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to change password");
         } finally {
             setIsLoading(false);
         }
