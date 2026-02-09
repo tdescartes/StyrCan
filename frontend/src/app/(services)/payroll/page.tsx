@@ -92,7 +92,7 @@ export default function PayrollPage() {
     });
 
     // Fetch current/pending payroll run details
-    const pendingRun = payrollRunsData?.runs?.find((r: PayrollRun) => r.status === "pending");
+    const pendingRun = payrollRunsData?.payroll_runs?.find((r: PayrollRun) => r.status === "pending");
 
     // Fetch items for selected run
     const { data: selectedRunDetails, isLoading: detailsLoading } = useQuery({
@@ -165,7 +165,7 @@ export default function PayrollPage() {
         },
     });
 
-    const payrollRuns = payrollRunsData?.runs || [];
+    const payrollRuns = payrollRunsData?.payroll_runs || [];
     const totalRuns = payrollRunsData?.total || 0;
     const totalPages = Math.ceil(totalRuns / itemsPerPage);
 
