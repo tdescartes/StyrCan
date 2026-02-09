@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Building2, Bell, Settings, User } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -14,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/stores/auth-store";
+import { apiClient } from "@/lib/api/client";
+import { formatRelativeTime } from "@/lib/utils";
 
 const services = [
     { name: "Employees", href: "/employees", id: "employees" },
@@ -25,8 +28,31 @@ const services = [
 export function ServiceHeader() {
     const pathname = usePathname();
     const { user, logout } = useAuthStore();
+    const queryClient = useQueryClient();
 
     const activeService = services.find((s) => pathname?.startsWith(s.href));
+
+    const { data: unreadCount } = useQuery({
+        queryKey: ["notifications", "unread-count"],
+        queryFn: () => apiClient.getUnreadNotificationCount(),
+        refetchInterval: 30000,
+    });
+
+    const { data: notifications } = useQuery({
+        queryKey: ["notifications"],
+        queryFn: () => apiClient.getNotifications(),
+    });
+
+    const markAllRead = useMutation({
+        mutationFn: () => apiClient.markAllNotificationsAsRead(),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        },
+    });
+
+    const unread = unreadCount?.unread_count ?? 0;
+    const notifList = Array.isArray(notifications) ? notifications : notifications?.notifications ?? [];
+    const tier = user?.company?.subscription_tier || user?.company?.plan || "free";
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -58,8 +84,8 @@ export function ServiceHeader() {
                 {/* Right Side Actions */}
                 <div className="flex items-center gap-2">
                     {/* Plan Badge */}
-                    <Badge variant="secondary" className="hidden md:flex">
-                        Professional
+                    <Badge variant="secondary" className="hidden md:flex capitalize">
+                        {tier}
                     </Badge>
 
                     {/* Notifications */}
@@ -67,15 +93,48 @@ export function ServiceHeader() {
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="relative">
                                 <Bell className="h-5 w-5" />
-                                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+                                {unread > 0 && (
+                                    <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                                        {unread > 9 ? "9+" : unread}
+                                    </span>
+                                )}
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-80">
-                            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <div className="p-2 text-sm text-muted-foreground">
-                                No new notifications
+                            <div className="flex items-center justify-between px-2">
+                                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                                {unread > 0 && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-xs h-7"
+                                        onClick={() => markAllRead.mutate()}
+                                    >
+                                        Mark all read
+                                    </Button>
+                                )}
                             </div>
+                            <DropdownMenuSeparator />
+                            {notifList.length === 0 ? (
+                                <div className="p-4 text-sm text-center text-muted-foreground">
+                                    No notifications
+                                </div>
+                            ) : (
+                                <div className="max-h-72 overflow-y-auto">
+                                    {notifList.slice(0, 8).map((n: any) => (
+                                        <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1 p-3 cursor-default">
+                                            <span className={`text-sm ${!n.is_read ? "font-semibold" : ""}`}>
+                                                {n.title || n.message}
+                                            </span>
+                                            {n.created_at && (
+                                                <span className="text-xs text-muted-foreground">
+                                                    {formatRelativeTime(n.created_at)}
+                                                </span>
+                                            )}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </div>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
 
