@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -28,8 +28,9 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { login, isLoading } = useAuthStore();
     const [showPassword, setShowPassword] = useState(false);
 
@@ -45,7 +46,7 @@ export default function LoginPage() {
         try {
             await login(data.email, data.password);
             toast.success("Welcome back!");
-            router.push("/dashboard");
+            router.push(searchParams.get("redirect") || "/");
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Login failed");
         }
@@ -137,5 +138,19 @@ export default function LoginPage() {
                 </Card>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="flex h-screen items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+            }
+        >
+            <LoginForm />
+        </Suspense>
     );
 }
