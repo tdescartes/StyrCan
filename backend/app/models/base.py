@@ -1,7 +1,7 @@
 """Base model for all database models."""
 
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy import Column, DateTime
+from sqlalchemy import Column, DateTime, String
 from sqlalchemy.sql import func
 from datetime import datetime
 import uuid
