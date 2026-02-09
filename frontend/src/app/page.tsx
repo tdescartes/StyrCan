@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import {
   Users,
   DollarSign,
@@ -10,9 +11,24 @@ import {
   TrendingUp,
   Calendar,
   Mail,
+  Loader2,
+  Settings,
+  User,
+  LogOut,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { apiClient } from "@/lib/api/client";
+import { formatCurrency } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth-store";
 
 const services = [
   {
@@ -57,14 +73,45 @@ const services = [
   },
 ];
 
-const stats = [
-  { label: "Active Employees", value: "127", icon: Users },
-  { label: "Monthly Revenue", value: "$45.2K", icon: TrendingUp },
-  { label: "Upcoming Shifts", value: "34", icon: Calendar },
-  { label: "Unread Messages", value: "12", icon: Mail },
-];
-
 export default function Home() {
+  const { user, logout } = useAuthStore();
+  const { data: dashboard, isLoading: dashboardLoading } = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: () => apiClient.getDashboard(),
+    retry: false,
+  });
+
+  const { data: unreadData } = useQuery({
+    queryKey: ["messages", "unread-count"],
+    queryFn: () => apiClient.getUnreadMessageCount(),
+    retry: false,
+  });
+
+  const kpis = dashboard?.kpis ?? dashboard;
+
+  const stats = [
+    {
+      label: "Active Employees",
+      value: dashboardLoading ? "..." : String(kpis?.employee_stats?.active ?? 0),
+      icon: Users,
+    },
+    {
+      label: "Monthly Revenue",
+      value: dashboardLoading ? "..." : formatCurrency(Number(kpis?.financial_stats?.total_income ?? 0)),
+      icon: TrendingUp,
+    },
+    {
+      label: "Pending PTO",
+      value: dashboardLoading ? "..." : String(kpis?.pto_stats?.pending_requests ?? 0),
+      icon: Calendar,
+    },
+    {
+      label: "Unread Messages",
+      value: String(unreadData?.unread_count ?? 0),
+      icon: Mail,
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -76,8 +123,36 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-4">
             <Link href="/settings">
-              <Button variant="outline">Settings</Button>
+              <Button variant="outline" size="icon">
+                <Settings className="h-5 w-5" />
+              </Button>
             </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span>{user?.full_name || `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "User"}</span>
+                    <span className="text-xs text-muted-foreground font-normal">{user?.email}</span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/settings/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">Settings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => logout()}>
+                  <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
