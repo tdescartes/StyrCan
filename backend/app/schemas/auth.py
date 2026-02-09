@@ -119,5 +119,3 @@ class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str = Field(..., min_length=8, max_length=100)
     confirm_password: str = Field(..., min_length=8, max_length=100)
-    """Schema for refresh token request."""
-    refresh_token: str
