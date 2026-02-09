@@ -1,7 +1,7 @@
 """Notifications router for user notifications."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import List
+from typing import List, Optional
 from datetime import datetime, timedelta
 
 from ..mongo_models import Notification, NotificationType
