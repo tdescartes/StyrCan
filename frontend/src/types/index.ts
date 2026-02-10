@@ -11,10 +11,11 @@ export interface User {
     company?: Company;
     is_active: boolean;
     created_at: string;
+    updated_at?: string;
     last_login?: string;
 }
 
-export type UserRole = "owner" | "admin" | "manager" | "employee";
+export type UserRole = "employee" | "manager" | "company_admin" | "super_admin";
 
 // Company types
 export interface Company {
@@ -23,10 +24,10 @@ export interface Company {
     email: string;
     phone?: string;
     address?: string;
-    industry?: string;
-    subscription_tier: string;
-    is_active: boolean;
+    tax_id?: string;
+    status: 'active' | 'inactive' | 'suspended';
     created_at: string;
+    updated_at?: string;
 }
 
 // Employee types
@@ -38,18 +39,17 @@ export interface Employee {
     last_name: string;
     email: string;
     phone?: string;
-    position?: string;
-    department?: string;
+    position: string;
+    department: string;
     hire_date: string;
-    employment_type: EmploymentType;
+    termination_date?: string;
     status: EmployeeStatus;
-    salary_amount?: number;
+    salary: string;
     created_at: string;
-    updated_at: string;
+    updated_at?: string;
 }
 
-export type EmploymentType = "full-time" | "part-time" | "contract";
-export type EmployeeStatus = "active" | "inactive" | "terminated";
+export type EmployeeStatus = "active" | "on_leave" | "terminated";
 
 // PTO types
 export interface PTOBalance {
@@ -67,14 +67,17 @@ export interface PTORequest {
     start_date: string;
     end_date: string;
     days_requested: number;
-    reason?: string;
+    reason: string;
+    notes?: string;
     status: PTOStatus;
     reviewed_by?: string;
     reviewed_at?: string;
+    reviewer_notes?: string;
     created_at: string;
+    updated_at?: string;
 }
 
-export type PTOStatus = "pending" | "approved" | "denied";
+export type PTOStatus = "pending" | "approved" | "rejected";
 
 // Shift types
 export interface Shift {
@@ -83,23 +86,28 @@ export interface Shift {
     shift_date: string;
     start_time: string;
     end_time: string;
+    total_hours: number;
     status: ShiftStatus;
     notes?: string;
+    created_at: string;
+    updated_at?: string;
 }
 
-export type ShiftStatus = "scheduled" | "completed" | "missed" | "cancelled";
+export type ShiftStatus = "scheduled" | "completed" | "cancelled";
 
 // Financial types
 export interface Transaction {
     id: string;
     company_id: string;
     type: TransactionType;
-    category?: string;
-    amount: number;
-    description?: string;
+    amount: string;
+    category: string;
+    description: string;
     transaction_date: string;
-    created_by?: string;
+    reference_number?: string;
+    created_by: string;
     created_at: string;
+    updated_at?: string;
 }
 
 export type TransactionType = "income" | "expense";
@@ -119,35 +127,32 @@ export interface PayrollRun {
     period_start: string;
     period_end: string;
     status: PayrollStatus;
-    total_amount?: number;
-    total_gross?: number;
-    total_deductions?: number;
-    total_net?: number;
-    employee_count?: number;
+    total_amount: string;
     processed_by?: string;
     processed_at?: string;
+    notes?: string;
     created_at: string;
+    updated_at?: string;
 }
 
-export type PayrollStatus = "draft" | "pending" | "processing" | "completed" | "failed";
+export type PayrollStatus = "draft" | "pending" | "processing" | "completed" | "cancelled";
 
 export interface PayrollItem {
     id: string;
     payroll_run_id: string;
     employee_id: string;
-    base_salary: number;
-    gross_pay?: number;
-    overtime_hours: number;
-    overtime_amount: number;
-    bonuses: number;
-    deductions: number;
-    total_deductions?: number;
-    tax_amount: number;
-    net_amount: number;
-    net_pay?: number;
-    is_paid?: boolean;
+    base_salary: string;
+    overtime_pay: string;
+    bonus: string;
+    deductions: string;
+    tax_amount: string;
+    net_pay: string;
     payment_status: PaymentStatus;
     payment_date?: string;
+    payment_method?: string;
+    notes?: string;
+    created_at: string;
+    updated_at?: string;
 }
 
 export type PaymentStatus = "pending" | "paid" | "failed";
@@ -156,27 +161,28 @@ export type PaymentStatus = "pending" | "paid" | "failed";
 export interface Message {
     id: string;
     sender_id: string;
-    recipient_id?: string;
+    recipient_id: string;
     company_id: string;
     message_type: MessageType;
     thread_id?: string;
-    subject?: string;
+    subject: string;
     content: string;
-    attachments: Attachment[];
+    attachments?: Attachment[];
     status: MessageStatus;
     is_read: boolean;
     sent_at: string;
+    delivered_at?: string;
     read_at?: string;
 }
 
-export type MessageType = "direct" | "broadcast" | "group";
-export type MessageStatus = "sent" | "delivered" | "read" | "failed";
+export type MessageType = "direct" | "announcement" | "system";
+export type MessageStatus = "sent" | "delivered" | "read";
 
 export interface Attachment {
     name: string;
     url: string;
-    type: string;
-    size: number;
+    size?: number;
+    type?: string;
 }
 
 // Notification types
@@ -187,7 +193,7 @@ export interface Notification {
     type: NotificationType;
     title: string;
     message: string;
-    data: Record<string, unknown>;
+    data?: Record<string, unknown>;
     is_read: boolean;
     action_url?: string;
     created_at: string;
@@ -230,14 +236,26 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-    company_name: string;
-    email: string;
-    password: string;
-    first_name: string;
-    last_name: string;
+    name: string;  // company name
+    email: string; // company email
+    admin_first_name: string;
+    admin_last_name: string;
+    admin_email: string;
+    admin_password: string;
+    phone?: string;
+    address?: string;
+    tax_id?: string;
 }
 
 export interface AuthTokens {
+    access_token: string;
+    refresh_token: string;
+    token_type: string;
+}
+
+export interface AuthResponse {
+    user: User;
+    company: Company;
     access_token: string;
     refresh_token: string;
     token_type: string;
