@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
 import { toast } from "sonner";
 import type { Employee, Shift } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statusColors: Record<string, string> = {
     scheduled: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
@@ -126,14 +127,6 @@ export default function SchedulePage() {
     // Map employee IDs to names
     const empMap = new Map(employees.map((e) => [e.id, `${e.first_name} ${e.last_name}`]));
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -217,52 +210,69 @@ export default function SchedulePage() {
             </div>
 
             {/* Weekly Calendar Grid */}
-            <div className="grid grid-cols-7 gap-2">
-                {weekDates.map((date) => {
-                    const key = formatDate(date);
-                    const dayShifts = shiftsByDate.get(key) || [];
-                    const isToday = key === formatDate(new Date());
-                    return (
-                        <Card key={key} className={cn("min-h-[160px]", isToday && "border-primary")}>
-                            <CardHeader className="p-3 pb-1">
-                                <p className={cn("text-sm font-medium", isToday && "text-primary")}>
-                                    {date.toLocaleDateString("en-US", { weekday: "short" })}
-                                </p>
-                                <p className={cn("text-xl font-bold", isToday && "text-primary")}>
-                                    {date.getDate()}
-                                </p>
+            {isLoading ? (
+                <div className="grid grid-cols-7 gap-2">
+                    {Array.from({ length: 7 }).map((_, i) => (
+                        <Card key={i} className="min-h-[160px]">
+                            <CardHeader className="p-3 pb-1 space-y-2">
+                                <Skeleton className="h-4 w-12" />
+                                <Skeleton className="h-8 w-8" />
                             </CardHeader>
                             <CardContent className="p-3 pt-0 space-y-1">
-                                {dayShifts.length === 0 ? (
-                                    <p className="text-xs text-muted-foreground">No shifts</p>
-                                ) : (
-                                    dayShifts.map((shift) => (
-                                        <div
-                                            key={shift.id}
-                                            className="rounded bg-accent p-1.5 text-xs space-y-0.5"
-                                        >
-                                            <p className="font-medium truncate">
-                                                {empMap.get(shift.employee_id) || shift.employee_id.slice(0, 8)}
-                                            </p>
-                                            <div className="flex items-center gap-1 text-muted-foreground">
-                                                <Clock className="h-3 w-3" />
-                                                <span>
-                                                    {new Date(shift.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                                    {" – "}
-                                                    {new Date(shift.end_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                                </span>
-                                            </div>
-                                            <Badge className={cn("text-[10px] px-1 py-0", statusColors[shift.status] || "")} variant="secondary">
-                                                {shift.status}
-                                            </Badge>
-                                        </div>
-                                    ))
-                                )}
+                                <Skeleton className="h-14 w-full" />
+                                <Skeleton className="h-14 w-full" />
                             </CardContent>
                         </Card>
-                    );
-                })}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="grid grid-cols-7 gap-2">
+                    {weekDates.map((date) => {
+                        const key = formatDate(date);
+                        const dayShifts = shiftsByDate.get(key) || [];
+                        const isToday = key === formatDate(new Date());
+                        return (
+                            <Card key={key} className={cn("min-h-[160px]", isToday && "border-primary")}>
+                                <CardHeader className="p-3 pb-1">
+                                    <p className={cn("text-sm font-medium", isToday && "text-primary")}>
+                                        {date.toLocaleDateString("en-US", { weekday: "short" })}
+                                    </p>
+                                    <p className={cn("text-xl font-bold", isToday && "text-primary")}>
+                                        {date.getDate()}
+                                    </p>
+                                </CardHeader>
+                                <CardContent className="p-3 pt-0 space-y-1">
+                                    {dayShifts.length === 0 ? (
+                                        <p className="text-xs text-muted-foreground">No shifts</p>
+                                    ) : (
+                                        dayShifts.map((shift) => (
+                                            <div
+                                                key={shift.id}
+                                                className="rounded bg-accent p-1.5 text-xs space-y-0.5"
+                                            >
+                                                <p className="font-medium truncate">
+                                                    {empMap.get(shift.employee_id) || shift.employee_id.slice(0, 8)}
+                                                </p>
+                                                <div className="flex items-center gap-1 text-muted-foreground">
+                                                    <Clock className="h-3 w-3" />
+                                                    <span>
+                                                        {new Date(shift.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                        {" – "}
+                                                        {new Date(shift.end_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                    </span>
+                                                </div>
+                                                <Badge className={cn("text-[10px] px-1 py-0", statusColors[shift.status] || "")} variant="secondary">
+                                                    {shift.status}
+                                                </Badge>
+                                            </div>
+                                        ))
+                                    )}
+                                </CardContent>
+                            </Card>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 }
