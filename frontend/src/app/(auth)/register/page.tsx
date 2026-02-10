@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -50,9 +50,11 @@ const passwordRequirements = [
 
 export default function RegisterPage() {
     const router = useRouter();
-    const { register: registerUser, isLoading } = useAuthStore();
+    const searchParams = useSearchParams();
+    const { register: registerUser, isAuthenticated, hasHydrated } = useAuthStore();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const {
         register,
@@ -65,23 +67,40 @@ export default function RegisterPage() {
 
     const password = watch("password", "");
 
+    // Redirect after successful authentication
+    useEffect(() => {
+        if (hasHydrated && isAuthenticated && !isLoading) {
+            const redirect = searchParams.get("redirect") || "/";
+            router.push(redirect);
+        }
+    }, [isAuthenticated, hasHydrated, isLoading, router, searchParams]);
+
     const onSubmit = async (data: RegisterFormData) => {
+        setIsLoading(true);
         try {
             const [firstName, ...lastNameParts] = data.fullName.split(" ");
             const lastName = lastNameParts.join(" ") || firstName;
 
             await registerUser({
-                email: data.email,
-                password: data.password,
-                first_name: firstName,
-                last_name: lastName,
-                company_name: data.companyName,
+                name: data.companyName,              // company name
+                email: data.email,                   // company email (same as admin for now)
+                admin_first_name: firstName,
+                admin_last_name: lastName,
+                admin_email: data.email,             // admin email
+                admin_password: data.password,
             });
             toast.success("Account created successfully!");
-            router.push("/");
+            // Don't redirect here - let useEffect handle it after state updates
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Registration failed");
+            setIsLoading(false);
         }
+    };
+
+    // Prevent any form submission that could expose credentials in URL
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        handleSubmit(onSubmit)(e);
     };
 
     return (
@@ -102,7 +121,7 @@ export default function RegisterPage() {
                             Start your 14-day free trial. No credit card required.
                         </CardDescription>
                     </CardHeader>
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleFormSubmit} method="post" action="#">
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="fullName">Full Name</Label>
