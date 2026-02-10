@@ -183,10 +183,11 @@ export default function PayrollPage() {
 
     // Calculate stats from API data
     const currentRun = pendingRun || payrollRuns[0];
-    const totalGross = currentRun?.total_gross || 0;
-    const totalDeductions = currentRun?.total_deductions || 0;
-    const totalNet = currentRun?.total_net || 0;
-    const employeeCount = currentRun?.employee_count || 0;
+    const totalAmount = currentRun?.total_amount ? Number(currentRun.total_amount) : 0;
+    const totalGross = totalAmount; // Using total_amount as gross since detailed breakdown not available
+    const totalDeductions = 0; // Not available in PayrollRun type
+    const totalNet = totalAmount;
+    const employeeCount = payrollItems.length;
 
     const payrollStats = [
         {
@@ -266,14 +267,11 @@ export default function PayrollPage() {
         const run = payrollRuns.find((r: PayrollRun) => r.id === runId);
         if (!run) return;
 
-        const headers = ["Period Start", "Period End", "Employees", "Gross", "Deductions", "Net", "Status"];
+        const headers = ["Period Start", "Period End", "Total Amount", "Status"];
         const row = [
             run.period_start,
             run.period_end,
-            run.employee_count,
-            run.total_gross,
-            run.total_deductions,
-            run.total_net,
+            run.total_amount,
             run.status,
         ];
 
@@ -494,16 +492,16 @@ export default function PayrollPage() {
                                                 </div>
                                             </td>
                                             <td className="py-3 px-4 text-right font-medium">
-                                                {formatCurrency(item.gross_pay || item.base_salary || 0)}
+                                                {formatCurrency(Number(item.base_salary) || 0)}
                                             </td>
                                             <td className="py-3 px-4 text-right text-red-500">
-                                                -{formatCurrency(item.total_deductions || item.deductions || 0)}
+                                                -{formatCurrency(Number(item.deductions) || 0)}
                                             </td>
                                             <td className="py-3 px-4 text-right font-medium text-green-500">
-                                                {formatCurrency(item.net_pay || item.net_amount || 0)}
+                                                {formatCurrency(Number(item.net_pay) || 0)}
                                             </td>
                                             <td className="py-3 px-4">
-                                                {item.is_paid || item.payment_status === "paid" ? (
+                                                {item.payment_status === "paid" ? (
                                                     <Badge className="bg-green-500/10 text-green-500">Paid</Badge>
                                                 ) : (
                                                     <Badge className="bg-yellow-500/10 text-yellow-500">Pending</Badge>
@@ -597,15 +595,8 @@ export default function PayrollPage() {
                                                     </p>
                                                 </div>
                                             </td>
-                                            <td className="py-3 px-4 text-sm">{run.employee_count || 0} employees</td>
-                                            <td className="py-3 px-4 text-right font-medium">
-                                                {formatCurrency(run.total_gross || 0)}
-                                            </td>
-                                            <td className="py-3 px-4 text-right text-muted-foreground">
-                                                {formatCurrency(run.total_deductions || 0)}
-                                            </td>
                                             <td className="py-3 px-4 text-right font-medium text-green-500">
-                                                {formatCurrency(run.total_net || 0)}
+                                                {formatCurrency(Number(run.total_amount || 0))}
                                             </td>
                                             <td className="py-3 px-4">{getStatusBadge(run.status)}</td>
                                             <td className="py-3 px-4 text-right">
