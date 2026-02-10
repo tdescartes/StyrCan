@@ -32,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
 import { toast } from "sonner";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import type { ExpenseCategory } from "@/types";
 
 interface CategoryForm {
@@ -99,13 +100,6 @@ export default function CategoriesPage() {
         setIsDialogOpen(true);
     }
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
 
     return (
         <div className="space-y-6">
