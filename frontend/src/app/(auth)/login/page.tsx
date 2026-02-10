@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -31,8 +31,9 @@ type LoginFormData = z.infer<typeof loginSchema>;
 function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { login, isLoading } = useAuthStore();
+    const { login, isAuthenticated, hasHydrated } = useAuthStore();
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const {
         register,
@@ -42,14 +43,30 @@ function LoginForm() {
         resolver: zodResolver(loginSchema),
     });
 
+    // Redirect after successful authentication
+    useEffect(() => {
+        if (hasHydrated && isAuthenticated && !isLoading) {
+            const redirect = searchParams.get("redirect") || "/";
+            router.push(redirect);
+        }
+    }, [isAuthenticated, hasHydrated, isLoading, router, searchParams]);
+
     const onSubmit = async (data: LoginFormData) => {
+        setIsLoading(true);
         try {
             await login(data.email, data.password);
             toast.success("Welcome back!");
-            router.push(searchParams.get("redirect") || "/");
+            // Don't redirect here - let useEffect handle it after state updates
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Login failed");
+            setIsLoading(false);
         }
+    };
+
+    // Prevent any form submission that could expose credentials in URL
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        handleSubmit(onSubmit)(e);
     };
 
     return (
@@ -70,7 +87,7 @@ function LoginForm() {
                             Enter your credentials to access your account
                         </CardDescription>
                     </CardHeader>
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleFormSubmit} method="post" action="#">
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
