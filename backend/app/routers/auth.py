@@ -97,12 +97,12 @@ async def register_company(
         )
     
     # Generate tokens
-    access_token = create_access_token(data={"sub": admin_user.id})
-    refresh_token = create_refresh_token(data={"sub": admin_user.id})
+    access_token = create_access_token(data={"sub": str(admin_user.id)})
+    refresh_token = create_refresh_token(data={"sub": str(admin_user.id)})
     
     return LoginResponse(
-        user=UserResponse.from_orm(admin_user),
-        company=CompanyResponse.from_orm(company),
+        user=UserResponse.model_validate(admin_user),
+        company=CompanyResponse.model_validate(company),
         access_token=access_token,
         refresh_token=refresh_token
     )
@@ -149,12 +149,12 @@ async def login(
     company = db.query(Company).filter(Company.id == user.company_id).first()
     
     # Generate tokens
-    access_token = create_access_token(data={"sub": user.id})
-    refresh_token = create_refresh_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
     
     return LoginResponse(
-        user=UserResponse.from_orm(user),
-        company=CompanyResponse.from_orm(company),
+        user=UserResponse.model_validate(user),
+        company=CompanyResponse.model_validate(company),
         access_token=access_token,
         refresh_token=refresh_token
     )
@@ -194,7 +194,7 @@ async def refresh_token(
             )
         
         # Generate new tokens
-        new_access_token = create_access_token(data={"sub": user_id})
+        new_access_token = create_access_token(data={"sub": str(user_id)})
         new_refresh_token = create_refresh_token(data={"sub": user_id})
         
         return Token(
@@ -218,7 +218,7 @@ async def get_current_user_info(
     """
     Get current authenticated user information.
     """
-    return UserResponse.from_orm(current_user)
+    return UserResponse.model_validate(current_user)
 
 
 @router.post("/logout")
@@ -252,7 +252,7 @@ async def forgot_password(
     # Generate a password reset token (valid for 1 hour)
     from datetime import timedelta
     reset_token = create_access_token(
-        data={"sub": user.id, "type": "password_reset"},
+        data={"sub": str(user.id), "purpose": "password_reset"},
         expires_delta=timedelta(hours=1)
     )
     
@@ -387,4 +387,4 @@ async def update_user_profile(
     db.commit()
     db.refresh(current_user)
     
-    return UserResponse.from_orm(current_user)
+    return UserResponse.model_validate(current_user)
