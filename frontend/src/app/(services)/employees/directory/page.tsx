@@ -9,10 +9,12 @@ import {
     Loader2,
     Building2,
     Briefcase,
+    Plus,
+    Filter,
+    MoreHorizontal,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
     Select,
@@ -23,13 +25,14 @@ import {
 } from "@/components/ui/select";
 import { getInitials } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import type { Employee } from "@/types";
 
-const statusColors: Record<string, string> = {
-    active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-    on_leave: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-    inactive: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-    terminated: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+const statusVariants: Record<string, "success" | "warning" | "default" | "error"> = {
+    active: "success",
+    on_leave: "warning",
+    inactive: "default",
+    terminated: "error",
 };
 
 export default function DirectoryPage() {
@@ -58,28 +61,32 @@ export default function DirectoryPage() {
 
     const departments = [...new Set(employees.map((e) => e.department).filter(Boolean))];
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Employee Directory</h1>
-                <p className="text-muted-foreground">Browse and search all team members</p>
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight">Directory</h1>
+                    <p className="text-zinc-500 text-sm mt-1">Browse and manage all team members</p>
+                </div>
+                <div className="flex gap-2">
+                    <Button variant="secondary" size="sm">
+                        <Filter className="w-4 h-4 mr-2" />
+                        Filter
+                    </Button>
+                    <Button size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Employee
+                    </Button>
+                </div>
             </div>
 
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 transition-colors" />
                     <Input
                         placeholder="Search by name, email, or position..."
-                        className="pl-9"
+                        className="pl-9 bg-zinc-50 border-zinc-200 focus:bg-white"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -99,60 +106,65 @@ export default function DirectoryPage() {
                 </Select>
             </div>
 
-            {/* Employee Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filtered.map((emp) => (
-                    <Card key={emp.id} className="hover:border-primary/50 transition-colors">
-                        <CardContent className="pt-6">
-                            <div className="flex items-start gap-4">
-                                <Avatar className="h-12 w-12">
-                                    <AvatarFallback>
-                                        {getInitials(`${emp.first_name} ${emp.last_name}`)}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="font-semibold truncate">
-                                            {emp.first_name} {emp.last_name}
-                                        </h3>
-                                        <Badge className={statusColors[emp.status] || ""} variant="secondary">
+            {/* Employee Table */}
+            {isLoading ? (
+                <TableSkeleton rows={8} columns={6} />
+            ) : filtered.length === 0 ? (
+                <div className="text-center py-12 text-zinc-500">
+                    <p>No employees found matching your criteria.</p>
+                </div>
+            ) : (
+                <div className="bg-white border border-zinc-200 rounded-sm overflow-hidden">
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-zinc-50 border-b border-zinc-200 text-xs uppercase tracking-wider font-bold text-zinc-500">
+                            <tr>
+                                <th className="px-6 py-3">Name</th>
+                                <th className="px-6 py-3">Position</th>
+                                <th className="px-6 py-3">Department</th>
+                                <th className="px-6 py-3">Contact</th>
+                                <th className="px-6 py-3">Status</th>
+                                <th className="px-6 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-100">
+                            {filtered.map((emp) => (
+                                <tr key={emp.id} className="hover:bg-zinc-50 group transition-colors">
+                                    <td className="px-6 py-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold text-zinc-600">
+                                                {getInitials(`${emp.first_name} ${emp.last_name}`)}
+                                            </div>
+                                            <div>
+                                                <div className="font-bold text-zinc-900">
+                                                    {emp.first_name} {emp.last_name}
+                                                </div>
+                                                <div className="text-xs text-zinc-500">{emp.email}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-3 text-zinc-600">
+                                        {emp.position || "—"}
+                                    </td>
+                                    <td className="px-6 py-3 text-zinc-600">
+                                        {emp.department || "—"}
+                                    </td>
+                                    <td className="px-6 py-3 text-zinc-500 text-xs">
+                                        {emp.phone || "—"}
+                                    </td>
+                                    <td className="px-6 py-3">
+                                        <Badge variant={statusVariants[emp.status] || "default"}>
                                             {emp.status.replace("_", " ")}
                                         </Badge>
-                                    </div>
-                                    {emp.position && (
-                                        <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                                            <Briefcase className="h-3 w-3" />
-                                            <span className="truncate">{emp.position}</span>
-                                        </div>
-                                    )}
-                                    {emp.department && (
-                                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                            <Building2 className="h-3 w-3" />
-                                            <span>{emp.department}</span>
-                                        </div>
-                                    )}
-                                    <div className="flex items-center gap-3 mt-3 text-sm text-muted-foreground">
-                                        <a href={`mailto:${emp.email}`} className="flex items-center gap-1 hover:text-primary">
-                                            <Mail className="h-3 w-3" />
-                                            <span className="truncate">{emp.email}</span>
-                                        </a>
-                                    </div>
-                                    {emp.phone && (
-                                        <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                                            <Phone className="h-3 w-3" />
-                                            <span>{emp.phone}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-
-            {filtered.length === 0 && (
-                <div className="text-center py-12">
-                    <p className="text-muted-foreground">No employees found matching your criteria.</p>
+                                    </td>
+                                    <td className="px-6 py-3 text-right">
+                                        <button className="text-zinc-400 hover:text-black transition-colors">
+                                            <MoreHorizontal className="w-4 h-4" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
         </div>
