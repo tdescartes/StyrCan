@@ -50,6 +50,7 @@ import {
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
 import { toast } from "sonner";
+import { StatsCardSkeleton, TableSkeleton } from "@/components/ui/skeleton";
 import type { PayrollRun } from "@/types";
 
 const statusConfig: Record<string, { icon: any; color: string }> = {
@@ -120,7 +121,7 @@ export default function PayrollRunsPage() {
     });
 
     const processMutation = useMutation({
-        mutationFn: (id: string) => apiClient.processPayrollRun(id, { include_all_employees: true }),
+        mutationFn: (id: string) => apiClient.processPayrollRun(id, { notify_employees: true }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["payroll-runs-page"] });
             queryClient.invalidateQueries({ queryKey: ["payroll-run-detail"] });
@@ -139,14 +140,6 @@ export default function PayrollRunsPage() {
         },
         onError: (err: any) => toast.error(err.message || "Failed to delete"),
     });
-
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
 
     return (
         <div className="space-y-6">
@@ -177,88 +170,92 @@ export default function PayrollRunsPage() {
             </div>
 
             {/* Runs Table */}
-            <Card>
-                <CardContent className="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Period</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Total Amount</TableHead>
-                                <TableHead>Processed</TableHead>
-                                <TableHead className="w-[140px]" />
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {runs.length === 0 ? (
+            {isLoading ? (
+                <TableSkeleton rows={8} columns={5} />
+            ) : (
+                <Card>
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableHeader>
                                 <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                        No payroll runs found
-                                    </TableCell>
+                                    <TableHead>Period</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead className="text-right">Total Amount</TableHead>
+                                    <TableHead>Processed</TableHead>
+                                    <TableHead className="w-[140px]" />
                                 </TableRow>
-                            ) : (
-                                runs.map((run) => {
-                                    const cfg = statusConfig[run.status] || statusConfig.draft;
-                                    const StatusIcon = cfg.icon;
-                                    return (
-                                        <TableRow key={run.id}>
-                                            <TableCell className="whitespace-nowrap">
-                                                {formatDate(run.period_start)} – {formatDate(run.period_end)}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className={cfg.color} variant="secondary">
-                                                    <StatusIcon className="mr-1 h-3 w-3" />
-                                                    {run.status}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right font-medium">
-                                                {run.total_amount ? formatCurrency(Number(run.total_amount)) : "—"}
-                                            </TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">
-                                                {run.processed_at ? formatDate(run.processed_at) : "—"}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex gap-1">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8"
-                                                        onClick={() => setDetailRunId(run.id)}
-                                                    >
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                    {run.status === "draft" && (
+                            </TableHeader>
+                            <TableBody>
+                                {runs.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                            No payroll runs found
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    runs.map((run) => {
+                                        const cfg = statusConfig[run.status] || statusConfig.draft;
+                                        const StatusIcon = cfg.icon;
+                                        return (
+                                            <TableRow key={run.id}>
+                                                <TableCell className="whitespace-nowrap">
+                                                    {formatDate(run.period_start)} – {formatDate(run.period_end)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge className={cfg.color} variant="secondary">
+                                                        <StatusIcon className="mr-1 h-3 w-3" />
+                                                        {run.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right font-medium">
+                                                    {run.total_amount ? formatCurrency(Number(run.total_amount)) : "—"}
+                                                </TableCell>
+                                                <TableCell className="text-sm text-muted-foreground">
+                                                    {run.processed_at ? formatDate(run.processed_at) : "—"}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex gap-1">
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            className="h-8 w-8 text-green-600"
-                                                            onClick={() => processMutation.mutate(run.id)}
-                                                            disabled={processMutation.isPending}
+                                                            className="h-8 w-8"
+                                                            onClick={() => setDetailRunId(run.id)}
                                                         >
-                                                            <Play className="h-4 w-4" />
+                                                            <Eye className="h-4 w-4" />
                                                         </Button>
-                                                    )}
-                                                    {(run.status === "draft" || run.status === "cancelled") && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 text-red-500"
-                                                            onClick={() => deleteMutation.mutate(run.id)}
-                                                            disabled={deleteMutation.isPending}
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })
-                            )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                                                        {run.status === "draft" && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-8 w-8 text-green-600"
+                                                                onClick={() => processMutation.mutate(run.id)}
+                                                                disabled={processMutation.isPending}
+                                                            >
+                                                                <Play className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+                                                        {(run.status === "draft" || run.status === "cancelled") && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-8 w-8 text-red-500"
+                                                                onClick={() => deleteMutation.mutate(run.id)}
+                                                                disabled={deleteMutation.isPending}
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })
+                                )}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Pagination */}
             {totalPages > 1 && (
