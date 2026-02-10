@@ -10,6 +10,7 @@ import uuid
 
 from ..database import get_db
 from ..models import Transaction, ExpenseCategory
+from ..models.user import User
 from ..schemas.finance import (
     TransactionCreate,
     TransactionUpdate,
@@ -35,10 +36,10 @@ router = APIRouter()
 @router.get("/dashboard", response_model=dict)
 async def get_finance_dashboard(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get finance dashboard KPIs."""
-    company_id = current_user["company_id"]
+    company_id = current_user.company_id
     today = date.today()
     month_start = today.replace(day=1)
     
@@ -117,11 +118,11 @@ async def get_transactions(
     end_date: Optional[date] = None,
     search: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all transactions for the current user's company."""
     query = db.query(Transaction).filter(
-        Transaction.company_id == current_user["company_id"]
+        Transaction.company_id == current_user.company_id
     )
     
     if type:
@@ -157,13 +158,13 @@ async def get_transactions(
 async def create_transaction(
     transaction_data: TransactionCreate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Create a new transaction."""
     transaction = Transaction(
         id=str(uuid.uuid4()),
-        company_id=current_user["company_id"],
-        created_by=current_user["id"],
+        company_id=current_user.company_id,
+        created_by=current_user.id,
         **transaction_data.model_dump()
     )
     
@@ -178,12 +179,12 @@ async def create_transaction(
 async def get_transaction(
     transaction_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get a specific transaction."""
     transaction = db.query(Transaction).filter(
         Transaction.id == transaction_id,
-        Transaction.company_id == current_user["company_id"]
+        Transaction.company_id == current_user.company_id
     ).first()
     
     if not transaction:
@@ -200,12 +201,12 @@ async def update_transaction(
     transaction_id: str,
     transaction_data: TransactionUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Update a transaction."""
     transaction = db.query(Transaction).filter(
         Transaction.id == transaction_id,
-        Transaction.company_id == current_user["company_id"]
+        Transaction.company_id == current_user.company_id
     ).first()
     
     if not transaction:
@@ -228,12 +229,12 @@ async def update_transaction(
 async def delete_transaction(
     transaction_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Delete a transaction."""
     transaction = db.query(Transaction).filter(
         Transaction.id == transaction_id,
-        Transaction.company_id == current_user["company_id"]
+        Transaction.company_id == current_user.company_id
     ).first()
     
     if not transaction:
@@ -251,11 +252,11 @@ async def delete_transaction(
 @router.get("/categories", response_model=ExpenseCategoryListResponse)
 async def get_expense_categories(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all expense categories for the company."""
     categories = db.query(ExpenseCategory).filter(
-        ExpenseCategory.company_id == current_user["company_id"]
+        ExpenseCategory.company_id == current_user.company_id
     ).all()
     
     return ExpenseCategoryListResponse(
@@ -268,12 +269,12 @@ async def get_expense_categories(
 async def create_expense_category(
     category_data: ExpenseCategoryCreate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Create a new expense category."""
     # Check if category name already exists
     existing = db.query(ExpenseCategory).filter(
-        ExpenseCategory.company_id == current_user["company_id"],
+        ExpenseCategory.company_id == current_user.company_id,
         ExpenseCategory.name == category_data.name
     ).first()
     
@@ -285,7 +286,7 @@ async def create_expense_category(
     
     category = ExpenseCategory(
         id=str(uuid.uuid4()),
-        company_id=current_user["company_id"],
+        company_id=current_user.company_id,
         **category_data.model_dump()
     )
     
@@ -301,12 +302,12 @@ async def update_expense_category(
     category_id: str,
     category_data: ExpenseCategoryUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Update an expense category."""
     category = db.query(ExpenseCategory).filter(
         ExpenseCategory.id == category_id,
-        ExpenseCategory.company_id == current_user["company_id"]
+        ExpenseCategory.company_id == current_user.company_id
     ).first()
     
     if not category:
@@ -329,12 +330,12 @@ async def update_expense_category(
 async def delete_expense_category(
     category_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Delete an expense category (admin only)."""
     category = db.query(ExpenseCategory).filter(
         ExpenseCategory.id == category_id,
-        ExpenseCategory.company_id == current_user["company_id"]
+        ExpenseCategory.company_id == current_user.company_id
     ).first()
     
     if not category:
@@ -354,7 +355,7 @@ async def get_financial_summary(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get financial summary for a period."""
     if not start_date:
@@ -367,7 +368,7 @@ async def get_financial_summary(
     income_result = db.query(
         func.coalesce(func.sum(Transaction.amount), 0)
     ).filter(
-        Transaction.company_id == current_user["company_id"],
+        Transaction.company_id == current_user.company_id,
         Transaction.type == "income",
         Transaction.transaction_date >= start_date,
         Transaction.transaction_date <= end_date
@@ -377,7 +378,7 @@ async def get_financial_summary(
     expense_result = db.query(
         func.coalesce(func.sum(Transaction.amount), 0)
     ).filter(
-        Transaction.company_id == current_user["company_id"],
+        Transaction.company_id == current_user.company_id,
         Transaction.type == "expense",
         Transaction.transaction_date >= start_date,
         Transaction.transaction_date <= end_date
@@ -392,7 +393,7 @@ async def get_financial_summary(
         func.sum(Transaction.amount).label("total"),
         func.count(Transaction.id).label("count")
     ).filter(
-        Transaction.company_id == current_user["company_id"],
+        Transaction.company_id == current_user.company_id,
         Transaction.type == "income",
         Transaction.transaction_date >= start_date,
         Transaction.transaction_date <= end_date
@@ -404,7 +405,7 @@ async def get_financial_summary(
         func.sum(Transaction.amount).label("total"),
         func.count(Transaction.id).label("count")
     ).filter(
-        Transaction.company_id == current_user["company_id"],
+        Transaction.company_id == current_user.company_id,
         Transaction.type == "expense",
         Transaction.transaction_date >= start_date,
         Transaction.transaction_date <= end_date
@@ -439,7 +440,7 @@ async def get_financial_summary(
 async def get_financial_trends(
     months: int = Query(6, ge=1, le=24),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get monthly financial trends for the specified number of months."""
     trends = []
@@ -460,7 +461,7 @@ async def get_financial_trends(
         income = db.query(
             func.coalesce(func.sum(Transaction.amount), 0)
         ).filter(
-            Transaction.company_id == current_user["company_id"],
+            Transaction.company_id == current_user.company_id,
             Transaction.type == "income",
             Transaction.transaction_date >= month_start,
             Transaction.transaction_date <= month_end
@@ -470,7 +471,7 @@ async def get_financial_trends(
         expenses = db.query(
             func.coalesce(func.sum(Transaction.amount), 0)
         ).filter(
-            Transaction.company_id == current_user["company_id"],
+            Transaction.company_id == current_user.company_id,
             Transaction.type == "expense",
             Transaction.transaction_date >= month_start,
             Transaction.transaction_date <= month_end
