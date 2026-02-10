@@ -110,7 +110,7 @@ export default function FinancesPage() {
         mutationFn: (data: TransactionFormData) => apiClient.createTransaction({
             type: data.type,
             category: data.category || undefined,
-            amount: parseFloat(data.amount),
+            amount: data.amount,
             description: data.description || undefined,
             transaction_date: data.transaction_date,
         }),
@@ -536,7 +536,7 @@ export default function FinancesPage() {
                                                     }`}
                                             >
                                                 {transaction.type === "income" ? "+" : "-"}
-                                                {formatCurrency(transaction.amount)}
+                                                {formatCurrency(Number(transaction.amount))}
                                             </td>
                                             <td className="py-3 px-4 text-right">
                                                 <DropdownMenu>
