@@ -11,6 +11,7 @@ from typing import List
 
 from ..database import get_db
 from ..models import Employee, Transaction, PayrollRun, PayrollItem, PTORequest, Shift
+from ..models.user import User
 from ..auth import get_current_user
 
 router = APIRouter()
@@ -80,10 +81,10 @@ class FinancialChartData(BaseModel):
 @router.get("", response_model=DashboardResponse)
 async def get_dashboard(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get dashboard summary data for the company."""
-    company_id = current_user["company_id"]
+    company_id = current_user.company_id
     today = date.today()
     month_start = today.replace(day=1)
     year_start = today.replace(month=1, day=1)
@@ -254,10 +255,10 @@ async def get_dashboard(
 async def get_dashboard_charts(
     months: int = Query(6, ge=1, le=12),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get chart data for the dashboard."""
-    company_id = current_user["company_id"]
+    company_id = current_user.company_id
     today = date.today()
     
     income_by_month = []
@@ -334,10 +335,10 @@ async def get_dashboard_charts(
 @router.get("/summary/quick")
 async def get_quick_summary(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get a quick summary for widgets."""
-    company_id = current_user["company_id"]
+    company_id = current_user.company_id
     today = date.today()
     month_start = today.replace(day=1)
     
