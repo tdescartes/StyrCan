@@ -48,14 +48,14 @@ export default function EmployeesLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex h-[calc(100vh-3.5rem)]">
+        <div className="flex h-[calc(100vh-4rem)]">
             <ServiceSidebar
                 items={employeesSidebarItems}
                 serviceTitle="Employees"
                 serviceIcon={Users}
             />
             <main className="flex-1 overflow-auto">
-                <div className="container py-6">{children}</div>
+                <div className="max-w-[1600px] mx-auto px-6 py-6 md:px-8">{children}</div>
             </main>
         </div>
     );
