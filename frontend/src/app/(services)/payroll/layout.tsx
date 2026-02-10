@@ -7,6 +7,7 @@ import {
     FileCheck,
     User,
     Wallet,
+    CreditCard,
 } from "lucide-react";
 import { ServiceSidebar } from "@/components/layout/service-sidebar";
 
@@ -49,14 +50,14 @@ export default function PayrollLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex h-[calc(100vh-3.5rem)]">
+        <div className="flex h-[calc(100vh-4rem)]">
             <ServiceSidebar
                 items={payrollSidebarItems}
                 serviceTitle="Payroll"
-                serviceIcon={Wallet}
+                serviceIcon={CreditCard}
             />
             <main className="flex-1 overflow-auto">
-                <div className="container py-6">{children}</div>
+                <div className="max-w-[1600px] mx-auto px-6 py-6 md:px-8">{children}</div>
             </main>
         </div>
     );
