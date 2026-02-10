@@ -35,7 +35,6 @@ class PayrollItem(Base, TimestampMixin):
     employee_id = Column(String(36), ForeignKey("employees.id", ondelete="CASCADE"), nullable=False)
     base_salary = Column(Numeric(10, 2), nullable=False)
     overtime_hours = Column(Numeric(5, 2), default=0)
-    overtime_rate = Column(Numeric(5, 2), default=1.5)  # Multiplier for overtime pay
     overtime_amount = Column(Numeric(10, 2), default=0)
     bonuses = Column(Numeric(10, 2), default=0)
     deductions = Column(Numeric(10, 2), default=0)
@@ -43,7 +42,6 @@ class PayrollItem(Base, TimestampMixin):
     net_amount = Column(Numeric(10, 2), nullable=False)
     payment_status = Column(String(20), default="pending")  # pending, paid, failed
     payment_date = Column(DateTime, nullable=True)
-    paid_at = Column(DateTime, nullable=True)
     
     # Relationships
     payroll_run = relationship("PayrollRun", back_populates="payroll_items")
