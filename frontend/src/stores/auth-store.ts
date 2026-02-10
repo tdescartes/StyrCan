@@ -1,106 +1,97 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { User } from "@/types";
-import { api } from "@/lib/api/client";
+import { User, Company } from "@/types";
+import { apiClient } from "@/lib/api/client";
 
 interface AuthState {
     user: User | null;
+    company: Company | null;
     isAuthenticated: boolean;
-    isLoading: boolean;
+    hasHydrated: boolean; // Track if state has loaded from localStorage
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     register: (data: {
-        company_name: string;
-        email: string;
-        password: string;
-        first_name: string;
-        last_name: string;
+        name: string;  // company name
+        email: string; // company email
+        admin_first_name: string;
+        admin_last_name: string;
+        admin_email: string;
+        admin_password: string;
+        phone?: string;
+        address?: string;
+        tax_id?: string;
     }) => Promise<void>;
-    checkAuth: () => Promise<void>;
     setUser: (user: User | null) => void;
+    setCompany: (company: Company | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             user: null,
+            company: null,
             isAuthenticated: false,
-            isLoading: true,
+            hasHydrated: false,
 
             login: async (email: string, password: string) => {
-                set({ isLoading: true });
-                try {
-                    const tokens = await api.login({ email, password });
-                    localStorage.setItem("access_token", tokens.access_token);
-                    localStorage.setItem("refresh_token", tokens.refresh_token);
+                const response = await apiClient.login({ email, password });
 
-                    const user = await api.getCurrentUser();
-                    set({ user, isAuthenticated: true, isLoading: false });
-                } catch (error) {
-                    set({ isLoading: false });
-                    throw error;
+                // Store tokens in localStorage
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('access_token', response.access_token);
+                    localStorage.setItem('refresh_token', response.refresh_token);
                 }
+
+                set({
+                    user: response.user,
+                    company: response.company,
+                    isAuthenticated: true
+                });
             },
 
             logout: async () => {
                 try {
-                    await api.logout();
+                    await apiClient.logout();
                 } catch {
                     // Continue with logout even if API call fails
                 }
-                localStorage.removeItem("access_token");
-                localStorage.removeItem("refresh_token");
-                set({ user: null, isAuthenticated: false });
+
+                // Clear tokens from localStorage
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                }
+
+                set({ user: null, company: null, isAuthenticated: false });
             },
 
             register: async (data) => {
-                set({ isLoading: true });
-                try {
-                    const result = await api.register(data);
-                    localStorage.setItem("access_token", result.tokens.access_token);
-                    localStorage.setItem("refresh_token", result.tokens.refresh_token);
-                    set({ user: result.user, isAuthenticated: true, isLoading: false });
-                } catch (error) {
-                    set({ isLoading: false });
-                    throw error;
-                }
-            },
+                const response = await apiClient.register(data);
 
-            checkAuth: async () => {
-                const token = localStorage.getItem("access_token");
-                if (!token) {
-                    set({ isLoading: false, isAuthenticated: false, user: null });
-                    return;
+                // Store tokens in localStorage
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('access_token', response.access_token);
+                    localStorage.setItem('refresh_token', response.refresh_token);
                 }
 
-                try {
-                    const user = await api.getCurrentUser();
-                    set({ user, isAuthenticated: true, isLoading: false });
-                } catch {
-                    // Token might be expired, try to refresh
-                    const refreshToken = localStorage.getItem("refresh_token");
-                    if (refreshToken) {
-                        try {
-                            const tokens = await api.refreshToken(refreshToken);
-                            localStorage.setItem("access_token", tokens.access_token);
-                            localStorage.setItem("refresh_token", tokens.refresh_token);
-
-                            const user = await api.getCurrentUser();
-                            set({ user, isAuthenticated: true, isLoading: false });
-                        } catch {
-                            get().logout();
-                        }
-                    } else {
-                        get().logout();
-                    }
-                }
+                set({
+                    user: response.user,
+                    company: response.company,
+                    isAuthenticated: true
+                });
             },
 
             setUser: (user) => set({ user, isAuthenticated: !!user }),
+            setCompany: (company) => set({ company }),
         }),
         {
             name: "auth-storage",
-            partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+            onRehydrateStorage: () => (state) => {
+                // Mark as hydrated after loading from localStorage
+                if (state) {
+                    state.hasHydrated = true;
+                }
+            },
         }
     )
 );
