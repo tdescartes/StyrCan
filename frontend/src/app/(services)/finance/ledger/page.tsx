@@ -49,6 +49,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
 import { toast } from "sonner";
 import type { Transaction } from "@/types";
+import { TableSkeleton } from "@/components/ui/skeleton";
 
 const categoryOptions = [
     "Sales",
@@ -114,14 +115,14 @@ export default function LedgerPage() {
                 ? apiClient.updateTransaction(editingId, {
                     type: form.type,
                     category: form.category || undefined,
-                    amount: parseFloat(form.amount),
+                    amount: form.amount,
                     description: form.description || undefined,
                     transaction_date: form.transaction_date,
                 })
                 : apiClient.createTransaction({
                     type: form.type,
                     category: form.category || undefined,
-                    amount: parseFloat(form.amount),
+                    amount: form.amount,
                     description: form.description || undefined,
                     transaction_date: form.transaction_date,
                 }),
@@ -167,13 +168,6 @@ export default function LedgerPage() {
         setIsDialogOpen(true);
     }
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
 
     return (
         <div className="space-y-6">
@@ -247,81 +241,85 @@ export default function LedgerPage() {
             </Card>
 
             {/* Transactions Table */}
-            <Card>
-                <CardContent className="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead>Category</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead className="text-right">Amount</TableHead>
-                                <TableHead className="w-[80px]" />
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filtered.length === 0 ? (
+            {isLoading ? (
+                <TableSkeleton rows={10} columns={6} />
+            ) : (
+                <Card>
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableHeader>
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                                        No transactions found
-                                    </TableCell>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Description</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead>Type</TableHead>
+                                    <TableHead className="text-right">Amount</TableHead>
+                                    <TableHead className="w-[80px]" />
                                 </TableRow>
-                            ) : (
-                                filtered.map((t) => (
-                                    <TableRow key={t.id}>
-                                        <TableCell className="whitespace-nowrap">
-                                            {formatDate(t.transaction_date)}
-                                        </TableCell>
-                                        <TableCell>{t.description || "—"}</TableCell>
-                                        <TableCell>
-                                            <Badge variant="outline">{t.category || "Uncategorized"}</Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            {t.type === "income" ? (
-                                                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                    <ArrowUpRight className="mr-1 h-3 w-3" /> Income
-                                                </Badge>
-                                            ) : (
-                                                <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                    <ArrowDownRight className="mr-1 h-3 w-3" /> Expense
-                                                </Badge>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-right font-medium">
-                                            <span className={t.type === "income" ? "text-green-600" : "text-red-600"}>
-                                                {t.type === "income" ? "+" : "-"}
-                                                {formatCurrency(t.amount)}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex gap-1">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8"
-                                                    onClick={() => openEdit(t)}
-                                                >
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-red-500 hover:text-red-700"
-                                                    onClick={() => deleteMutation.mutate(t.id)}
-                                                    disabled={deleteMutation.isPending}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
+                            </TableHeader>
+                            <TableBody>
+                                {filtered.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                                            No transactions found
                                         </TableCell>
                                     </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                                ) : (
+                                    filtered.map((t) => (
+                                        <TableRow key={t.id}>
+                                            <TableCell className="whitespace-nowrap">
+                                                {formatDate(t.transaction_date)}
+                                            </TableCell>
+                                            <TableCell>{t.description || "—"}</TableCell>
+                                            <TableCell>
+                                                <Badge variant="outline">{t.category || "Uncategorized"}</Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                {t.type === "income" ? (
+                                                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                                        <ArrowUpRight className="mr-1 h-3 w-3" /> Income
+                                                    </Badge>
+                                                ) : (
+                                                    <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                        <ArrowDownRight className="mr-1 h-3 w-3" /> Expense
+                                                    </Badge>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="text-right font-medium">
+                                                <span className={t.type === "income" ? "text-green-600" : "text-red-600"}>
+                                                    {t.type === "income" ? "+" : "-"}
+                                                    {formatCurrency(Number(t.amount))}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex gap-1">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8"
+                                                        onClick={() => openEdit(t)}
+                                                    >
+                                                        <Pencil className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-red-500 hover:text-red-700"
+                                                        onClick={() => deleteMutation.mutate(t.id)}
+                                                        disabled={deleteMutation.isPending}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Pagination */}
             {totalPages > 1 && (
