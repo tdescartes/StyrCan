@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
+import { StatsCardSkeleton } from "@/components/ui/skeleton";
 import type { ExpenseCategory } from "@/types";
 
 export default function BudgetPage() {
@@ -58,14 +59,6 @@ export default function BudgetPage() {
         return spent > (c.budget_limit || 0);
     }).length;
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-6">
             <div>
@@ -76,50 +69,58 @@ export default function BudgetPage() {
             </div>
 
             {/* Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Total Budget</p>
-                                <p className="text-2xl font-bold">{formatCurrency(totalBudget)}</p>
+            {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <StatsCardSkeleton />
+                    <StatsCardSkeleton />
+                    <StatsCardSkeleton />
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Total Budget</p>
+                                    <p className="text-2xl font-bold">{formatCurrency(totalBudget)}</p>
+                                </div>
+                                <PiggyBank className="h-8 w-8 text-blue-500" />
                             </div>
-                            <PiggyBank className="h-8 w-8 text-blue-500" />
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Total Spent</p>
-                                <p className="text-2xl font-bold">{formatCurrency(totalSpent)}</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Total Spent</p>
+                                    <p className="text-2xl font-bold">{formatCurrency(totalSpent)}</p>
+                                </div>
+                                {totalSpent <= totalBudget ? (
+                                    <TrendingDown className="h-8 w-8 text-green-500" />
+                                ) : (
+                                    <TrendingUp className="h-8 w-8 text-red-500" />
+                                )}
                             </div>
-                            {totalSpent <= totalBudget ? (
-                                <TrendingDown className="h-8 w-8 text-green-500" />
-                            ) : (
-                                <TrendingUp className="h-8 w-8 text-red-500" />
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Over Budget</p>
-                                <p className="text-2xl font-bold">{overBudgetCount}</p>
-                                <p className="text-xs text-muted-foreground">
-                                    of {budgeted.length} categories
-                                </p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Over Budget</p>
+                                    <p className="text-2xl font-bold">{overBudgetCount}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        of {budgeted.length} categories
+                                    </p>
+                                </div>
+                                <AlertTriangle
+                                    className={`h-8 w-8 ${overBudgetCount > 0 ? "text-red-500" : "text-green-500"}`}
+                                />
                             </div>
-                            <AlertTriangle
-                                className={`h-8 w-8 ${overBudgetCount > 0 ? "text-red-500" : "text-green-500"}`}
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
 
             {/* Budget Breakdown */}
             {budgeted.length === 0 ? (
