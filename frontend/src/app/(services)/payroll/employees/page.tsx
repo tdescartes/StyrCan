@@ -123,10 +123,10 @@ export default function PayrollByEmployeePage() {
                                         <span className="text-muted-foreground">{emp.position}</span>
                                     )}
                                 </div>
-                                {emp.salary_amount && (
+                                {emp.salary && (
                                     <p className="text-sm mt-2 flex items-center gap-1 text-muted-foreground">
                                         <DollarSign className="h-3 w-3" />
-                                        {formatCurrency(emp.salary_amount)} / month
+                                        {formatCurrency(parseFloat(emp.salary))} / month
                                     </p>
                                 )}
                             </CardContent>
