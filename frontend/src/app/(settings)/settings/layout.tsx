@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
     User,
     Building2,
@@ -8,7 +10,9 @@ import {
     Palette,
     CreditCard,
     Settings as SettingsIcon,
+    Loader2,
 } from "lucide-react";
+import { useAuthStore } from "@/stores/auth-store";
 import { ServiceHeader } from "@/components/layout/service-header";
 import { ServiceSidebar } from "@/components/layout/service-sidebar";
 
@@ -56,17 +60,23 @@ export default function SettingsLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const { isAuthenticated, hasHydrated } = useAuthStore();
+
+
+
     return (
         <>
             <ServiceHeader />
-            <div className="flex h-[calc(100vh-3.5rem)]">
+            <div className="flex h-[calc(100vh-4rem)]">
                 <ServiceSidebar
                     items={settingsSidebarItems}
                     serviceTitle="Settings"
                     serviceIcon={SettingsIcon}
                 />
                 <main className="flex-1 overflow-auto">
-                    <div className="container py-6">{children}</div>
+                    <div className="max-w-[1600px] mx-auto px-6 py-6 md:px-8">{children}</div>
                 </main>
             </div>
         </>
