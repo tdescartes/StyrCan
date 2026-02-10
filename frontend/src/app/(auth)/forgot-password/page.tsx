@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api/client";
+import { useAuthStore } from "@/stores/auth-store";
 
 const forgotPasswordSchema = z.object({
     email: z.string().email("Please enter a valid email address"),
@@ -27,9 +29,18 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
+    const router = useRouter();
+    const { isAuthenticated, hasHydrated } = useAuthStore();
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [submittedEmail, setSubmittedEmail] = useState("");
+
+    // Redirect authenticated users to dashboard
+    useEffect(() => {
+        if (hasHydrated && isAuthenticated) {
+            router.push("/");
+        }
+    }, [hasHydrated, isAuthenticated, router]);
 
     const {
         register,
@@ -54,6 +65,12 @@ export default function ForgotPasswordPage() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // Prevent any form submission that could expose email in URL
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        handleSubmit(onSubmit)(e);
     };
 
     if (isSubmitted) {
@@ -123,7 +140,7 @@ export default function ForgotPasswordPage() {
                             Enter your email address and we'll send you a link to reset your password.
                         </CardDescription>
                     </CardHeader>
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleFormSubmit} method="post" action="#">
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
