@@ -28,6 +28,7 @@ import {
 import { apiClient } from "@/lib/api/client";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
+import { StatsCardSkeleton, TableSkeleton } from "@/components/ui/skeleton";
 import type { Employee } from "@/types";
 
 interface PTORequest {
@@ -46,7 +47,7 @@ interface PTORequest {
 const statusConfig: Record<string, { icon: any; color: string; label: string }> = {
     pending: { icon: Clock, color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200", label: "Pending" },
     approved: { icon: CheckCircle2, color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200", label: "Approved" },
-    denied: { icon: XCircle, color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200", label: "Denied" },
+    rejected: { icon: XCircle, color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200", label: "Rejected" },
 };
 
 export default function PTOPage() {
@@ -88,15 +89,7 @@ export default function PTOPage() {
     // Summary counts
     const pendingCount = allRequests.filter((r) => r.status === "pending").length;
     const approvedCount = allRequests.filter((r) => r.status === "approved").length;
-    const deniedCount = allRequests.filter((r) => r.status === "denied").length;
-
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
+    const rejectedCount = allRequests.filter((r) => r.status === "rejected").length;
 
     return (
         <div className="space-y-6">
@@ -106,41 +99,49 @@ export default function PTOPage() {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Pending</p>
-                                <p className="text-2xl font-bold">{pendingCount}</p>
+            {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <StatsCardSkeleton />
+                    <StatsCardSkeleton />
+                    <StatsCardSkeleton />
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Pending</p>
+                                    <p className="text-2xl font-bold">{pendingCount}</p>
+                                </div>
+                                <Clock className="h-8 w-8 text-yellow-500" />
                             </div>
-                            <Clock className="h-8 w-8 text-yellow-500" />
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Approved</p>
-                                <p className="text-2xl font-bold">{approvedCount}</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Approved</p>
+                                    <p className="text-2xl font-bold">{approvedCount}</p>
+                                </div>
+                                <CheckCircle2 className="h-8 w-8 text-green-500" />
                             </div>
-                            <CheckCircle2 className="h-8 w-8 text-green-500" />
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Denied</p>
-                                <p className="text-2xl font-bold">{deniedCount}</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Denied</p>
+                                    <p className="text-2xl font-bold">{rejectedCount}</p>
+                                </div>
+                                <XCircle className="h-8 w-8 text-red-500" />
                             </div>
-                            <XCircle className="h-8 w-8 text-red-500" />
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
 
             {/* Filter */}
             <div className="flex items-center gap-4">
@@ -152,78 +153,95 @@ export default function PTOPage() {
                         <SelectItem value="all">All Requests</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="approved">Approved</SelectItem>
-                        <SelectItem value="denied">Denied</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
 
             {/* Request List */}
-            <div className="space-y-3">
-                {filtered.length === 0 ? (
-                    <Card>
-                        <CardContent className="py-12 text-center">
-                            <CalendarDays className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                            <p className="text-muted-foreground">No PTO requests found</p>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    filtered.map((req) => {
-                        const cfg = statusConfig[req.status] || statusConfig.pending;
-                        const StatusIcon = cfg.icon;
-                        return (
-                            <Card key={req.id}>
-                                <CardContent className="py-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <StatusIcon className="h-5 w-5 text-muted-foreground" />
-                                            <div>
-                                                <p className="font-semibold">
-                                                    {empMap.get(req.employee_id) || req.employee_id.slice(0, 8)}
-                                                </p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {formatDate(req.start_date)} – {formatDate(req.end_date)} · {req.days_requested} day{req.days_requested !== 1 ? "s" : ""}
-                                                </p>
-                                                {req.reason && (
-                                                    <p className="text-sm text-muted-foreground mt-1">
-                                                        Reason: {req.reason}
+            {isLoading ? (
+                <div className="space-y-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="bg-white border border-zinc-200 rounded-sm p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="h-5 w-5 bg-zinc-100 rounded-full animate-pulse" />
+                                <div className="space-y-2 flex-1">
+                                    <div className="h-4 bg-zinc-100 rounded w-1/4 animate-pulse" />
+                                    <div className="h-3 bg-zinc-100 rounded w-1/2 animate-pulse" />
+                                </div>
+                                <div className="h-6 w-20 bg-zinc-100 rounded-sm animate-pulse" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {filtered.length === 0 ? (
+                        <Card>
+                            <CardContent className="py-12 text-center">
+                                <CalendarDays className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                                <p className="text-muted-foreground">No PTO requests found</p>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        filtered.map((req) => {
+                            const cfg = statusConfig[req.status] || statusConfig.pending;
+                            const StatusIcon = cfg.icon;
+                            return (
+                                <Card key={req.id}>
+                                    <CardContent className="py-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <StatusIcon className="h-5 w-5 text-muted-foreground" />
+                                                <div>
+                                                    <p className="font-semibold">
+                                                        {empMap.get(req.employee_id) || req.employee_id.slice(0, 8)}
                                                     </p>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {formatDate(req.start_date)} – {formatDate(req.end_date)} · {req.days_requested} day{req.days_requested !== 1 ? "s" : ""}
+                                                    </p>
+                                                    {req.reason && (
+                                                        <p className="text-sm text-muted-foreground mt-1">
+                                                            Reason: {req.reason}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Badge className={cfg.color} variant="secondary">
+                                                    {cfg.label}
+                                                </Badge>
+                                                {req.status === "pending" && (
+                                                    <>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            className="text-green-600 border-green-300 hover:bg-green-50"
+                                                            onClick={() => updateMutation.mutate({ id: req.id, status: "approved" })}
+                                                            disabled={updateMutation.isPending}
+                                                        >
+                                                            Approve
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            className="text-red-600 border-red-300 hover:bg-red-50"
+                                                            onClick={() => updateMutation.mutate({ id: req.id, status: "rejected" })}
+                                                            disabled={updateMutation.isPending}
+                                                        >
+                                                            Reject
+                                                        </Button>
+                                                    </>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <Badge className={cfg.color} variant="secondary">
-                                                {cfg.label}
-                                            </Badge>
-                                            {req.status === "pending" && (
-                                                <>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        className="text-green-600 border-green-300 hover:bg-green-50"
-                                                        onClick={() => updateMutation.mutate({ id: req.id, status: "approved" })}
-                                                        disabled={updateMutation.isPending}
-                                                    >
-                                                        Approve
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        className="text-red-600 border-red-300 hover:bg-red-50"
-                                                        onClick={() => updateMutation.mutate({ id: req.id, status: "denied" })}
-                                                        disabled={updateMutation.isPending}
-                                                    >
-                                                        Deny
-                                                    </Button>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        );
-                    })
-                )}
-            </div>
+                                    </CardContent>
+                                </Card>
+                            );
+                        })
+                    )}
+                </div>
+            )}
         </div>
     );
 }
