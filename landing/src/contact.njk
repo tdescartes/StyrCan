@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 title: Contact Us
-description: Get in touch with the BizPulse team. We're here to help with any questions about our business management platform.
+description: Get in touch with the Pulse team. We're here to help with any questions about our business management platform.
 ---
 
 <section class="page-hero">
@@ -32,7 +32,7 @@ description: Get in touch with the BizPulse team. We're here to help with any qu
                         </div>
                         <div>
                             <p class="contact-label">Email</p>
-                            <p class="contact-value">hello@bizpulse.com</p>
+                            <p class="contact-value">hello@pulse.com</p>
                         </div>
                     </div>
                     <div class="contact-item">
@@ -66,39 +66,18 @@ description: Get in touch with the BizPulse team. We're here to help with any qu
                 </div>
             </div>
 
-            <form class="contact-form" action="/api/contact" method="POST">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <input type="text" id="firstName" name="firstName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <input type="text" id="lastName" name="lastName" required>
-                    </div>
-                </div>
+            <form class="contact-form" action="https://formbold.com/s/3ZQQp" method="POST">
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="company">Company</label>
-                    <input type="text" id="company" name="company">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
                 </div>
                 <div class="form-group">
                     <label for="subject">Subject</label>
-                    <select id="subject" name="subject" required>
-                        <option value="">Select a topic</option>
-                        <option value="sales">Sales Inquiry</option>
-                        <option value="demo">Book a Demo</option>
-                        <option value="support">Technical Support</option>
-                        <option value="partnership">Partnership</option>
-                        <option value="other">Other</option>
-                    </select>
+                    <input type="text" id="subject" name="subject" placeholder="Subject" required>
                 </div>
                 <div class="form-group">
                     <label for="message">Message</label>
-                    <textarea id="message" name="message" rows="5" required></textarea>
+                    <textarea id="message" name="message" rows="5" placeholder="Type your message" required></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Send Message</button>
             </form>
