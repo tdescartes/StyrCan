@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api/client";
+import { useAuthStore } from "@/stores/auth-store";
 
 const resetPasswordSchema = z
     .object({
@@ -41,10 +42,18 @@ type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 function ResetPasswordForm() {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { isAuthenticated, hasHydrated } = useAuthStore();
     const token = searchParams.get("token");
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+
+    // Redirect authenticated users to dashboard
+    useEffect(() => {
+        if (hasHydrated && isAuthenticated) {
+            router.push("/");
+        }
+    }, [hasHydrated, isAuthenticated, router]);
 
     const {
         register,
@@ -130,6 +139,12 @@ function ResetPasswordForm() {
         }
     };
 
+    // Prevent any form submission that could expose password in URL
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        handleSubmit(onSubmit)(e);
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 px-4">
             <div className="w-full max-w-md">
@@ -148,7 +163,7 @@ function ResetPasswordForm() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                        <form onSubmit={handleFormSubmit} method="post" action="#" className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="new_password">New Password</Label>
                                 <div className="relative">
