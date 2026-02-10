@@ -29,11 +29,11 @@ class CompanyUpdate(BaseModel):
 @router.get("/company", response_model=CompanyResponse)
 async def get_company(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get company details."""
     company = db.query(Company).filter(
-        Company.id == current_user["company_id"]
+        Company.id == current_user.company_id
     ).first()
     
     if not company:
@@ -49,11 +49,11 @@ async def get_company(
 async def update_company(
     company_update: CompanyUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Update company information (admin only)."""
     company = db.query(Company).filter(
-        Company.id == current_user["company_id"]
+        Company.id == current_user.company_id
     ).first()
     
     if not company:
@@ -101,11 +101,11 @@ class UserListResponse(BaseModel):
 @router.get("/users", response_model=UserListResponse)
 async def get_company_users(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Get all users in the company (admin only)."""
     users = db.query(User).filter(
-        User.company_id == current_user["company_id"]
+        User.company_id == current_user.company_id
     ).all()
     
     return UserListResponse(
@@ -118,7 +118,7 @@ async def get_company_users(
 async def invite_user(
     invite_data: UserInvite,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Invite a new user to the company (admin only)."""
     # Check if user already exists
@@ -134,7 +134,7 @@ async def invite_user(
     
     user = User(
         id=str(uuid.uuid4()),
-        company_id=current_user["company_id"],
+        company_id=current_user.company_id,
         email=invite_data.email,
         hashed_password=get_password_hash(temp_password),
         first_name=invite_data.first_name,
@@ -157,12 +157,12 @@ async def update_user(
     user_id: str,
     user_update: UserUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Update a user (admin only)."""
     user = db.query(User).filter(
         User.id == user_id,
-        User.company_id == current_user["company_id"]
+        User.company_id == current_user.company_id
     ).first()
     
     if not user:
@@ -172,7 +172,7 @@ async def update_user(
         )
     
     # Don't allow changing own role or status
-    if user.id == current_user["id"]:
+    if user.id == current_user.id:
         user_update.role = None
         user_update.is_active = None
     
@@ -200,11 +200,11 @@ async def update_user(
 async def delete_user(
     user_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Delete a user from the company (admin only)."""
     # Don't allow deleting yourself
-    if user_id == current_user["id"]:
+    if user_id == current_user.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot delete your own account"
@@ -212,7 +212,7 @@ async def delete_user(
     
     user = db.query(User).filter(
         User.id == user_id,
-        User.company_id == current_user["company_id"]
+        User.company_id == current_user.company_id
     ).first()
     
     if not user:
@@ -246,11 +246,11 @@ class BillingInfo(BaseModel):
 @router.get("/billing", response_model=BillingInfo)
 async def get_billing_info(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Get billing and subscription information (admin only)."""
     company = db.query(Company).filter(
-        Company.id == current_user["company_id"]
+        Company.id == current_user.company_id
     ).first()
     
     if not company:
@@ -289,7 +289,7 @@ class ChangePlanRequest(BaseModel):
 async def change_plan(
     plan_request: ChangePlanRequest,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Change subscription plan (admin only)."""
     # Mock implementation - would integrate with payment processor
@@ -313,7 +313,7 @@ class NotificationPreferences(BaseModel):
 
 @router.get("/notifications/preferences", response_model=NotificationPreferences)
 async def get_notification_preferences(
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get user's notification preferences."""
     # Mock implementation - would store in user preferences table
@@ -329,7 +329,7 @@ async def get_notification_preferences(
 @router.put("/notifications/preferences", response_model=NotificationPreferences)
 async def update_notification_preferences(
     preferences: NotificationPreferences,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Update user's notification preferences."""
     # Mock implementation - would update user preferences in database
