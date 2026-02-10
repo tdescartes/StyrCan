@@ -28,6 +28,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
+import { StatsCardSkeleton, CardSkeleton } from "@/components/ui/skeleton";
 
 export default function ReportsPage() {
     const [months, setMonths] = useState("6");
@@ -72,14 +73,6 @@ export default function ReportsPage() {
         return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
     }
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -100,50 +93,63 @@ export default function ReportsPage() {
             </div>
 
             {/* Period Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Total Income</p>
-                                <p className="text-2xl font-bold text-green-600">
-                                    {formatCurrency(totalIncome)}
-                                </p>
+            {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <StatsCardSkeleton />
+                    <StatsCardSkeleton />
+                    <StatsCardSkeleton />
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Total Income</p>
+                                    <p className="text-2xl font-bold text-green-600">
+                                        {formatCurrency(totalIncome)}
+                                    </p>
+                                </div>
+                                <ArrowUpRight className="h-8 w-8 text-green-500" />
                             </div>
-                            <ArrowUpRight className="h-8 w-8 text-green-500" />
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Total Expenses</p>
-                                <p className="text-2xl font-bold text-red-600">
-                                    {formatCurrency(totalExpenses)}
-                                </p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Total Expenses</p>
+                                    <p className="text-2xl font-bold text-red-600">
+                                        {formatCurrency(totalExpenses)}
+                                    </p>
+                                </div>
+                                <ArrowDownRight className="h-8 w-8 text-red-500" />
                             </div>
-                            <ArrowDownRight className="h-8 w-8 text-red-500" />
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Net Profit</p>
-                                <p className={`text-2xl font-bold ${totalNet >= 0 ? "text-blue-600" : "text-red-600"}`}>
-                                    {formatCurrency(totalNet)}
-                                </p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Net Profit</p>
+                                    <p className={`text-2xl font-bold ${totalNet >= 0 ? "text-blue-600" : "text-red-600"}`}>
+                                        {formatCurrency(totalNet)}
+                                    </p>
+                                </div>
+                                <DollarSign className={`h-8 w-8 ${totalNet >= 0 ? "text-blue-500" : "text-red-500"}`} />
                             </div>
-                            <DollarSign className={`h-8 w-8 ${totalNet >= 0 ? "text-blue-500" : "text-red-500"}`} />
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
 
             {/* Highlights */}
-            {bestMonth && worstMonth && (
+            {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <CardSkeleton />
+                    <CardSkeleton />
+                </div>
+            ) : bestMonth && worstMonth && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card>
                         <CardHeader className="pb-3">
@@ -175,76 +181,82 @@ export default function ReportsPage() {
             )}
 
             {/* Monthly Breakdown - visual bar chart */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <BarChart3 className="h-5 w-5" /> Monthly Breakdown
-                    </CardTitle>
-                    <CardDescription>Income vs expenses by month</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {trends.length === 0 ? (
-                        <p className="text-center text-muted-foreground py-8">
-                            No data for the selected period
-                        </p>
-                    ) : (
-                        <div className="space-y-4">
-                            {trends.map((t) => {
-                                const incomeW = (Number(t.income) / maxVal) * 100;
-                                const expenseW = (Number(t.expenses) / maxVal) * 100;
-                                const net = Number(t.net);
-                                return (
-                                    <div key={t.month} className="space-y-1">
-                                        <div className="flex items-center justify-between text-sm">
-                                            <span className="font-medium w-28">{formatMonth(t.month)}</span>
-                                            <div className="flex items-center gap-4 text-xs">
-                                                <span className="text-green-600">
-                                                    +{formatCurrency(Number(t.income))}
-                                                </span>
-                                                <span className="text-red-600">
-                                                    -{formatCurrency(Number(t.expenses))}
-                                                </span>
-                                                <Badge
-                                                    variant="secondary"
-                                                    className={
-                                                        net >= 0
-                                                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                                                    }
-                                                >
-                                                    {net >= 0 ? "+" : ""}
-                                                    {formatCurrency(net)}
-                                                </Badge>
+            {isLoading ? (
+                <CardSkeleton />
+            ) : (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <BarChart3 className="h-5 w-5" /> Monthly Breakdown
+                        </CardTitle>
+                        <CardDescription>Income vs expenses by month</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {trends.length === 0 ? (
+                            <p className="text-center text-muted-foreground py-8">
+                                No data for the selected period
+                            </p>
+                        ) : (
+                            <div className="space-y-4">
+                                {trends.map((t) => {
+                                    const incomeW = (Number(t.income) / maxVal) * 100;
+                                    const expenseW = (Number(t.expenses) / maxVal) * 100;
+                                    const net = Number(t.net);
+                                    return (
+                                        <div key={t.month} className="space-y-1">
+                                            <div className="flex items-center justify-between text-sm">
+                                                <span className="font-medium w-28">{formatMonth(t.month)}</span>
+                                                <div className="flex items-center gap-4 text-xs">
+                                                    <span className="text-green-600">
+                                                        +{formatCurrency(Number(t.income))}
+                                                    </span>
+                                                    <span className="text-red-600">
+                                                        -{formatCurrency(Number(t.expenses))}
+                                                    </span>
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className={
+                                                            net >= 0
+                                                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                                        }
+                                                    >
+                                                        {net >= 0 ? "+" : ""}
+                                                        {formatCurrency(net)}
+                                                    </Badge>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <div
+                                                    className="h-3 rounded bg-green-500/80"
+                                                    style={{ width: `${Math.max(incomeW, 1)}%` }}
+                                                />
+                                                <div
+                                                    className="h-3 rounded bg-red-500/80"
+                                                    style={{ width: `${Math.max(expenseW, 1)}%` }}
+                                                />
                                             </div>
                                         </div>
-                                        <div className="space-y-1">
-                                            <div
-                                                className="h-3 rounded bg-green-500/80"
-                                                style={{ width: `${Math.max(incomeW, 1)}%` }}
-                                            />
-                                            <div
-                                                className="h-3 rounded bg-red-500/80"
-                                                style={{ width: `${Math.max(expenseW, 1)}%` }}
-                                            />
-                                        </div>
+                                    );
+                                })}
+                                <div className="flex gap-6 text-xs text-muted-foreground pt-2 border-t">
+                                    <div className="flex items-center gap-1">
+                                        <div className="w-3 h-3 rounded bg-green-500/80" /> Income
                                     </div>
-                                );
-                            })}
-                            <div className="flex gap-6 text-xs text-muted-foreground pt-2 border-t">
-                                <div className="flex items-center gap-1">
-                                    <div className="w-3 h-3 rounded bg-green-500/80" /> Income
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <div className="w-3 h-3 rounded bg-red-500/80" /> Expenses
+                                    <div className="flex items-center gap-1">
+                                        <div className="w-3 h-3 rounded bg-red-500/80" /> Expenses
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Category Breakdown from summary */}
-            {summary?.expenses_by_category && summary.expenses_by_category.length > 0 && (
+            {isLoading ? (
+                <CardSkeleton />
+            ) : summary?.expenses_by_category && summary.expenses_by_category.length > 0 && (
                 <Card>
                     <CardHeader>
                         <CardTitle>Expense Breakdown by Category</CardTitle>
