@@ -1,9 +1,9 @@
 #!/usr/bin/env pwsh
-# Start All StyrCan Services
+# Start All Pulse Services
 # This script starts database services and the backend application
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "Starting All StyrCan Services" -ForegroundColor Cyan
+Write-Host "Starting All Pulse Services" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -171,8 +171,8 @@ Write-Host "  API Docs:     http://localhost:8000/docs" -ForegroundColor White
 Write-Host "  ReDoc:        http://localhost:8000/redoc" -ForegroundColor White
 Write-Host ""
 Write-Host "Database Connections:" -ForegroundColor Cyan
-Write-Host "  PostgreSQL:   localhost:5433/styrcan_db" -ForegroundColor White
-Write-Host "  MongoDB:      localhost:27017/styrcan_logs" -ForegroundColor White
+Write-Host "  PostgreSQL:   localhost:5433/pulse_db" -ForegroundColor White
+Write-Host "  MongoDB:      localhost:27017/pulse_logs" -ForegroundColor White
 Write-Host ""
 Write-Host "Press Ctrl+C to stop the backend server" -ForegroundColor Yellow
 Write-Host "(Database services will continue running in the background)" -ForegroundColor Gray

@@ -1,4 +1,4 @@
-# StyrCan Documentation
+# Pulse Documentation
 
 This folder contains all project documentation.
 

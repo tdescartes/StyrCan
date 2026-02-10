@@ -5,7 +5,7 @@
 ### ✅ MongoDB - Fully Configured!
 
 - **Host:** localhost:27017
-- **Database:** styrcan_logs
+- **Database:** pulse_logs
 - **Collections Created:**
   - audit_logs
   - chat_messages
@@ -43,21 +43,21 @@ If you prefer to set up manually:
 
 ```sql
 -- Create database
-CREATE DATABASE styrcan_db;
+CREATE DATABASE pulse_db;
 
 -- Create application user
-CREATE USER styrcan WITH PASSWORD 'styrcan_password';
+CREATE USER pulse WITH PASSWORD 'pulse_password';
 
 -- Grant privileges
-GRANT ALL PRIVILEGES ON DATABASE styrcan_db TO styrcan;
+GRANT ALL PRIVILEGES ON DATABASE pulse_db TO pulse;
 
--- Connect to styrcan_db and run the init.sql
-\c styrcan_db
-\i 'C:/Users/Descartes Tuyishime/OneDrive/Documents/StyrCan/StyrCan/database/init.sql'
+-- Connect to pulse_db and run the init.sql
+\c pulse_db
+\i 'C:/Users/Descartes Tuyishime/OneDrive/Documents/Pulse/Pulse/database/init.sql'
 
 -- Grant table privileges
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO styrcan;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO styrcan;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO pulse;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pulse;
 ```
 
 ### Method 3: Using Python script directly

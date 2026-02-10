@@ -7,7 +7,7 @@ assignees: []
 ---
 
 ## Description
-Set up the core backend infrastructure for StyrCan using FastAPI and Oracle Autonomous Database as outlined in the project README.
+Set up the core backend infrastructure for Pulse using FastAPI and Oracle Autonomous Database as outlined in the project README.
 
 ## Requirements
 - [ ] Create backend directory structure

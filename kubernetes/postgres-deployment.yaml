@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: styrcan
+  namespace: pulse
   labels:
     app: postgres
 spec:
@@ -58,7 +58,7 @@ spec:
               command:
                 - pg_isready
                 - -U
-                - styrcan
+                - pulse
             initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
@@ -66,7 +66,7 @@ spec:
               command:
                 - pg_isready
                 - -U
-                - styrcan
+                - pulse
             initialDelaySeconds: 5
             periodSeconds: 5
       volumes:
@@ -83,7 +83,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres-service
-  namespace: styrcan
+  namespace: pulse
   labels:
     app: postgres
 spec:
@@ -102,7 +102,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-init-scripts
-  namespace: styrcan
+  namespace: pulse
 data:
   init.sql: |
     -- Database initialization will be done via migrations

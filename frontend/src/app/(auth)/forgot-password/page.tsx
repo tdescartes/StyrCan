@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
                         <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
                             <span className="text-xl font-bold text-primary-foreground">S</span>
                         </div>
-                        <span className="text-2xl font-bold">StyrCan</span>
+                        <span className="text-2xl font-bold">Pulse</span>
                     </Link>
 
                     <Card>
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
                     <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
                         <span className="text-xl font-bold text-primary-foreground">S</span>
                     </div>
-                    <span className="text-2xl font-bold">StyrCan</span>
+                    <span className="text-2xl font-bold">Pulse</span>
                 </Link>
 
                 <Card>

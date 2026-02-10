@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
     # Application
-    app_name: str = "StyrCan"
+    app_name: str = "Pulse"
     app_version: str = "1.0.0"
     debug: bool = False
     environment: str = "production"
@@ -35,10 +35,10 @@ class Settings(BaseSettings):
     redis_password: str = ""
     
     # MongoDB
-    mongodb_url: str = "mongodb://localhost:27017/styrcan_logs"
+    mongodb_url: str = "mongodb://localhost:27017/pulse_logs"
     mongodb_host: str = "localhost"
     mongodb_port: int = 27017
-    mongodb_db: str = "styrcan_logs"
+    mongodb_db: str = "pulse_logs"
     
     # CORS
     cors_origins: List[str] = ["http://localhost:3000"]

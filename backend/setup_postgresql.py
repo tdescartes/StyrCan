@@ -14,9 +14,9 @@ from pathlib import Path
 PG_HOST = "localhost"
 PG_PORT = "5432"
 PG_USER = "postgres"
-PG_DB = "styrcan_db"
-PG_APP_USER = "styrcan"  
-PG_APP_PASSWORD = "styrcan_password"
+PG_DB = "pulse_db"
+PG_APP_USER = "pulse"  
+PG_APP_PASSWORD = "pulse_password"
 
 INIT_SQL_PATH = Path(__file__).parent.parent / "database" / "init.sql"
 
@@ -24,7 +24,7 @@ INIT_SQL_PATH = Path(__file__).parent.parent / "database" / "init.sql"
 def main():
     """Main setup function."""
     print("\n" + "="*60)
-    print("PostgreSQL Database Setup for StyrCan")
+    print("PostgreSQL Database Setup for Pulse")
     print("="*60)
     
     # Get password

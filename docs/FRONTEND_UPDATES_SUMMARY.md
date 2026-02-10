@@ -124,12 +124,12 @@ These were updated in the earlier phase:
 
 ### State Management
 
-- ✅ `frontend/src/stores/auth-store.ts` - Uses styrcanApi, handles company state
+- ✅ `frontend/src/stores/auth-store.ts` - Uses pulseApi, handles company state
 
 ### API Clients
 
 - ✅ `frontend/src/lib/api/client.ts` - Auth methods return AuthResponse
-- ✅ `frontend/src/lib/api/styrcan-client.ts` - Production-ready client created
+- ✅ `frontend/src/lib/api/pulse-client.ts` - Production-ready client created
 
 ---
 
@@ -183,7 +183,7 @@ These were updated in the earlier phase:
    import { api } from "@/lib/api/client";
 
    // Replace with new client
-   import { styrcanApi } from "@/lib/api/styrcan-client";
+   import { pulseApi } from "@/lib/api/pulse-client";
    ```
 
 ---

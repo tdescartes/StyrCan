@@ -4,20 +4,20 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
-    container_name: styrcan-postgres
+    container_name: pulse-postgres
     environment:
-      POSTGRES_USER: styrcan
-      POSTGRES_PASSWORD: styrcan_password
-      POSTGRES_DB: styrcan_db
+      POSTGRES_USER: pulse
+      POSTGRES_PASSWORD: pulse_password
+      POSTGRES_DB: pulse_db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - styrcan-network
+      - pulse-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U styrcan"]
+      test: ["CMD-SHELL", "pg_isready -U pulse"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,13 +25,13 @@ services:
   # Redis for caching and sessions
   redis:
     image: redis:7-alpine
-    container_name: styrcan-redis
+    container_name: pulse-redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - styrcan-network
+      - pulse-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -41,18 +41,18 @@ services:
   # MongoDB for audit logs, messaging, and analytics
   mongodb:
     image: mongo:7.0
-    container_name: styrcan-mongodb
+    container_name: pulse-mongodb
     environment:
-      MONGO_INITDB_ROOT_USERNAME: styrcan
-      MONGO_INITDB_ROOT_PASSWORD: styrcan_mongo_password
-      MONGO_INITDB_DATABASE: styrcan_logs
+      MONGO_INITDB_ROOT_USERNAME: pulse
+      MONGO_INITDB_ROOT_PASSWORD: pulse_mongo_password
+      MONGO_INITDB_DATABASE: pulse_logs
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
     networks:
-      - styrcan-network
+      - pulse-network
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
@@ -64,10 +64,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: styrcan-backend
+    container_name: pulse-backend
     environment:
-      DATABASE_URL: postgresql://styrcan:styrcan_password@postgres:5432/styrcan_db
-      MONGODB_URL: mongodb://styrcan:styrcan_mongo_password@mongodb:27017/styrcan_logs?authSource=admin
+      DATABASE_URL: postgresql://pulse:pulse_password@postgres:5432/pulse_db
+      MONGODB_URL: mongodb://pulse:pulse_mongo_password@mongodb:27017/pulse_logs?authSource=admin
       REDIS_HOST: redis
       REDIS_PORT: 6379
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
@@ -86,7 +86,7 @@ services:
       mongodb:
         condition: service_healthy
     networks:
-      - styrcan-network
+      - pulse-network
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   # Next.js Frontend
@@ -96,7 +96,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
-    container_name: styrcan-frontend
+    container_name: pulse-frontend
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     ports:
@@ -108,7 +108,7 @@ services:
     depends_on:
       - backend
     networks:
-      - styrcan-network
+      - pulse-network
     command: npm run dev
 
   # Eleventy Landing Page (Marketing Site)
@@ -116,11 +116,11 @@ services:
     build:
       context: ./landing
       dockerfile: Dockerfile
-    container_name: styrcan-landing
+    container_name: pulse-landing
     ports:
       - "8080:80"
     networks:
-      - styrcan-network
+      - pulse-network
     healthcheck:
       test:
         ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
@@ -136,5 +136,5 @@ volumes:
   backend_uploads:
 
 networks:
-  styrcan-network:
+  pulse-network:
     driver: bridge

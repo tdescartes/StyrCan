@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: styrcan
+  name: pulse
   labels:
-    name: styrcan
+    name: pulse
     environment: production

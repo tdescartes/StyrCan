@@ -258,11 +258,11 @@ const user = await api.getCurrentUser();
 **After:**
 
 ```typescript
-import { styrcanApi } from "@/lib/api/styrcan-client";
+import { pulseApi } from "@/lib/api/pulse-client";
 
-const result = await styrcanApi.auth.login(email, password);
+const result = await pulseApi.auth.login(email, password);
 if (result.success && result.data) {
-  // Token automatically stored by styrcanApi
+  // Token automatically stored by pulseApi
   set({
     user: result.data.user,
     company: result.data.company,
@@ -273,7 +273,7 @@ if (result.success && result.data) {
 
 **Changes:**
 
-- Uses new `styrcanApi` with consistent response format
+- Uses new `pulseApi` with consistent response format
 - Automatic token management (no manual localStorage)
 - Stores both `user` and `company` data
 - Better error handling with `result.success`
@@ -383,9 +383,9 @@ localStorage.setItem("access_token", tokens.access_token);
 **After:**
 
 ```typescript
-import { styrcanApi } from "@/lib/api/styrcan-client";
+import { pulseApi } from "@/lib/api/pulse-client";
 
-const result = await styrcanApi.auth.login(email, password);
+const result = await pulseApi.auth.login(email, password);
 if (result.success && result.data) {
   // Token automatically stored
   console.log(result.data.user);
@@ -409,7 +409,7 @@ const employee = await api.createEmployee({
 **After:**
 
 ```typescript
-const result = await styrcanApi.employees.create({
+const result = await pulseApi.employees.create({
   salary: "75000.00", // String!
   status: "on_leave", // Not "inactive"
   department: "Engineering", // Required
@@ -433,7 +433,7 @@ const transaction = await api.createTransaction({
 **After:**
 
 ```typescript
-const result = await styrcanApi.finances.createTransaction({
+const result = await pulseApi.finances.createTransaction({
   type: "expense",
   amount: "1500.00", // String!
   category: "Office Supplies", // Required
@@ -457,7 +457,7 @@ const pto = await api.updatePTO(id, {
 **After:**
 
 ```typescript
-const result = await styrcanApi.pto.update(id, {
+const result = await pulseApi.pto.update(id, {
   status: "rejected", // Not "denied"
   reviewer_notes: "Conflicts with project deadline",
 });
@@ -529,7 +529,7 @@ export function getEmployeeStatusBadge(status: EmployeeStatus) {
 ## 📚 Reference
 
 - **Complete API Documentation**: [API_TESTING_GUIDE.md](./API_TESTING_GUIDE.md)
-- **TypeScript API Client**: [styrcan-client.ts](./frontend/src/lib/api/styrcan-client.ts)
+- **TypeScript API Client**: [pulse-client.ts](./frontend/src/lib/api/pulse-client.ts)
 - **Type Definitions**: [types.ts](./frontend/src/lib/api/types.ts)
 - **Integration Guide**: [FRONTEND_API_INTEGRATION.md](./FRONTEND_API_INTEGRATION.md)
 

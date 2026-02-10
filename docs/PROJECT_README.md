@@ -1,8 +1,8 @@
-# StyrCan - Business Management Platform
+# Pulse - Business Management Platform
 
 > **Empowering Small Businesses with One Integrated Platform**
 
-StyrCan is a comprehensive full-stack business management platform designed to simplify operations for small businesses by integrating employee management, financial tracking, payroll processing, and team communication into a single, powerful solution.
+Pulse is a comprehensive full-stack business management platform designed to simplify operations for small businesses by integrating employee management, financial tracking, payroll processing, and team communication into a single, powerful solution.
 
 ---
 
@@ -132,7 +132,7 @@ StyrCan is a comprehensive full-stack business management platform designed to s
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                  MARKETING LAYER (styrcan.com)          │
+│                  MARKETING LAYER (pulse.com)          │
 │  Eleventy Static Site (Nunjucks + CSS)                │
 │  ├── Landing Page (Features, Pricing)                 │
 │  ├── Contact & About Pages                            │
@@ -140,7 +140,7 @@ StyrCan is a comprehensive full-stack business management platform designed to s
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│                 APP LAYER (use.styrcan.com)            │
+│                 APP LAYER (use.pulse.com)            │
 │  Next.js 14 (TypeScript + React + Tailwind CSS)       │
 │  ├── Authentication (Login, Register)                 │
 │  ├── Protected Routes (Dashboard, Management)          │
@@ -189,7 +189,7 @@ StyrCan is a comprehensive full-stack business management platform designed to s
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd StyrCan
+cd Pulse
 
 # Copy environment files
 cp backend/.env.example backend/.env
@@ -237,8 +237,8 @@ kubectl apply -f frontend-deployment.yaml
 kubectl apply -f ingress.yaml
 
 # Verify deployment
-kubectl get pods -n styrcan
-kubectl get svc -n styrcan
+kubectl get pods -n pulse
+kubectl get svc -n pulse
 ```
 
 **Access via NodePort:**
@@ -266,15 +266,15 @@ cp .env.example .env
 
 # Start PostgreSQL and Redis (using Docker)
 docker run -d --name postgres -p 5432:5432 \
-  -e POSTGRES_USER=styrcan \
-  -e POSTGRES_PASSWORD=styrcan_password \
-  -e POSTGRES_DB=styrcan_db \
+  -e POSTGRES_USER=pulse \
+  -e POSTGRES_PASSWORD=pulse_password \
+  -e POSTGRES_DB=pulse_db \
   postgres:16-alpine
 
 docker run -d --name redis -p 6379:6379 redis:7-alpine
 
 # Initialize database (run init.sql manually or via psql)
-psql -U styrcan -d styrcan_db -f ../database/init.sql
+psql -U pulse -d pulse_db -f ../database/init.sql
 
 # Start backend
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -358,7 +358,7 @@ npm run build
 
 ```bash
 # Connect to PostgreSQL
-docker exec -it styrcan-postgres psql -U styrcan -d styrcan_db
+docker exec -it pulse-postgres psql -U pulse -d pulse_db
 
 # Run migrations (when implemented)
 cd backend
@@ -376,7 +376,7 @@ alembic downgrade -1
 ## 📦 Project Structure
 
 ```
-StyrCan/
+Pulse/
 ├── backend/                    # FastAPI Backend
 │   ├── app/
 │   │   ├── auth/              # Authentication logic
@@ -391,7 +391,7 @@ StyrCan/
 │   ├── requirements.txt
 │   ├── Dockerfile
 │   └── README.md
-├── frontend/                  # Next.js App (use.styrcan.com)
+├── frontend/                  # Next.js App (use.pulse.com)
 │   ├── src/
 │   │   ├── app/              # Next.js App Router
 │   │   ├── components/       # React components
@@ -402,7 +402,7 @@ StyrCan/
 │   ├── package.json
 │   ├── Dockerfile
 │   └── README.md
-├── landing/                   # Eleventy Landing Page (styrcan.com)
+├── landing/                   # Eleventy Landing Page (pulse.com)
 │   ├── src/
 │   │   ├── _layouts/         # Page layouts (Nunjucks)
 │   │   ├── _data/            # Global data files
@@ -424,7 +424,7 @@ StyrCan/
 │   ├── backend-deployment.yaml
 │   ├── frontend-deployment.yaml
 │   ├── landing-deployment.yaml  # Marketing site deployment
-│   └── ingress.yaml           # Routes styrcan.com & use.styrcan.com
+│   └── ingress.yaml           # Routes pulse.com & use.pulse.com
 ├── docker-compose.yml         # Docker Compose config
 ├── Plan.md                    # Technical architecture
 ├── DEVELOPMENT_ROADMAP.md     # Development roadmap
@@ -521,10 +521,10 @@ curl -X POST http://localhost:8000/api/auth/login \
 
 ```bash
 # Backend
-docker build -t styrcan-backend:latest ./backend
+docker build -t pulse-backend:latest ./backend
 
 # Frontend (when created)
-docker build -t styrcan-frontend:latest ./frontend
+docker build -t pulse-frontend:latest ./frontend
 ```
 
 ### Kubernetes Deployment
@@ -553,7 +553,7 @@ Proprietary - All rights reserved
 
 For issues, questions, or contributions:
 
-- **Email**: hello@styrcan.com
+- **Email**: hello@pulse.com
 - **Issues**: GitHub Issues (when public)
 - **Documentation**: See [Plan.md](./Plan.md) for technical details
 

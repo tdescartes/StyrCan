@@ -147,7 +147,7 @@ def print_environment_info():
 async def main():
     """Run all connection tests."""
     print("\n" + "="*70)
-    print("🔧 StyrCan Database Connection Test")
+    print("🔧 Pulse Database Connection Test")
     print("="*70)
     
     # Print environment info

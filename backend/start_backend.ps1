@@ -1,9 +1,9 @@
 #!/usr/bin/env pwsh
-# Start StyrCan Backend Server
+# Start Pulse Backend Server
 # This script starts the FastAPI backend application
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "Starting StyrCan Backend Server" -ForegroundColor Cyan
+Write-Host "Starting Pulse Backend Server" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 

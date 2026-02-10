@@ -1,10 +1,10 @@
-# StyrCan Landing Page
+# Pulse Landing Page
 
-Static marketing website for StyrCan, built with [Eleventy](https://www.11ty.dev/).
+Static marketing website for Pulse, built with [Eleventy](https://www.11ty.dev/).
 
 ## Overview
 
-This is the public-facing marketing site hosted at `styrcan.com`. The main application is hosted separately at `use.styrcan.com`.
+This is the public-facing marketing site hosted at `pulse.com`. The main application is hosted separately at `use.pulse.com`.
 
 ## Getting Started
 
@@ -92,6 +92,6 @@ The `_site` directory can be deployed to any static hosting service:
 
 ## Links
 
-- **Marketing Site**: https://styrcan.com
-- **Application**: https://use.styrcan.com
-- **API**: https://use.styrcan.com/api
+- **Marketing Site**: https://pulse.com
+- **Application**: https://use.pulse.com
+- **API**: https://use.pulse.com/api

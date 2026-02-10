@@ -1,4 +1,4 @@
-# StyrCan Backend API Specification
+# Pulse Backend API Specification
 
 > **Version:** 1.0.0  
 > **Last Updated:** February 5, 2026  
@@ -30,7 +30,7 @@
 
 | Property       | Value                             |
 | -------------- | --------------------------------- |
-| **Base URL**   | `https://api.styrcan.com/api/v1`  |
+| **Base URL**   | `https://api.pulse.com/api/v1`  |
 | **Protocol**   | HTTPS (TLS 1.3)                   |
 | **Format**     | JSON                              |
 | **Encoding**   | UTF-8                             |
@@ -202,13 +202,13 @@ Creates a new company and the initial admin user.
       "full_name": "John Doe",
       "role": "admin",
       "company_id": "comp_abc123",
-      "avatar_url": "https://storage.styrcan.com/avatars/usr_xyz789.jpg",
+      "avatar_url": "https://storage.pulse.com/avatars/usr_xyz789.jpg",
       "last_login": "2026-02-05T10:30:00Z"
     },
     "company": {
       "id": "comp_abc123",
       "name": "Acme Corp",
-      "logo_url": "https://storage.styrcan.com/logos/comp_abc123.png",
+      "logo_url": "https://storage.pulse.com/logos/comp_abc123.png",
       "subscription": {
         "plan": "professional",
         "status": "active",
@@ -379,7 +379,7 @@ Creates a new company and the initial admin user.
       "position": "Senior Developer",
       "status": "active",
       "hire_date": "2024-03-15",
-      "avatar_url": "https://storage.styrcan.com/avatars/emp_abc123.jpg",
+      "avatar_url": "https://storage.pulse.com/avatars/emp_abc123.jpg",
       "manager": {
         "id": "emp_def456",
         "full_name": "Bob Johnson"
@@ -674,7 +674,7 @@ Creates a new company and the initial admin user.
       "date": "2026-02-01",
       "payment_method": "company_card",
       "vendor": "Staples",
-      "receipt_url": "https://storage.styrcan.com/receipts/txn_abc123.pdf",
+      "receipt_url": "https://storage.pulse.com/receipts/txn_abc123.pdf",
       "tags": ["Q1", "operations"],
       "created_by": "usr_xyz789",
       "created_at": "2026-02-01T14:30:00Z",
@@ -1120,7 +1120,7 @@ Initiates automatic payment processing via integrated payment provider.
         "pay_date": "2026-01-31",
         "gross_pay": 4500.0,
         "net_pay": 2925.75,
-        "stub_url": "https://storage.styrcan.com/paystubs/..."
+        "stub_url": "https://storage.pulse.com/paystubs/..."
       }
     ],
     "tax_documents": [
@@ -1128,7 +1128,7 @@ Initiates automatic payment processing via integrated payment provider.
         "type": "W-2",
         "year": 2025,
         "status": "available",
-        "download_url": "https://storage.styrcan.com/tax-docs/..."
+        "download_url": "https://storage.pulse.com/tax-docs/..."
       }
     ]
   }
@@ -1411,8 +1411,8 @@ Initiates automatic payment processing via integrated payment provider.
       "type": "document",
       "mime_type": "application/pdf",
       "size": 2456789, // bytes
-      "url": "https://storage.styrcan.com/files/...",
-      "thumbnail_url": "https://storage.styrcan.com/thumbs/...",
+      "url": "https://storage.pulse.com/files/...",
+      "thumbnail_url": "https://storage.pulse.com/thumbs/...",
       "uploaded_by": {
         "id": "usr_abc123",
         "name": "John Doe"
@@ -1500,7 +1500,7 @@ description: Q1 Financial Report
     "last_name": "Doe",
     "full_name": "John Doe",
     "phone": "+1-555-123-4567",
-    "avatar_url": "https://storage.styrcan.com/avatars/...",
+    "avatar_url": "https://storage.pulse.com/avatars/...",
     "role": "admin",
     "permissions": [
       "employees:*",
@@ -1554,7 +1554,7 @@ description: Q1 Financial Report
     "name": "Acme Corp",
     "legal_name": "Acme Corporation Inc.",
     "slug": "acme-corp",
-    "logo_url": "https://storage.styrcan.com/logos/...",
+    "logo_url": "https://storage.pulse.com/logos/...",
     "industry": "technology",
     "size": "11-50",
     "founded": 2020,
@@ -1778,8 +1778,8 @@ description: Q1 Financial Report
   "plan_id": "plan_professional",
   "interval": "yearly",
   "add_on_ids": ["addon_analytics"],
-  "success_url": "https://app.styrcan.com/settings/billing?success=true",
-  "cancel_url": "https://app.styrcan.com/settings/billing?canceled=true"
+  "success_url": "https://app.pulse.com/settings/billing?success=true",
+  "cancel_url": "https://app.pulse.com/settings/billing?canceled=true"
 }
 ```
 
@@ -2216,7 +2216,7 @@ async def process_payroll_run(
 
 ```javascript
 // WebSocket connection with authentication
-const socket = io("wss://api.styrcan.com", {
+const socket = io("wss://api.pulse.com", {
   auth: {
     token: "jwt_access_token",
   },
@@ -2359,7 +2359,7 @@ socket.emit("message:read", {
   "meta": {
     "timestamp": "2026-02-05T10:30:00Z",
     "request_id": "req_abc123",
-    "documentation_url": "https://docs.styrcan.com/errors/VALIDATION_ERROR"
+    "documentation_url": "https://docs.pulse.com/errors/VALIDATION_ERROR"
   }
 }
 ```
@@ -2410,7 +2410,7 @@ X-RateLimit-Reset: 1707134400
 // lib/api/client.ts
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://api.styrcan.com/api/v1";
+  process.env.NEXT_PUBLIC_API_URL || "https://api.pulse.com/api/v1";
 
 class APIClient {
   private baseURL: string;
@@ -2492,8 +2492,8 @@ export const api = new APIClient(API_BASE_URL);
 
 ```bash
 # Backend .env
-DATABASE_URL=postgresql://user:pass@localhost:5432/styrcan
-MONGODB_URL=mongodb://localhost:27017/styrcan
+DATABASE_URL=postgresql://user:pass@localhost:5432/pulse
+MONGODB_URL=mongodb://localhost:27017/pulse
 REDIS_URL=redis://localhost:6379/0
 
 JWT_SECRET=your-super-secret-key
@@ -2506,7 +2506,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
-AWS_S3_BUCKET=styrcan-storage
+AWS_S3_BUCKET=pulse-storage
 
 SMTP_HOST=smtp.sendgrid.net
 SMTP_PORT=587
@@ -2536,8 +2536,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: styrcan
-      POSTGRES_USER: styrcan
+      POSTGRES_DB: pulse
+      POSTGRES_USER: pulse
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   mongodb:
@@ -2557,7 +2557,7 @@ services:
 
 | Version | Date       | Author       | Changes               |
 | ------- | ---------- | ------------ | --------------------- |
-| 1.0.0   | 2026-02-05 | StyrCan Team | Initial specification |
+| 1.0.0   | 2026-02-05 | Pulse Team | Initial specification |
 
 ---
 

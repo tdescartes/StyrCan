@@ -1,14 +1,14 @@
 /**
  * Example Component: Employee List with API Integration
  * 
- * This demonstrates how to use the StyrCan API client in a React component.
+ * This demonstrates how to use the Pulse API client in a React component.
  * Copy and adapt this pattern for your own components.
  */
 
 'use client';
 
 import { useState, useEffect } from 'react';
-import { styrcanApi } from '@/lib/api/styrcan-client';
+import { pulseApi } from '@/lib/api/pulse-client';
 import type { Employee, CreateEmployeeRequest } from '@/lib/api/types';
 
 export default function EmployeeListExample() {
@@ -36,7 +36,7 @@ export default function EmployeeListExample() {
         setLoading(true);
         setError(null);
 
-        const result = await styrcanApi.employees.list({
+        const result = await pulseApi.employees.list({
             skip: currentPage * itemsPerPage,
             limit: itemsPerPage,
             department: selectedDepartment !== 'all' ? selectedDepartment : undefined,
@@ -57,7 +57,7 @@ export default function EmployeeListExample() {
      * Create new employee
      */
     const handleCreateEmployee = async (employeeData: CreateEmployeeRequest) => {
-        const result = await styrcanApi.employees.create(employeeData);
+        const result = await pulseApi.employees.create(employeeData);
 
         if (result.success) {
             // Refresh the list
@@ -72,7 +72,7 @@ export default function EmployeeListExample() {
      * Update employee
      */
     const handleUpdateEmployee = async (id: string, updates: Partial<Employee>) => {
-        const result = await styrcanApi.employees.update(id, updates);
+        const result = await pulseApi.employees.update(id, updates);
 
         if (result.success) {
             // Update local state
@@ -93,7 +93,7 @@ export default function EmployeeListExample() {
             return;
         }
 
-        const result = await styrcanApi.employees.delete(id);
+        const result = await pulseApi.employees.delete(id);
 
         if (result.success) {
             // Remove from local state
@@ -317,7 +317,7 @@ export function LoginFormExample() {
         setLoading(true);
         setError(null);
 
-        const result = await styrcanApi.auth.login(email, password);
+        const result = await pulseApi.auth.login(email, password);
 
         if (result.success) {
             // Redirect to dashboard
@@ -387,7 +387,7 @@ export function CreateTransactionFormExample() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const result = await styrcanApi.finances.createTransaction(formData);
+        const result = await pulseApi.finances.createTransaction(formData);
 
         if (result.success) {
             alert('Transaction created successfully!');

@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: landing
-  namespace: styrcan
+  namespace: pulse
   labels:
     app: landing
 spec:
@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: landing
-          image: styrcan-landing:latest
+          image: pulse-landing:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -50,7 +50,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: landing-service
-  namespace: styrcan
+  namespace: pulse
   labels:
     app: landing
 spec:

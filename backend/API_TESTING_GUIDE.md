@@ -1,6 +1,6 @@
-# StyrCan Backend - API Testing Guide
+# Pulse Backend - API Testing Guide
 
-Quick reference for testing the StyrCan backend API with example requests.
+Quick reference for testing the Pulse backend API with example requests.
 
 ## 🚀 Getting Started
 
@@ -29,7 +29,7 @@ curl http://localhost:8000/health
 ```json
 {
   "status": "healthy",
-  "app": "StyrCan",
+  "app": "Pulse",
   "version": "1.0.0",
   "environment": "development"
 }
@@ -587,7 +587,7 @@ curl -X GET http://localhost:8000/api/settings/notifications/preferences \
 
 1. Open Postman
 2. Click "Import"
-3. Create new collection: "StyrCan API"
+3. Create new collection: "Pulse API"
 4. Set collection variable:
    - Key: `baseUrl`
    - Value: `http://localhost:8000`

@@ -1,4 +1,4 @@
--- StyrCan Database Initialization Script
+-- Pulse Database Initialization Script
 -- This script creates the initial database schema
 
 -- Enable UUID extension

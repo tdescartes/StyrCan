@@ -1,6 +1,6 @@
-# StyrCan Backend
+# Pulse Backend
 
-FastAPI-based backend for the StyrCan business management platform.
+FastAPI-based backend for the Pulse business management platform.
 
 ## Features
 
@@ -63,14 +63,14 @@ FastAPI-based backend for the StyrCan business management platform.
 
    ```bash
    # PostgreSQL
-   docker run -d --name styrcan-postgres \
-     -e POSTGRES_USER=styrcan \
-     -e POSTGRES_PASSWORD=styrcan_password \
-     -e POSTGRES_DB=styrcan_db \
+   docker run -d --name pulse-postgres \
+     -e POSTGRES_USER=pulse \
+     -e POSTGRES_PASSWORD=pulse_password \
+     -e POSTGRES_DB=pulse_db \
      -p 5432:5432 postgres:16-alpine
 
    # Redis
-   docker run -d --name styrcan-redis \
+   docker run -d --name pulse-redis \
      -p 6379:6379 redis:7-alpine
    ```
 
@@ -162,7 +162,7 @@ Environment variables (`.env` file):
 
 ```env
 # Application
-APP_NAME=StyrCan
+APP_NAME=Pulse
 APP_VERSION=1.0.0
 DEBUG=True
 ENVIRONMENT=development
@@ -260,13 +260,13 @@ alembic downgrade -1
 
 ```bash
 # Build image
-docker build -t styrcan-backend .
+docker build -t pulse-backend .
 
 # Run container
 docker run -d -p 8000:8000 \
   -e DATABASE_URL=postgresql://... \
   -e SECRET_KEY=... \
-  styrcan-backend
+  pulse-backend
 ```
 
 ### Kubernetes

@@ -1,8 +1,8 @@
-# StyrCan Backend API
+# Pulse Backend API
 
 ## Overview
 
-FastAPI-based backend for StyrCan business management platform.
+FastAPI-based backend for Pulse business management platform.
 
 ## Features
 
@@ -65,18 +65,18 @@ cp .env.example .env
 
 ```bash
 # Start PostgreSQL (using Docker)
-docker run --name styrcan-postgres \
-  -e POSTGRES_USER=styrcan_user \
-  -e POSTGRES_PASSWORD=styrcan_password \
-  -e POSTGRES_DB=styrcan_db \
+docker run --name pulse-postgres \
+  -e POSTGRES_USER=pulse_user \
+  -e POSTGRES_PASSWORD=pulse_password \
+  -e POSTGRES_DB=pulse_db \
   -p 5432:5432 -d postgres:14
 
 # Start MongoDB
-docker run --name styrcan-mongodb \
+docker run --name pulse-mongodb \
   -p 27017:27017 -d mongo:6
 
 # Start Redis
-docker run --name styrcan-redis \
+docker run --name pulse-redis \
   -p 6379:6379 -d redis:7-alpine
 
 # Run database migrations
@@ -216,7 +216,7 @@ backend/
 
 | Variable                      | Description                  | Default   |
 | ----------------------------- | ---------------------------- | --------- |
-| `APP_NAME`                    | Application name             | StyrCan   |
+| `APP_NAME`                    | Application name             | Pulse   |
 | `APP_VERSION`                 | API version                  | 1.0.0     |
 | `DEBUG`                       | Debug mode                   | False     |
 | `DATABASE_URL`                | PostgreSQL connection string | -         |
@@ -276,14 +276,14 @@ alembic history
 
 ```bash
 # Build image
-docker build -t styrcan-backend .
+docker build -t pulse-backend .
 
 # Run container
 docker run -d \
-  --name styrcan-api \
+  --name pulse-api \
   -p 8000:8000 \
   --env-file .env \
-  styrcan-backend
+  pulse-backend
 ```
 
 ### Using Docker Compose
@@ -325,7 +325,7 @@ docker-compose down
 docker ps | grep postgres
 
 # Test connection
-psql -h localhost -U styrcan_user -d styrcan_db
+psql -h localhost -U pulse_user -d pulse_db
 ```
 
 ### MongoDB Connection Issues
@@ -335,7 +335,7 @@ psql -h localhost -U styrcan_user -d styrcan_db
 docker ps | grep mongo
 
 # Test connection
-mongo mongodb://localhost:27017/styrcan_logs
+mongo mongodb://localhost:27017/pulse_logs
 ```
 
 ### Import Errors
@@ -360,8 +360,8 @@ For issues and questions:
 
 - GitHub Issues: [repository URL]
 - Documentation: [docs URL]
-- Email: support@styrcan.com
+- Email: support@pulse.com
 
 ## License
 
-Copyright © 2026 StyrCan. All rights reserved.
+Copyright © 2026 Pulse. All rights reserved.

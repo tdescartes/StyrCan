@@ -6,7 +6,7 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "StyrCan - Business Management Platform",
+  title: "Pulse - Business Management Platform",
   description: "Empowering small businesses with one integrated platform for employee management, finances, payroll, and more.",
   keywords: ["business management", "employee management", "payroll", "finances", "small business"],
 };

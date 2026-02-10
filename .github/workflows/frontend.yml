@@ -108,7 +108,7 @@ jobs:
         run: npm run build
         working-directory: ./frontend
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL != '' && secrets.NEXT_PUBLIC_API_URL || 'https://api.styrcan.com' }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL != '' && secrets.NEXT_PUBLIC_API_URL || 'https://api.pulse.com' }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

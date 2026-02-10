@@ -7,7 +7,7 @@ assignees: []
 ---
 
 ## Description
-Create comprehensive documentation including API documentation, user guides, developer documentation, and deployment guides to ensure the StyrCan platform is well-documented for users, developers, and maintainers.
+Create comprehensive documentation including API documentation, user guides, developer documentation, and deployment guides to ensure the Pulse platform is well-documented for users, developers, and maintainers.
 
 ## API Documentation
 - [ ] OpenAPI/Swagger specification

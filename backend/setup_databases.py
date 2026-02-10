@@ -1,5 +1,5 @@
 """
-Database Setup Script for StyrCan
+Database Setup Script for Pulse
 Creates and initializes PostgreSQL and MongoDB databases using Python
 """
 
@@ -15,13 +15,13 @@ PG_HOST = "localhost"
 PG_PORT = "5432"
 PG_USER = "postgres"
 PG_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")  # Default postgres password
-PG_DB = "styrcan_db"
-PG_APP_USER = "styrcan"
-PG_APP_PASSWORD = "styrcan_password"
+PG_DB = "pulse_db"
+PG_APP_USER = "pulse"
+PG_APP_PASSWORD = "pulse_password"
 
 MONGO_HOST = "localhost"
 MONGO_PORT = 27017
-MONGO_DB = "styrcan_logs"
+MONGO_DB = "pulse_logs"
 
 INIT_SQL_PATH = Path(__file__).parent.parent / "database" / "init.sql"
 
@@ -231,7 +231,7 @@ ENVIRONMENT=development
 
 def main():
     """Main setup function."""
-    print_header("🔧 StyrCan Database Setup")
+    print_header("🔧 Pulse Database Setup")
     
     # Setup PostgreSQL (required)
     pg_success = setup_postgresql()

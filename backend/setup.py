@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Quick start script for StyrCan backend development.
+Quick start script for Pulse backend development.
 This script helps set up the development environment quickly.
 """
 
@@ -199,7 +199,7 @@ def print_next_steps():
 def main():
     """Main setup function."""
     print("\n" + "="*60)
-    print("StyrCan Backend - Development Setup")
+    print("Pulse Backend - Development Setup")
     print("="*60)
     
     # Change to script directory

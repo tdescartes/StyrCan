@@ -1,6 +1,6 @@
 # Kubernetes Deployment Files
 
-This directory contains Kubernetes manifests for deploying StyrCan on your home server.
+This directory contains Kubernetes manifests for deploying Pulse on your home server.
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ kubectl apply -f redis-deployment.yaml
 ### 4. Wait for Database to be Ready
 
 ```bash
-kubectl wait --for=condition=ready pod -l app=postgres -n styrcan --timeout=300s
+kubectl wait --for=condition=ready pod -l app=postgres -n pulse --timeout=300s
 ```
 
 ### 5. Deploy Backend and Frontend
@@ -56,22 +56,22 @@ kubectl apply -f ingress.yaml
 
 ```bash
 # Check all pods are running
-kubectl get pods -n styrcan
+kubectl get pods -n pulse
 
 # Check services
-kubectl get svc -n styrcan
+kubectl get svc -n pulse
 
 # View logs
-kubectl logs -f deployment/backend -n styrcan
-kubectl logs -f deployment/frontend -n styrcan
+kubectl logs -f deployment/backend -n pulse
+kubectl logs -f deployment/frontend -n pulse
 ```
 
 ## Access the Application
 
 ### Within Cluster
 
-- Backend: http://backend-service.styrcan.svc.cluster.local:8000
-- Frontend: http://frontend-service.styrcan.svc.cluster.local:3000
+- Backend: http://backend-service.pulse.svc.cluster.local:8000
+- Frontend: http://frontend-service.pulse.svc.cluster.local:3000
 
 ### NodePort Access (from your network)
 
@@ -80,20 +80,20 @@ kubectl logs -f deployment/frontend -n styrcan
 
 ### Ingress Access (if configured)
 
-- http://styrcan.local (add to /etc/hosts)
+- http://pulse.local (add to /etc/hosts)
 
 ## Scaling
 
 ```bash
 # Scale backend
-kubectl scale deployment/backend --replicas=3 -n styrcan
+kubectl scale deployment/backend --replicas=3 -n pulse
 
 # Scale frontend
-kubectl scale deployment/frontend --replicas=2 -n styrcan
+kubectl scale deployment/frontend --replicas=2 -n pulse
 ```
 
 ## Cleanup
 
 ```bash
-kubectl delete namespace styrcan
+kubectl delete namespace pulse
 ```

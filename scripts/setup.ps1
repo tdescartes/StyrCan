@@ -1,9 +1,9 @@
 #!/usr/bin/env pwsh
-# StyrCan Setup Script for Windows (PowerShell)
+# Pulse Setup Script for Windows (PowerShell)
 # This script helps set up the development environment
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  StyrCan Development Setup" -ForegroundColor Cyan
+Write-Host "  Pulse Development Setup" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -168,10 +168,10 @@ switch ($choice) {
         Write-Host ""
         Write-Host "Next steps:" -ForegroundColor Cyan
         Write-Host "1. Start PostgreSQL:" -ForegroundColor White
-        Write-Host "   docker run -d --name styrcan-postgres -p 5432:5432 -e POSTGRES_USER=styrcan -e POSTGRES_PASSWORD=styrcan_password -e POSTGRES_DB=styrcan_db postgres:16-alpine" -ForegroundColor Gray
+        Write-Host "   docker run -d --name pulse-postgres -p 5432:5432 -e POSTGRES_USER=pulse -e POSTGRES_PASSWORD=pulse_password -e POSTGRES_DB=pulse_db postgres:16-alpine" -ForegroundColor Gray
         Write-Host ""
         Write-Host "2. Start Redis:" -ForegroundColor White
-        Write-Host "   docker run -d --name styrcan-redis -p 6379:6379 redis:7-alpine" -ForegroundColor Gray
+        Write-Host "   docker run -d --name pulse-redis -p 6379:6379 redis:7-alpine" -ForegroundColor Gray
         Write-Host ""
         Write-Host "3. Activate virtual environment:" -ForegroundColor White
         Write-Host "   .\venv\Scripts\Activate.ps1" -ForegroundColor Gray

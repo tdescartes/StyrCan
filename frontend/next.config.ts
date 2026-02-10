@@ -13,8 +13,8 @@ const nextConfig: NextConfig = {
   // GitHub Pages specific config
   ...(isGitHubPages && {
     trailingSlash: true,
-    basePath: "/StyrCan",
-    assetPrefix: "/StyrCan",
+    basePath: "/Pulse",
+    assetPrefix: "/Pulse",
   }),
 
   images: {
@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_API_URL:
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
-    NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || "StyrCan",
+    NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || "Pulse",
   },
 
   turbopack: {

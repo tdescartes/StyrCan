@@ -1,6 +1,6 @@
 # Technical Architecture
 
-This document provides a comprehensive overview of StyrCan's technical stack, project structure, and architectural decisions.
+This document provides a comprehensive overview of Pulse's technical stack, project structure, and architectural decisions.
 
 ---
 
@@ -61,7 +61,7 @@ This document provides a comprehensive overview of StyrCan's technical stack, pr
 ## Project Structure
 
 ```
-styrcan/
+pulse/
 ├── public/                     # Static assets
 │   ├── favicon.ico
 │   ├── placeholder.svg
@@ -300,11 +300,11 @@ export default defineConfig(({ mode }) => ({
 - [Components](./COMPONENTS.md) - Component library reference
 - [Development Guide](./DEVELOPMENT_GUIDE.md) - Setup and conventions
 -------------------------------------------------------------------------------------------------------
-# StyrCan Documentation
+# Pulse Documentation
 
 > **Empowering Small Businesses with One Integrated Platform**
 
-Welcome to the official documentation for StyrCan, a next-generation business management platform designed to simplify and streamline operations for small businesses.
+Welcome to the official documentation for Pulse, a next-generation business management platform designed to simplify and streamline operations for small businesses.
 
 ---
 
@@ -323,9 +323,9 @@ Welcome to the official documentation for StyrCan, a next-generation business ma
 
 Running a small business often involves managing scattered tools for payroll, financial tracking, employee schedules, internal communication, and more. This fragmentation leads to inefficiencies, higher costs, and wasted time.
 
-**StyrCan** solves this problem by offering an all-in-one platform that centralizes these functionalities, enabling business owners to focus on what truly matters: **growth and success**.
+**Pulse** solves this problem by offering an all-in-one platform that centralizes these functionalities, enabling business owners to focus on what truly matters: **growth and success**.
 
-Whether you're a small business owner managing a team or a solo entrepreneur handling multiple responsibilities, StyrCan is built to support your needs with simplicity, efficiency, and reliability.
+Whether you're a small business owner managing a team or a solo entrepreneur handling multiple responsibilities, Pulse is built to support your needs with simplicity, efficiency, and reliability.
 
 ---
 
@@ -368,7 +368,7 @@ Whether you're a small business owner managing a team or a solo entrepreneur han
 
 ## Problems We Solve
 
-| Problem | How StyrCan Solves It |
+| Problem | How Pulse Solves It |
 |---------|----------------------|
 | **Fragmented Tools** | One unified platform replaces 5+ separate software subscriptions |
 | **Payroll Complexity** | Automated salary calculations with built-in tax compliance |
@@ -381,7 +381,7 @@ Whether you're a small business owner managing a team or a solo entrepreneur han
 
 ## Value Proposition
 
-### Why Choose StyrCan?
+### Why Choose Pulse?
 
 - **Ease of Use**: Intuitive design ensures minimal learning curve
 - **Cost Efficiency**: Reduces software costs by up to 70%
@@ -415,7 +415,7 @@ Whether you're a small business owner managing a team or a solo entrepreneur han
 git clone <repository-url>
 
 # Navigate to project directory
-cd styrcan
+cd pulse
 
 # Install dependencies
 npm install
@@ -460,17 +460,17 @@ The application will be available at `http://localhost:8080`
 
 ## Support
 
-- **Email**: hello@styrcan.com
-- **Phone**: 1-800-STYRCAN
+- **Email**: hello@pulse.com
+- **Phone**: 1-800-PULSE
 - **Location**: San Francisco, CA
 
 ---
 
-*StyrCan is more than just software—it's a partner in your business's success.*
+*Pulse is more than just software—it's a partner in your business's success.*
 ------------------------------------------------------------------------------------------------------------------------------------------------
 # Development Guide
 
-This guide covers everything you need to set up, develop, and contribute to the StyrCan application.
+This guide covers everything you need to set up, develop, and contribute to the Pulse application.
 
 ---
 
@@ -512,7 +512,7 @@ This guide covers everything you need to set up, develop, and contribute to the 
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd styrcan
+cd pulse
 
 # Install dependencies
 npm install
@@ -831,7 +831,7 @@ When Tailwind utilities aren't sufficient, add custom CSS in `src/index.css`:
 
 2. **Include alt text for images**
    ```tsx
-   <img src={heroImage} alt="StyrCan dashboard preview" />
+   <img src={heroImage} alt="Pulse dashboard preview" />
    ```
 
 3. **Ensure keyboard navigation**
@@ -897,7 +897,7 @@ When Tailwind utilities aren't sufficient, add custom CSS in `src/index.css`:
 ----------------------------------------------------------------------------------------------------------------------
 # Design System
 
-This document defines StyrCan's complete design system, including colors, typography, spacing, shadows, animations, and visual patterns.
+This document defines Pulse's complete design system, including colors, typography, spacing, shadows, animations, and visual patterns.
 
 ---
 
@@ -1235,7 +1235,7 @@ document.documentElement.classList.toggle("dark");
 
 # Component Reference
 
-This document provides a comprehensive reference for all components in the StyrCan application, including usage patterns, props, and styling conventions.
+This document provides a comprehensive reference for all components in the Pulse application, including usage patterns, props, and styling conventions.
 
 ---
 
@@ -1626,7 +1626,7 @@ The application uses **Lucide React** for all icons.
 -----------------------------------------------------------------------------------------------------------------
 
 
-# Documentation for StyrCan Application
+# Documentation for Pulse Application
 
 This plan creates comprehensive documentation covering the application overview, technical architecture, design system, and component details.
 
@@ -1635,7 +1635,7 @@ This plan creates comprehensive documentation covering the application overview,
 ## Files to Create
 
 ### 1. docs/README.md
-Main documentation file providing a complete overview of the StyrCan application:
+Main documentation file providing a complete overview of the Pulse application:
 
 **Contents:**
 - Project overview and mission

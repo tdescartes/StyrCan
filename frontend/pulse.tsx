@@ -24,8 +24,8 @@ const CURRENT_USER = {
   id: 'USR-001',
   name: 'John Doe',
   role: 'Admin', // Owner/Admin capabilities
-  email: 'john@styrcan.com',
-  company: 'StyrCan Inc.',
+  email: 'john@pulse.com',
+  company: 'Pulse Inc.',
   avatar: 'JD',
   plan: 'professional' // Toggle to 'standard' to see locks
 };
@@ -167,7 +167,7 @@ const Toast = ({ message, type, onClose }) => (
 
 // --- MAIN APPLICATION STRUCTURE (Spec Section 3.3) ---
 
-export default function StyrCanApp() {
+export default function PulseApp() {
   // Navigation State
   const [currentService, setCurrentService] = useState('home'); // home, employees, finance, payroll, communication, settings
   const [currentView, setCurrentView] = useState('dashboard'); // Specific view within service
@@ -649,7 +649,7 @@ export default function StyrCanApp() {
             <div className="w-6 h-6 bg-black text-white flex items-center justify-center rounded-sm">
               <Zap className="w-3 h-3 fill-current" />
             </div>
-            <span className="font-bold tracking-tight text-lg">STYRCAN</span>
+            <span className="font-bold tracking-tight text-lg">PULSE</span>
           </div>
 
           {/* Service Switcher Tabs */}

@@ -1,6 +1,6 @@
-# StyrCan - Quick Start Guide
+# Pulse - Quick Start Guide
 
-Get StyrCan up and running in minutes!
+Get Pulse up and running in minutes!
 
 ## 🚀 Fastest Way to Start
 
@@ -16,7 +16,7 @@ Get StyrCan up and running in minutes!
 ```powershell
 # Clone repository
 git clone <your-repo-url>
-cd StyrCan
+cd Pulse
 
 # Run setup script
 .\setup.ps1
@@ -61,17 +61,17 @@ That's it! You're ready to go! 🎉
 # Choose option 2 (Backend Only)
 
 # Start PostgreSQL
-docker run -d --name styrcan-postgres -p 5432:5432 `
-  -e POSTGRES_USER=styrcan `
-  -e POSTGRES_PASSWORD=styrcan_password `
-  -e POSTGRES_DB=styrcan_db `
+docker run -d --name pulse-postgres -p 5432:5432 `
+  -e POSTGRES_USER=pulse `
+  -e POSTGRES_PASSWORD=pulse_password `
+  -e POSTGRES_DB=pulse_db `
   postgres:16-alpine
 
 # Start Redis
-docker run -d --name styrcan-redis -p 6379:6379 redis:7-alpine
+docker run -d --name pulse-redis -p 6379:6379 redis:7-alpine
 
 # Initialize database
-docker exec -i styrcan-postgres psql -U styrcan -d styrcan_db < database/init.sql
+docker exec -i pulse-postgres psql -U pulse -d pulse_db < database/init.sql
 
 # Navigate to backend
 cd backend
@@ -152,10 +152,10 @@ Invoke-RestMethod -Uri "http://localhost:8000/api/auth/me" `
 docker ps
 
 # Should see:
-# - styrcan-postgres
-# - styrcan-redis
-# - styrcan-backend
-# - styrcan-frontend (when implemented)
+# - pulse-postgres
+# - pulse-redis
+# - pulse-backend
+# - pulse-frontend (when implemented)
 ```
 
 ### Check Logs
@@ -178,7 +178,7 @@ Invoke-RestMethod -Uri "http://localhost:8000/health"
 # Should return:
 # {
 #   "status": "healthy",
-#   "app": "StyrCan",
+#   "app": "Pulse",
 #   "version": "1.0.0",
 #   "environment": "development"
 # }
@@ -196,7 +196,7 @@ docker-compose down
 docker-compose down -v
 
 # Stop specific container
-docker stop styrcan-backend
+docker stop pulse-backend
 ```
 
 ---
@@ -220,10 +220,10 @@ taskkill /PID <PID> /F
 docker ps | findstr postgres
 
 # Check logs
-docker logs styrcan-postgres
+docker logs pulse-postgres
 
 # Restart PostgreSQL
-docker restart styrcan-postgres
+docker restart pulse-postgres
 ```
 
 ### Backend Won't Start
@@ -281,9 +281,9 @@ docker-compose up -d
 **Note:** These are only for initial testing. Change them immediately!
 
 - **Database:**
-  - User: `styrcan`
-  - Password: `styrcan_password`
-  - Database: `styrcan_db`
+  - User: `pulse`
+  - Password: `pulse_password`
+  - Database: `pulse_db`
   - Port: `5432`
 
 - **Redis:**

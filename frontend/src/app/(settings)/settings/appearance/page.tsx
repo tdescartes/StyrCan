@@ -24,7 +24,7 @@ export default function AppearancePage() {
         <div className="space-y-6">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Appearance</h1>
-                <p className="text-muted-foreground">Customize how StyrCan looks</p>
+                <p className="text-muted-foreground">Customize how Pulse looks</p>
             </div>
 
             <Card>

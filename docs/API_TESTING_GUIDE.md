@@ -1,4 +1,4 @@
-# StyrCan API Testing Guide
+# Pulse API Testing Guide
 
 **Base URL:** `http://localhost:8000`
 

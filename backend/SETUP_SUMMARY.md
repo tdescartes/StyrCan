@@ -1,11 +1,11 @@
-# StyrCan Database Setup - Summary
+# Pulse Database Setup - Summary
 
 ## ✅ What's Been Completed
 
 ### 1. MongoDB - Fully Configured ✅
 
 - **Status:** ✅ Connected and working
-- **Database:** `styrcan_logs` at `mongodb://localhost:27017/`
+- **Database:** `pulse_logs` at `mongodb://localhost:27017/`
 - **Collections Created:**
   - `audit_logs`
   - `chat_messages`
@@ -122,9 +122,9 @@ npm run dev
 ```
 Host:     localhost
 Port:     5432
-Database: styrcan_db
-User:     styrcan
-Password: styrcan_password
+Database: pulse_db
+User:     pulse
+Password: pulse_password
 ```
 
 ### MongoDB
@@ -132,7 +132,7 @@ Password: styrcan_password
 ```
 Host:     localhost
 Port:     27017
-Database: styrcan_logs
+Database: pulse_logs
 Auth:     None (local development)
 ```
 

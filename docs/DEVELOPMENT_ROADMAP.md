@@ -1,10 +1,10 @@
-# StyrCan Development Issues & Roadmap
+# Pulse Development Issues & Roadmap
 
-This document provides a comprehensive overview of all the GitHub issues that need to be created to implement the StyrCan business management platform as described in the README.md.
+This document provides a comprehensive overview of all the GitHub issues that need to be created to implement the Pulse business management platform as described in the README.md.
 
 ## Overview
 
-The StyrCan project requires implementation of a complete business management platform with the following core functionalities:
+The Pulse project requires implementation of a complete business management platform with the following core functionalities:
 1. Employee Management
 2. Financial Management  
 3. Payroll Management

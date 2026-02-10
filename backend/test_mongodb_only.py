@@ -21,11 +21,11 @@ async def test_mongodb():
         print("✅ Connected to MongoDB successfully!")
         
         # Get database
-        db = client['styrcan_logs']
+        db = client['pulse_logs']
         
         # List collections
         collections = await db.list_collection_names()
-        print(f"\n📊 Database: styrcan_logs")
+        print(f"\n📊 Database: pulse_logs")
         print(f"   Collections: {len(collections)}")
         
         for coll in collections:

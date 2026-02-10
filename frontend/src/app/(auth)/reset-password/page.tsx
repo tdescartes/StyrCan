@@ -71,7 +71,7 @@ function ResetPasswordForm() {
                         <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
                             <span className="text-xl font-bold text-primary-foreground">S</span>
                         </div>
-                        <span className="text-2xl font-bold">StyrCan</span>
+                        <span className="text-2xl font-bold">Pulse</span>
                     </Link>
                     <Card>
                         <CardHeader className="text-center">
@@ -99,7 +99,7 @@ function ResetPasswordForm() {
                         <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
                             <span className="text-xl font-bold text-primary-foreground">S</span>
                         </div>
-                        <span className="text-2xl font-bold">StyrCan</span>
+                        <span className="text-2xl font-bold">Pulse</span>
                     </Link>
                     <Card>
                         <CardHeader className="space-y-1 text-center">
@@ -152,7 +152,7 @@ function ResetPasswordForm() {
                     <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
                         <span className="text-xl font-bold text-primary-foreground">S</span>
                     </div>
-                    <span className="text-2xl font-bold">StyrCan</span>
+                    <span className="text-2xl font-bold">Pulse</span>
                 </Link>
 
                 <Card>

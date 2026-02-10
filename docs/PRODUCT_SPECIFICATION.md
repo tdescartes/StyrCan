@@ -1,8 +1,8 @@
-# StyrCan — Complete Product Specification
+# Pulse — Complete Product Specification
 
 > **Version:** 1.0.0
 > **Date:** February 6, 2026
-> **Purpose:** Definitive reference for every feature, business rule, user interaction, and data flow in the StyrCan platform.
+> **Purpose:** Definitive reference for every feature, business rule, user interaction, and data flow in the Pulse platform.
 
 ---
 
@@ -31,9 +31,9 @@
 
 ## 1. Product Overview
 
-### 1.1 What Is StyrCan?
+### 1.1 What Is Pulse?
 
-StyrCan is a **SaaS business management platform** designed for small-to-medium businesses (5–50+ employees). It unifies employee management, financial tracking, payroll processing, and team communication into a single web application — eliminating the need for multiple disconnected tools.
+Pulse is a **SaaS business management platform** designed for small-to-medium businesses (5–50+ employees). It unifies employee management, financial tracking, payroll processing, and team communication into a single web application — eliminating the need for multiple disconnected tools.
 
 ### 1.2 Problem Statement
 
@@ -46,7 +46,7 @@ Small business owners juggle separate tools for HR, accounting, payroll, and mes
 
 ### 1.3 Solution
 
-StyrCan replaces the patchwork with **four integrated service packages** plus global settings:
+Pulse replaces the patchwork with **four integrated service packages** plus global settings:
 
 | Service           | Purpose                          | Key Benefit                                  |
 | ----------------- | -------------------------------- | -------------------------------------------- |
@@ -66,12 +66,12 @@ StyrCan replaces the patchwork with **four integrated service packages** plus gl
 
 ### 1.5 Two-Site Architecture
 
-StyrCan operates across two web properties:
+Pulse operates across two web properties:
 
 | Site               | URL               | Purpose                        | Technology             |
 | ------------------ | ----------------- | ------------------------------ | ---------------------- |
-| **Marketing Site** | `styrcan.com`     | Landing page, pricing, contact | Eleventy (SSG) + Nginx |
-| **Application**    | `use.styrcan.com` | The full SaaS product          | Next.js 14 + FastAPI   |
+| **Marketing Site** | `pulse.com`     | Landing page, pricing, contact | Eleventy (SSG) + Nginx |
+| **Application**    | `use.pulse.com` | The full SaaS product          | Next.js 14 + FastAPI   |
 
 ---
 
@@ -90,7 +90,7 @@ Owner (super_admin)
 
 #### Owner / Super Admin
 
-- **Who:** The person who registers the company on StyrCan.
+- **Who:** The person who registers the company on Pulse.
 - **Created:** Automatically on company registration.
 - **Capabilities:** Full control over everything — billing, settings, all services, user management. Can delete the company.
 - **Limit:** One per company (the founding account).
@@ -169,13 +169,13 @@ Owner (super_admin)
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│               MARKETING LAYER (styrcan.com)              │
+│               MARKETING LAYER (pulse.com)              │
 │   Eleventy Static Site · Nunjucks · CSS                  │
 │   Landing Page · Pricing · About · Contact               │
 └──────────────────────────┬──────────────────────────────┘
                            │ Link to "Get Started"
 ┌──────────────────────────▼──────────────────────────────┐
-│              APPLICATION LAYER (use.styrcan.com)          │
+│              APPLICATION LAYER (use.pulse.com)          │
 │   Next.js 14 · TypeScript · Tailwind CSS · shadcn/ui     │
 │   React Query · Zustand · React Hook Form · Zod          │
 └──────────────────────────┬──────────────────────────────┘
@@ -235,7 +235,7 @@ Each service module is a self-contained package with its own layout, sidebar, da
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ 🏢 StyrCan [PLAN]  [Employees] [Finance] [Payroll] [Comms]  🔔 👤 ⚙️ │
+│ 🏢 Pulse [PLAN]  [Employees] [Finance] [Payroll] [Comms]  🔔 👤 ⚙️ │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -260,7 +260,7 @@ Each service module is a self-contained package with its own layout, sidebar, da
 
 ### 4.1 Registration Flow
 
-**User Journey:** Visitor → `styrcan.com` → "Get Started" → `/register`
+**User Journey:** Visitor → `pulse.com` → "Get Started" → `/register`
 
 **Step-by-step:**
 
@@ -1267,7 +1267,7 @@ Returns data for rendering dashboard visualizations:
 
 ### 11.1 Plan Architecture
 
-StyrCan offers three subscription tiers, each unlocking progressively more features:
+Pulse offers three subscription tiers, each unlocking progressively more features:
 
 |                               | Standard ($49/mo) | Professional ($129/mo) | Enterprise (Custom) |
 | ----------------------------- | :---------------: | :--------------------: | :-----------------: |
@@ -1409,7 +1409,7 @@ The platform uses WebSocket for real-time updates without page refresh:
 **Connection:**
 
 ```javascript
-const socket = io("wss://api.styrcan.com", {
+const socket = io("wss://api.pulse.com", {
   auth: { token: "jwt_access_token" },
   query: { company_id: "comp_abc123" },
 });
@@ -1877,8 +1877,8 @@ All errors follow a consistent JSON structure:
 
 ```bash
 # Core
-DATABASE_URL=postgresql://user:pass@postgres:5432/styrcan
-MONGODB_URL=mongodb://mongodb:27017/styrcan
+DATABASE_URL=postgresql://user:pass@postgres:5432/pulse
+MONGODB_URL=mongodb://mongodb:27017/pulse
 REDIS_URL=redis://redis:6379/0
 
 # Security
@@ -1896,7 +1896,7 @@ SMTP_USER=apikey
 SMTP_PASSWORD=SG....
 
 # App
-CORS_ORIGINS=["https://use.styrcan.com"]
+CORS_ORIGINS=["https://use.pulse.com"]
 DEBUG=False
 ```
 
@@ -1917,12 +1917,12 @@ Deployed to a self-hosted Kubernetes cluster with:
 
 | Resource          | Description                                                                               |
 | ----------------- | ----------------------------------------------------------------------------------------- |
-| Namespace         | `styrcan` — isolates all resources                                                        |
+| Namespace         | `pulse` — isolates all resources                                                        |
 | ConfigMap         | Environment variables (non-sensitive)                                                     |
 | Secrets           | Passwords, JWT secret, API keys                                                           |
 | Deployments       | Backend (2 replicas), Frontend (2 replicas), Landing (1 replica)                          |
 | Services          | ClusterIP for internal communication                                                      |
-| Ingress           | Routes `styrcan.com` → Landing, `use.styrcan.com` → Frontend, `api.styrcan.com` → Backend |
+| Ingress           | Routes `pulse.com` → Landing, `use.pulse.com` → Frontend, `api.pulse.com` → Backend |
 | PersistentVolumes | PostgreSQL data, MongoDB data, Redis data                                                 |
 | NodePort          | Dev access — Frontend: 30300, Backend: 30800                                              |
 
@@ -1930,12 +1930,12 @@ Deployed to a self-hosted Kubernetes cluster with:
 
 | URL                                 | Service  | Purpose             |
 | ----------------------------------- | -------- | ------------------- |
-| `https://styrcan.com`               | Landing  | Marketing site      |
-| `https://use.styrcan.com`           | Frontend | Application         |
-| `https://api.styrcan.com/api/v1`    | Backend  | REST API            |
-| `https://api.styrcan.com/api/docs`  | Backend  | Swagger UI docs     |
-| `https://api.styrcan.com/api/redoc` | Backend  | ReDoc documentation |
-| `wss://api.styrcan.com`             | Backend  | WebSocket events    |
+| `https://pulse.com`               | Landing  | Marketing site      |
+| `https://use.pulse.com`           | Frontend | Application         |
+| `https://api.pulse.com/api/v1`    | Backend  | REST API            |
+| `https://api.pulse.com/api/docs`  | Backend  | Swagger UI docs     |
+| `https://api.pulse.com/api/redoc` | Backend  | ReDoc documentation |
+| `wss://api.pulse.com`             | Backend  | WebSocket events    |
 
 ---
 
@@ -2074,7 +2074,7 @@ Deployed to a self-hosted Kubernetes cluster with:
 ### B.1 New Business Onboarding
 
 ```
-1. Owner visits styrcan.com → clicks "Get Started"
+1. Owner visits pulse.com → clicks "Get Started"
 2. Fills registration form (company name, admin details, plan)
 3. Redirected to home page (/) with welcome message
 4. Clicks "Employees" service → Dashboard shows 0 employees
@@ -2141,4 +2141,4 @@ Deployed to a self-hosted Kubernetes cluster with:
 
 ---
 
-_This document serves as the single source of truth for the StyrCan platform. All development, testing, and product decisions should reference this specification._
+_This document serves as the single source of truth for the Pulse platform. All development, testing, and product decisions should reference this specification._

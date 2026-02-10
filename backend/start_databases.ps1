@@ -1,9 +1,9 @@
 #!/usr/bin/env pwsh
-# Start StyrCan Database Services
+# Start Pulse Database Services
 # This script starts PostgreSQL and MongoDB services
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "Starting StyrCan Database Services" -ForegroundColor Cyan
+Write-Host "Starting Pulse Database Services" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -144,14 +144,14 @@ Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "PostgreSQL:" -ForegroundColor White
 Write-Host "  Host: localhost" -ForegroundColor Gray
-Write-Host "  Port: 5433 (StyrCan DB)" -ForegroundColor Gray
-Write-Host "  Database: styrcan_db" -ForegroundColor Gray
-Write-Host "  User: styrcan" -ForegroundColor Gray
+Write-Host "  Port: 5433 (Pulse DB)" -ForegroundColor Gray
+Write-Host "  Database: pulse_db" -ForegroundColor Gray
+Write-Host "  User: pulse" -ForegroundColor Gray
 Write-Host ""
 Write-Host "MongoDB:" -ForegroundColor White
 Write-Host "  Host: localhost" -ForegroundColor Gray
 Write-Host "  Port: 27017" -ForegroundColor Gray
-Write-Host "  Database: styrcan_logs" -ForegroundColor Gray
+Write-Host "  Database: pulse_logs" -ForegroundColor Gray
 Write-Host ""
 Write-Host "Databases are ready!" -ForegroundColor Green
 Write-Host "You can now start the backend with: .\start_backend.ps1" -ForegroundColor Cyan

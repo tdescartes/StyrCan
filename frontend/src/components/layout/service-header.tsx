@@ -70,7 +70,7 @@ export function ServiceHeader() {
                     <div className="w-8 h-8 bg-black text-white flex items-center justify-center rounded-sm">
                         <Zap className="w-4 h-4 fill-current" />
                     </div>
-                    <span className="font-bold text-xl tracking-tight">STYRCAN</span>
+                    <span className="font-bold text-xl tracking-tight">PULSE</span>
                 </Link>
 
                 {/* Service Tabs */}

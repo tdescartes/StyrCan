@@ -54,7 +54,7 @@ jobs:
       #   with:
       #     github_token: ${{ secrets.GITHUB_TOKEN }}
       #     publish_dir: ./landing/_site
-      #     cname: styrcan.com
+      #     cname: pulse.com
 
       # Optional: Deploy to Netlify
       # - name: Deploy to Netlify
@@ -100,7 +100,7 @@ jobs:
     #     context: ./landing
     #     push: true
     #     tags: |
-    #       ${{ secrets.DOCKER_USERNAME }}/styrcan-landing:latest
-    #       ${{ secrets.DOCKER_USERNAME }}/styrcan-landing:${{ github.sha }}
+    #       ${{ secrets.DOCKER_USERNAME }}/pulse-landing:latest
+    #       ${{ secrets.DOCKER_USERNAME }}/pulse-landing:${{ github.sha }}
     #     cache-from: type=gha
     #     cache-to: type=gha,mode=max

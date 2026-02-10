@@ -1,6 +1,6 @@
-# Issue Creation Guide for StyrCan
+# Issue Creation Guide for Pulse
 
-This guide explains how to create GitHub issues for the StyrCan project using the provided templates.
+This guide explains how to create GitHub issues for the Pulse project using the provided templates.
 
 ## Quick Start
 

@@ -1,12 +1,12 @@
 ---
-# Ingress for StyrCan - Split routing for marketing and app
-# Marketing site: styrcan.com -> landing-service
-# Application: use.styrcan.com -> frontend-service + backend-service
+# Ingress for Pulse - Split routing for marketing and app
+# Marketing site: pulse.com -> landing-service
+# Application: use.pulse.com -> frontend-service + backend-service
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: styrcan-ingress
-  namespace: styrcan
+  name: pulse-ingress
+  namespace: pulse
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
@@ -17,15 +17,15 @@ spec:
   # TLS configuration - uncomment when certificates are provisioned
   # tls:
   #   - hosts:
-  #       - styrcan.com
-  #       - www.styrcan.com
-  #     secretName: styrcan-marketing-tls
+  #       - pulse.com
+  #       - www.pulse.com
+  #     secretName: pulse-marketing-tls
   #   - hosts:
-  #       - use.styrcan.com
-  #     secretName: styrcan-app-tls
+  #       - use.pulse.com
+  #     secretName: pulse-app-tls
   rules:
     # Marketing site (static landing page)
-    - host: styrcan.com
+    - host: pulse.com
       http:
         paths:
           - path: /
@@ -36,7 +36,7 @@ spec:
                 port:
                   number: 80
     # WWW redirect to main domain
-    - host: www.styrcan.com
+    - host: www.pulse.com
       http:
         paths:
           - path: /
@@ -47,7 +47,7 @@ spec:
                 port:
                   number: 80
     # Application (Next.js app + API)
-    - host: use.styrcan.com
+    - host: use.pulse.com
       http:
         paths:
           - path: /api
@@ -65,7 +65,7 @@ spec:
                 port:
                   number: 3000
     # Local development fallback
-    - host: styrcan.local
+    - host: pulse.local
       http:
         paths:
           - path: /api

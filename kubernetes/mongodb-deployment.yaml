@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: mongodb-pv
-  namespace: styrcan
+  namespace: pulse
 spec:
   capacity:
     storage: 20Gi
@@ -16,7 +16,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mongodb-pvc
-  namespace: styrcan
+  namespace: pulse
 spec:
   accessModes:
     - ReadWriteOnce
@@ -28,7 +28,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongodb
-  namespace: styrcan
+  namespace: pulse
 spec:
   replicas: 1
   selector:
@@ -57,7 +57,7 @@ spec:
                   name: app-secrets
                   key: MONGODB_PASSWORD
             - name: MONGO_INITDB_DATABASE
-              value: "styrcan_logs"
+              value: "pulse_logs"
           volumeMounts:
             - name: mongodb-storage
               mountPath: /data/db
@@ -101,7 +101,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongodb-service
-  namespace: styrcan
+  namespace: pulse
 spec:
   selector:
     app: mongodb

@@ -1,6 +1,6 @@
 """Check database users."""
 import sys
-sys.path.insert(0, 'C:\\Users\\Descartes Tuyishime\\OneDrive\\Documents\\StyrCan\\StyrCan\\backend')
+sys.path.insert(0, 'C:\\Users\\Descartes Tuyishime\\OneDrive\\Documents\\Pulse\\Pulse\\backend')
 
 from app.database import SessionLocal
 from app.models import User, Company

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-**What we're doing:** Moving the full StyrCan business management application from `frontend-next` into `frontend`, while **restructuring into a service-oriented architecture** with four distinct service packages.
+**What we're doing:** Moving the full Pulse business management application from `frontend-next` into `frontend`, while **restructuring into a service-oriented architecture** with four distinct service packages.
 
 **Why it matters:** `frontend` is the canonical project folder wired into CI/CD, Kubernetes, and docker-compose. The new architecture organizes features into self-contained service modules, each with its own dashboard, sidebar, and navigation — making the platform scalable and maintainable.
 
@@ -14,7 +14,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                        STYRCAN PLATFORM                             │
+│                        PULSE PLATFORM                             │
 ├─────────────┬─────────────┬─────────────┬─────────────┬────────────┤
 │  EMPLOYEES  │   FINANCE   │   PAYROLL   │    COMMS    │  SETTINGS  │
 │   Service   │   Service   │   Service   │   Service   │  (Global)  │
@@ -122,7 +122,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           STYRCAN PRICING PLANS                                 │
+│                           PULSE PRICING PLANS                                 │
 ├───────────────────────┬───────────────────────┬─────────────────────────────────┤
 │    STANDARD EDITION   │  PROFESSIONAL EDITION │      ENTERPRISE EDITION         │
 │        $49/mo         │        $129/mo        │           Custom                │
@@ -330,7 +330,7 @@ function FeatureGate({ feature, children, fallback }: {
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ 🏢 StyrCan [PRO]  [Employees] [Finance] [Payroll] [Comms]   🔔 👤 ⚙️│
+│ 🏢 Pulse [PRO]  [Employees] [Finance] [Payroll] [Comms]   🔔 👤 ⚙️│
 └──────────────────────────────────────────────────────────────────────┘
                 │
                 └── Shows current plan (Standard/Pro/Enterprise)
@@ -485,7 +485,7 @@ Add to **Phase 10 — Settings Module**:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ 🏢 StyrCan    [Employees] [Finance] [Payroll] [Comms]    🔔 👤 ⚙️   │
+│ 🏢 Pulse    [Employees] [Finance] [Payroll] [Comms]    🔔 👤 ⚙️   │
 └──────────────────────────────────────────────────────────────────────┘
          │           │                                      │  │  │
          │           └── Service tabs (highlighted = active) │  │  │
@@ -569,7 +569,7 @@ Add to **Phase 10 — Settings Module**:
 
 - [ ] **4.1** Create `src/app/providers.tsx` — React Query, ThemeProvider, Toaster
 
-- [ ] **4.2** Replace `src/app/layout.tsx` — Inter font, StyrCan metadata, Providers wrapper
+- [ ] **4.2** Replace `src/app/layout.tsx` — Inter font, Pulse metadata, Providers wrapper
 
 - [ ] **4.3** Create `src/app/page.tsx` — Home page with service selector cards
 

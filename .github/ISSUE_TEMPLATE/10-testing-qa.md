@@ -7,7 +7,7 @@ assignees: []
 ---
 
 ## Description
-Implement a comprehensive testing strategy including unit tests, integration tests, end-to-end tests, and quality assurance processes to ensure the StyrCan platform is reliable, secure, and maintainable.
+Implement a comprehensive testing strategy including unit tests, integration tests, end-to-end tests, and quality assurance processes to ensure the Pulse platform is reliable, secure, and maintainable.
 
 ## Backend Testing Requirements
 - [ ] Unit tests for all API endpoints

@@ -1,4 +1,4 @@
-# StyrCan Scripts
+# Pulse Scripts
 
 This folder contains utility scripts for project setup, deployment, and maintenance.
 

@@ -7,7 +7,7 @@ assignees: []
 ---
 
 ## Description
-Set up production-ready infrastructure, continuous integration/continuous deployment (CI/CD) pipelines, monitoring, and deployment processes to ensure the StyrCan platform can be reliably deployed, maintained, and scaled.
+Set up production-ready infrastructure, continuous integration/continuous deployment (CI/CD) pipelines, monitoring, and deployment processes to ensure the Pulse platform can be reliably deployed, maintained, and scaled.
 
 ## Infrastructure Requirements
 ### Cloud Infrastructure

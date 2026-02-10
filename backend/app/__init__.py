@@ -1,3 +1,3 @@
-"""StyrCan Backend Application"""
+"""Pulse Backend Application"""
 
 __version__ = "1.0.0"

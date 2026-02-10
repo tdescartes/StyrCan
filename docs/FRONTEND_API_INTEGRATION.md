@@ -1,8 +1,8 @@
-# StyrCan API Integration - Complete Setup
+# Pulse API Integration - Complete Setup
 
 ## 📦 What's Been Created
 
-I've created a complete TypeScript API testing and integration suite for your StyrCan application. Here's what you have:
+I've created a complete TypeScript API testing and integration suite for your Pulse application. Here's what you have:
 
 ### 1. **Type Definitions** (`frontend/src/lib/api/types.ts`)
 
@@ -10,7 +10,7 @@ I've created a complete TypeScript API testing and integration suite for your St
 - Request/response type definitions
 - ~400 lines of type-safe definitions
 
-### 2. **Production API Client** (`frontend/src/lib/api/styrcan-client.ts`)
+### 2. **Production API Client** (`frontend/src/lib/api/pulse-client.ts`)
 
 - Ready-to-use API client with all endpoints
 - Automatic token management & refresh
@@ -59,14 +59,14 @@ This will:
 Import the API client in any component:
 
 ```typescript
-import { styrcanApi } from "@/lib/api/styrcan-client";
+import { pulseApi } from "@/lib/api/pulse-client";
 import type { Employee } from "@/lib/api/types";
 
 // Login
-const result = await styrcanApi.auth.login(email, password);
+const result = await pulseApi.auth.login(email, password);
 
 // Create employee
-const newEmployee = await styrcanApi.employees.create({
+const newEmployee = await pulseApi.employees.create({
   first_name: "John",
   last_name: "Doe",
   email: "john@example.com",
@@ -77,7 +77,7 @@ const newEmployee = await styrcanApi.employees.create({
 });
 
 // List employees
-const { data } = await styrcanApi.employees.list({ limit: 50 });
+const { data } = await pulseApi.employees.list({ limit: 50 });
 ```
 
 ### Step 3: Copy Example Components
@@ -95,106 +95,106 @@ Look at `frontend/src/components/examples/EmployeeListExample.tsx` for:
 ### Authentication
 
 ```typescript
-styrcanApi.auth.register(data)
-styrcanApi.auth.login(email, password)
-styrcanApi.auth.logout()
-styrcanApi.auth.getCurrentUser()
-styrcanApi.auth.updateProfile(data)
-styrcanApi.auth.changePassword(current, new, confirm)
-styrcanApi.auth.forgotPassword(email)
-styrcanApi.auth.resetPassword(token, new, confirm)
+pulseApi.auth.register(data)
+pulseApi.auth.login(email, password)
+pulseApi.auth.logout()
+pulseApi.auth.getCurrentUser()
+pulseApi.auth.updateProfile(data)
+pulseApi.auth.changePassword(current, new, confirm)
+pulseApi.auth.forgotPassword(email)
+pulseApi.auth.resetPassword(token, new, confirm)
 ```
 
 ### Dashboard
 
 ```typescript
-styrcanApi.dashboard.getSummary();
-styrcanApi.dashboard.getFinancialCharts(months);
+pulseApi.dashboard.getSummary();
+pulseApi.dashboard.getFinancialCharts(months);
 ```
 
 ### Employees
 
 ```typescript
-styrcanApi.employees.getDashboard();
-styrcanApi.employees.list(params);
-styrcanApi.employees.create(data);
-styrcanApi.employees.get(id);
-styrcanApi.employees.update(id, data);
-styrcanApi.employees.delete(id);
+pulseApi.employees.getDashboard();
+pulseApi.employees.list(params);
+pulseApi.employees.create(data);
+pulseApi.employees.get(id);
+pulseApi.employees.update(id, data);
+pulseApi.employees.delete(id);
 ```
 
 ### PTO
 
 ```typescript
-styrcanApi.pto.list(params);
-styrcanApi.pto.create(data);
-styrcanApi.pto.update(id, data);
-styrcanApi.pto.delete(id);
+pulseApi.pto.list(params);
+pulseApi.pto.create(data);
+pulseApi.pto.update(id, data);
+pulseApi.pto.delete(id);
 ```
 
 ### Shifts
 
 ```typescript
-styrcanApi.shifts.list(params);
-styrcanApi.shifts.create(data);
-styrcanApi.shifts.update(id, data);
-styrcanApi.shifts.delete(id);
+pulseApi.shifts.list(params);
+pulseApi.shifts.create(data);
+pulseApi.shifts.update(id, data);
+pulseApi.shifts.delete(id);
 ```
 
 ### Finances
 
 ```typescript
-styrcanApi.finances.getDashboard();
-styrcanApi.finances.listTransactions(params);
-styrcanApi.finances.createTransaction(data);
-styrcanApi.finances.getTransaction(id);
-styrcanApi.finances.updateTransaction(id, data);
-styrcanApi.finances.deleteTransaction(id);
-styrcanApi.finances.getSummary(startDate, endDate);
+pulseApi.finances.getDashboard();
+pulseApi.finances.listTransactions(params);
+pulseApi.finances.createTransaction(data);
+pulseApi.finances.getTransaction(id);
+pulseApi.finances.updateTransaction(id, data);
+pulseApi.finances.deleteTransaction(id);
+pulseApi.finances.getSummary(startDate, endDate);
 ```
 
 ### Payroll
 
 ```typescript
-styrcanApi.payroll.getDashboard();
-styrcanApi.payroll.listRuns(params);
-styrcanApi.payroll.createRun(data);
-styrcanApi.payroll.getRun(id);
-styrcanApi.payroll.updateRun(id, data);
-styrcanApi.payroll.deleteRun(id);
-styrcanApi.payroll.processPayroll(runId, items);
+pulseApi.payroll.getDashboard();
+pulseApi.payroll.listRuns(params);
+pulseApi.payroll.createRun(data);
+pulseApi.payroll.getRun(id);
+pulseApi.payroll.updateRun(id, data);
+pulseApi.payroll.deleteRun(id);
+pulseApi.payroll.processPayroll(runId, items);
 ```
 
 ### Messaging
 
 ```typescript
-styrcanApi.messaging.send(data);
-styrcanApi.messaging.getInbox(params);
-styrcanApi.messaging.getSent(params);
-styrcanApi.messaging.getThread(threadId);
-styrcanApi.messaging.markAsRead(id);
-styrcanApi.messaging.delete(id);
+pulseApi.messaging.send(data);
+pulseApi.messaging.getInbox(params);
+pulseApi.messaging.getSent(params);
+pulseApi.messaging.getThread(threadId);
+pulseApi.messaging.markAsRead(id);
+pulseApi.messaging.delete(id);
 ```
 
 ### Notifications
 
 ```typescript
-styrcanApi.notifications.list(params);
-styrcanApi.notifications.markAsRead(id);
-styrcanApi.notifications.markAllAsRead();
-styrcanApi.notifications.getUnreadCount();
-styrcanApi.notifications.delete(id);
+pulseApi.notifications.list(params);
+pulseApi.notifications.markAsRead(id);
+pulseApi.notifications.markAllAsRead();
+pulseApi.notifications.getUnreadCount();
+pulseApi.notifications.delete(id);
 ```
 
 ### Settings
 
 ```typescript
-styrcanApi.settings.getCompany();
-styrcanApi.settings.updateCompany(data);
-styrcanApi.settings.listUsers();
-styrcanApi.settings.inviteUser(data);
-styrcanApi.settings.updateUser(id, data);
-styrcanApi.settings.deleteUser(id);
+pulseApi.settings.getCompany();
+pulseApi.settings.updateCompany(data);
+pulseApi.settings.listUsers();
+pulseApi.settings.inviteUser(data);
+pulseApi.settings.updateUser(id, data);
+pulseApi.settings.deleteUser(id);
 ```
 
 ## 🔒 Authentication Flow
@@ -203,7 +203,7 @@ styrcanApi.settings.deleteUser(id);
 
 ```typescript
 // Option 1: Register new company
-const result = await styrcanApi.auth.register({
+const result = await pulseApi.auth.register({
   name: "My Company",
   email: "company@example.com",
   admin_first_name: "John",
@@ -213,7 +213,7 @@ const result = await styrcanApi.auth.register({
 });
 
 // Option 2: Login existing user
-const result = await styrcanApi.auth.login(
+const result = await pulseApi.auth.login(
   "admin@example.com",
   "SecurePass123!",
 );
@@ -229,19 +229,19 @@ if (result.success) {
 
 ```typescript
 // Check authentication status
-if (!styrcanApi.isAuthenticated()) {
+if (!pulseApi.isAuthenticated()) {
   router.push("/login");
   return;
 }
 
 // Token is automatically included in all requests
-const dashboard = await styrcanApi.dashboard.getSummary();
+const dashboard = await pulseApi.dashboard.getSummary();
 ```
 
 ### 3. Logout
 
 ```typescript
-await styrcanApi.auth.logout();
+await pulseApi.auth.logout();
 // Tokens are automatically cleared
 router.push("/login");
 ```
@@ -251,7 +251,7 @@ router.push("/login");
 ### 1. Error Handling
 
 ```typescript
-const result = await styrcanApi.employees.list();
+const result = await pulseApi.employees.list();
 
 if (result.success && result.data) {
   // Success - use result.data
@@ -276,7 +276,7 @@ const [loading, setLoading] = useState(false);
 const loadData = async () => {
   setLoading(true);
   try {
-    const result = await styrcanApi.employees.list();
+    const result = await pulseApi.employees.list();
     if (result.success) {
       setEmployees(result.data.employees);
     }
@@ -290,7 +290,7 @@ const loadData = async () => {
 
 ```typescript
 const handleSubmit = async (formData) => {
-  const result = await styrcanApi.employees.create(formData);
+  const result = await pulseApi.employees.create(formData);
 
   if (result.success) {
     toast.success("Employee created!");
@@ -308,7 +308,7 @@ const handleSubmit = async (formData) => {
 const [page, setPage] = useState(0);
 const limit = 50;
 
-const result = await styrcanApi.employees.list({
+const result = await pulseApi.employees.list({
   skip: page * limit,
   limit: limit,
 });
@@ -324,8 +324,8 @@ const totalPages = Math.ceil(result.data.total / limit);
 useEffect(() => {
   const loadDashboard = async () => {
     const [summary, charts] = await Promise.all([
-      styrcanApi.dashboard.getSummary(),
-      styrcanApi.dashboard.getFinancialCharts(12),
+      pulseApi.dashboard.getSummary(),
+      pulseApi.dashboard.getFinancialCharts(12),
     ]);
 
     if (summary.success) setSummary(summary.data);
@@ -340,7 +340,7 @@ useEffect(() => {
 
 ```typescript
 const handleCreate = async (data) => {
-  const result = await styrcanApi.employees.create(data);
+  const result = await pulseApi.employees.create(data);
 
   if (result.success) {
     // Refresh the list
@@ -356,7 +356,7 @@ const [searchQuery, setSearchQuery] = useState("");
 
 useEffect(() => {
   const timer = setTimeout(() => {
-    styrcanApi.employees.list({ search: searchQuery }).then((result) => {
+    pulseApi.employees.list({ search: searchQuery }).then((result) => {
       if (result.success) setEmployees(result.data.employees);
     });
   }, 300); // Debounce
@@ -398,7 +398,7 @@ frontend/
 │   ├── lib/
 │   │   └── api/
 │   │       ├── types.ts              # Type definitions
-│   │       ├── styrcan-client.ts     # Production API client
+│   │       ├── pulse-client.ts     # Production API client
 │   │       ├── api-test.ts           # Test suite
 │   │       └── README.md             # Detailed documentation
 │   └── components/
@@ -409,7 +409,7 @@ frontend/
 ## 🎓 Next Steps
 
 1. **Run the test suite** to verify all endpoints work
-2. **Import styrcanApi** in your existing components
+2. **Import pulseApi** in your existing components
 3. **Copy example patterns** from EmployeeListExample.tsx
 4. **Add error handling** and loading states
 5. **Test in production** with real data

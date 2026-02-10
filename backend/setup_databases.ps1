@@ -1,8 +1,8 @@
-# Database Setup Script for StyrCan
+# Database Setup Script for Pulse
 # This script creates and initializes PostgreSQL and MongoDB databases
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "StyrCan Database Setup" -ForegroundColor Cyan
+Write-Host "Pulse Database Setup" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -10,15 +10,15 @@ Write-Host ""
 $PG_HOST = "localhost"
 $PG_PORT = "5432"
 $PG_USER = "postgres"  # Default PostgreSQL superuser
-$PG_DB = "styrcan_db"
-$PG_APP_USER = "styrcan"
-$PG_APP_PASSWORD = "styrcan_password"
+$PG_DB = "pulse_db"
+$PG_APP_USER = "pulse"
+$PG_APP_PASSWORD = "pulse_password"
 $INIT_SQL = "..\database\init.sql"
 
 # MongoDB Configuration
 $MONGO_HOST = "localhost"
 $MONGO_PORT = "27017"
-$MONGO_DB = "styrcan_logs"
+$MONGO_DB = "pulse_logs"
 
 Write-Host "Step 1: Creating PostgreSQL Database..." -ForegroundColor Yellow
 

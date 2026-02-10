@@ -1,14 +1,14 @@
-# **StyrCan: Empowering Small Businesses**
+# **Pulse: Empowering Small Businesses**
 
-**StyrCan** is a next-generation business management platform designed to simplify and streamline operations for small businesses. By integrating essential tools into one cohesive system, StyrCan helps entrepreneurs efficiently manage their employees, finances, communication, payroll, and day-to-day operations—all from a centralized dashboard. It provides the flexibility and scalability needed to grow your business without the complexity of juggling multiple software solutions.
+**Pulse** is a next-generation business management platform designed to simplify and streamline operations for small businesses. By integrating essential tools into one cohesive system, Pulse helps entrepreneurs efficiently manage their employees, finances, communication, payroll, and day-to-day operations—all from a centralized dashboard. It provides the flexibility and scalability needed to grow your business without the complexity of juggling multiple software solutions.
 
 ---
 
 ## **Overview**
 
-Running a small business often involves managing scattered tools for payroll, financial tracking, employee schedules, internal communication, and more. This fragmentation leads to inefficiencies, higher costs, and wasted time. **StyrCan** solves this problem by offering an all-in-one platform that centralizes these functionalities, enabling business owners to focus on what truly matters: growth and success.
+Running a small business often involves managing scattered tools for payroll, financial tracking, employee schedules, internal communication, and more. This fragmentation leads to inefficiencies, higher costs, and wasted time. **Pulse** solves this problem by offering an all-in-one platform that centralizes these functionalities, enabling business owners to focus on what truly matters: growth and success.
 
-Whether you're a small business owner managing a team or a solo entrepreneur handling multiple responsibilities, StyrCan is built to support your needs with simplicity, efficiency, and reliability.
+Whether you're a small business owner managing a team or a solo entrepreneur handling multiple responsibilities, Pulse is built to support your needs with simplicity, efficiency, and reliability.
 
 ---
 
@@ -55,35 +55,35 @@ Whether you're a small business owner managing a team or a solo entrepreneur han
 
 ---
 
-## **What Problems Does StyrCan Solve?**
+## **What Problems Does Pulse Solve?**
 
 ### **1. Fragmented Tools**
 
-Many small businesses rely on separate tools for managing employees, tracking finances, handling operations, processing payroll, and communicating internally. StyrCan consolidates these functions into one platform, reducing complexity and costs.
+Many small businesses rely on separate tools for managing employees, tracking finances, handling operations, processing payroll, and communicating internally. Pulse consolidates these functions into one platform, reducing complexity and costs.
 
 ### **2. Payroll Complexity**
 
-Payroll can be time-consuming and error-prone without proper tools. StyrCan automates salary calculations while ensuring tax compliance.
+Payroll can be time-consuming and error-prone without proper tools. Pulse automates salary calculations while ensuring tax compliance.
 
 ### **3. Lack of Communication**
 
-Inefficient communication between employees can lead to delays and misunderstandings. StyrCan's messaging feature ensures seamless collaboration across teams.
+Inefficient communication between employees can lead to delays and misunderstandings. Pulse's messaging feature ensures seamless collaboration across teams.
 
 ### **4. Lack of Insights**
 
-Without proper tools, businesses struggle to gain actionable insights into their operations. StyrCan provides real-time analytics to help owners make informed decisions.
+Without proper tools, businesses struggle to gain actionable insights into their operations. Pulse provides real-time analytics to help owners make informed decisions.
 
 ### **5. Time Constraints**
 
-Entrepreneurs often spend too much time on administrative tasks instead of focusing on growth. StyrCan automates routine processes like payroll management and financial reporting to save valuable time.
+Entrepreneurs often spend too much time on administrative tasks instead of focusing on growth. Pulse automates routine processes like payroll management and financial reporting to save valuable time.
 
 ### **6. Scalability Issues**
 
-As businesses grow, their needs evolve. StyrCan is designed to scale with your business, ensuring it remains relevant as you expand.
+As businesses grow, their needs evolve. Pulse is designed to scale with your business, ensuring it remains relevant as you expand.
 
 ---
 
-## **Why Choose StyrCan?**
+## **Why Choose Pulse?**
 
 - **Ease of Use**: Intuitive design ensures minimal learning curve for users.
 - **Cost Efficiency**: Reduces the need for multiple software subscriptions by bundling essential features.
@@ -95,7 +95,7 @@ As businesses grow, their needs evolve. StyrCan is designed to scale with your b
 
 ## **Tech Stack**
 
-StyrCan is built with modern technologies to ensure high performance, scalability, and security:
+Pulse is built with modern technologies to ensure high performance, scalability, and security:
 
 - **Frontend**: Next.js 14 + React + TypeScript for modern web application
 - **Backend**: FastAPI (Python) for efficient API development
@@ -109,7 +109,7 @@ StyrCan is built with modern technologies to ensure high performance, scalabilit
 ## **Repository Structure**
 
 ```
-StyrCan/
+Pulse/
 ├── backend/          # FastAPI backend application
 ├── frontend/         # Next.js frontend application
 ├── landing/          # Landing page website
@@ -148,7 +148,7 @@ StyrCan/
 
 **Current Status**: 🚧 In Development - Core Features Implemented
 
-StyrCan is currently in active development with core features implemented and ready for testing.
+Pulse is currently in active development with core features implemented and ready for testing.
 
 ### **For Developers**
 
@@ -207,8 +207,8 @@ StyrCan is currently in active development with core features implemented and re
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/styrcan.git
-cd styrcan
+git clone https://github.com/yourusername/pulse.git
+cd pulse
 
 # Start backend
 cd backend

@@ -1,7 +1,7 @@
 {
-  "name": "styrcan-landing",
+  "name": "pulse-landing",
   "version": "1.0.0",
-  "description": "StyrCan Marketing & Landing Page - Built with Eleventy",
+  "description": "Pulse Marketing & Landing Page - Built with Eleventy",
   "scripts": {
     "start": "eleventy --serve",
     "build": "eleventy",
@@ -11,11 +11,11 @@
     "@11ty/eleventy": "^2.0.1"
   },
   "keywords": [
-    "styrcan",
+    "pulse",
     "landing-page",
     "eleventy",
     "static-site"
   ],
-  "author": "StyrCan Team",
+  "author": "Pulse Team",
   "license": "PROPRIETARY"
 }

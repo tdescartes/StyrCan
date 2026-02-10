@@ -1,6 +1,6 @@
-# StyrCan Service Management Scripts
+# Pulse Service Management Scripts
 
-Quick reference for starting and managing StyrCan services.
+Quick reference for starting and managing Pulse services.
 
 ## Available Scripts
 
@@ -117,11 +117,11 @@ Once started, access:
 
 ## Database Connections
 
-- **PostgreSQL:** `localhost:5433/styrcan_db`
-  - User: `styrcan`
-  - Password: `styrcan_password`
+- **PostgreSQL:** `localhost:5433/pulse_db`
+  - User: `pulse`
+  - Password: `pulse_password`
 
-- **MongoDB:** `localhost:27017/styrcan_logs`
+- **MongoDB:** `localhost:27017/pulse_logs`
   - No authentication (local development)
 
 ---
