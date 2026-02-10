@@ -1,8 +1,9 @@
 """Pydantic schemas for authentication."""
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
 from datetime import datetime
+from uuid import UUID
 
 
 class UserBase(BaseModel):
@@ -36,8 +37,14 @@ class UserResponse(UserBase):
     last_login: Optional[datetime] = None
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    @field_validator('id', 'company_id', mode='before')
+    @classmethod
+    def convert_uuid_to_str(cls, v):
+        if isinstance(v, UUID):
+            return str(v)
+        return v
+    
+    model_config = {"from_attributes": True}
 
 
 class CompanyCreate(BaseModel):
@@ -66,8 +73,14 @@ class CompanyResponse(BaseModel):
     status: str
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    @field_validator('id', mode='before')
+    @classmethod
+    def convert_uuid_to_str(cls, v):
+        if isinstance(v, UUID):
+            return str(v)
+        return v
+    
+    model_config = {"from_attributes": True}
 
 
 class Token(BaseModel):
