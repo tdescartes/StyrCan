@@ -64,13 +64,14 @@ app = FastAPI(
 )
 
 
-# CORS Middleware
+# CORS Middleware - Must be added before other middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=settings.cors_origins if settings.cors_origins else ["*"],
     allow_credentials=settings.cors_credentials,
-    allow_methods=settings.cors_methods,
-    allow_headers=settings.cors_headers,
+    allow_methods=settings.cors_methods if settings.cors_methods else ["*"],
+    allow_headers=settings.cors_headers if settings.cors_headers else ["*"],
+    expose_headers=["*"],
 )
 
 # Audit logging middleware
