@@ -10,6 +10,7 @@ import uuid
 
 from ..database import get_db
 from ..models import PayrollRun, PayrollItem, Employee
+from ..models.user import User
 from ..schemas.payroll import (
     PayrollRunCreate,
     PayrollRunUpdate,
@@ -36,10 +37,10 @@ router = APIRouter()
 @router.get("/dashboard", response_model=dict)
 async def get_payroll_dashboard(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get payroll dashboard KPIs."""
-    company_id = current_user["company_id"]
+    company_id = current_user.company_id
     today = date.today()
     current_month = today.replace(day=1)
     
@@ -98,11 +99,11 @@ async def get_payroll_runs(
     status_filter: Optional[str] = None,
     year: Optional[int] = None,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all payroll runs for the company."""
     query = db.query(PayrollRun).filter(
-        PayrollRun.company_id == current_user["company_id"]
+        PayrollRun.company_id == current_user.company_id
     )
     
     if status_filter:
@@ -130,12 +131,12 @@ async def get_payroll_runs(
 async def create_payroll_run(
     payroll_data: PayrollRunCreate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Create a new payroll run (draft)."""
     # Check for overlapping periods
     existing = db.query(PayrollRun).filter(
-        PayrollRun.company_id == current_user["company_id"],
+        PayrollRun.company_id == current_user.company_id,
         PayrollRun.period_start <= payroll_data.period_end,
         PayrollRun.period_end >= payroll_data.period_start,
         PayrollRun.status != "cancelled"
@@ -149,7 +150,7 @@ async def create_payroll_run(
     
     payroll_run = PayrollRun(
         id=str(uuid.uuid4()),
-        company_id=current_user["company_id"],
+        company_id=current_user.company_id,
         period_start=payroll_data.period_start,
         period_end=payroll_data.period_end,
         status="draft"
@@ -166,12 +167,12 @@ async def create_payroll_run(
 async def get_payroll_run(
     run_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get payroll run details with all items."""
     payroll_run = db.query(PayrollRun).filter(
         PayrollRun.id == run_id,
-        PayrollRun.company_id == current_user["company_id"]
+        PayrollRun.company_id == current_user.company_id
     ).first()
     
     if not payroll_run:
@@ -253,12 +254,12 @@ async def process_payroll(
     run_id: str,
     process_data: ProcessPayrollRequest,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Process a payroll run - calculate payroll for all employees."""
     payroll_run = db.query(PayrollRun).filter(
         PayrollRun.id == run_id,
-        PayrollRun.company_id == current_user["company_id"]
+        PayrollRun.company_id == current_user.company_id
     ).first()
     
     if not payroll_run:
@@ -280,7 +281,7 @@ async def process_payroll(
     try:
         # Get employees to process
         employee_query = db.query(Employee).filter(
-            Employee.company_id == current_user["company_id"],
+            Employee.company_id == current_user.company_id,
             Employee.status == "active"
         )
         
@@ -344,7 +345,7 @@ async def process_payroll(
         # Update payroll run
         payroll_run.status = "completed"
         payroll_run.total_amount = total_amount
-        payroll_run.processed_by = current_user["id"]
+        payroll_run.processed_by = current_user.id
         payroll_run.processed_at = datetime.utcnow()
         
         db.commit()
@@ -367,12 +368,12 @@ async def update_payroll_run(
     run_id: str,
     update_data: PayrollRunUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Update payroll run status (admin only)."""
     payroll_run = db.query(PayrollRun).filter(
         PayrollRun.id == run_id,
-        PayrollRun.company_id == current_user["company_id"]
+        PayrollRun.company_id == current_user.company_id
     ).first()
     
     if not payroll_run:
@@ -394,12 +395,12 @@ async def update_payroll_run(
 async def delete_payroll_run(
     run_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Delete a payroll run (admin only, draft status only)."""
     payroll_run = db.query(PayrollRun).filter(
         PayrollRun.id == run_id,
-        PayrollRun.company_id == current_user["company_id"]
+        PayrollRun.company_id == current_user.company_id
     ).first()
     
     if not payroll_run:
@@ -429,13 +430,13 @@ async def delete_payroll_run(
 async def get_payroll_items(
     run_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all items for a payroll run."""
     # Verify run belongs to company
     payroll_run = db.query(PayrollRun).filter(
         PayrollRun.id == run_id,
-        PayrollRun.company_id == current_user["company_id"]
+        PayrollRun.company_id == current_user.company_id
     ).first()
     
     if not payroll_run:
@@ -483,7 +484,7 @@ async def update_payroll_item(
     item_id: str,
     update_data: PayrollItemUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Update a payroll item."""
     item = db.query(PayrollItem).filter(PayrollItem.id == item_id).first()
@@ -497,7 +498,7 @@ async def update_payroll_item(
     # Verify run belongs to company
     payroll_run = db.query(PayrollRun).filter(
         PayrollRun.id == item.payroll_run_id,
-        PayrollRun.company_id == current_user["company_id"]
+        PayrollRun.company_id == current_user.company_id
     ).first()
     
     if not payroll_run:
@@ -532,7 +533,7 @@ async def update_payroll_item(
 async def mark_item_paid(
     item_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Mark a payroll item as paid."""
     item = db.query(PayrollItem).filter(PayrollItem.id == item_id).first()
@@ -546,7 +547,7 @@ async def mark_item_paid(
     # Verify run belongs to company
     payroll_run = db.query(PayrollRun).filter(
         PayrollRun.id == item.payroll_run_id,
-        PayrollRun.company_id == current_user["company_id"]
+        PayrollRun.company_id == current_user.company_id
     ).first()
     
     if not payroll_run:
@@ -572,13 +573,13 @@ async def get_employee_payroll_history(
     skip: int = Query(0, ge=0),
     limit: int = Query(12, le=50),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get payroll history for a specific employee."""
     # Verify employee belongs to company
     employee = db.query(Employee).filter(
         Employee.id == employee_id,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
     
     if not employee:
