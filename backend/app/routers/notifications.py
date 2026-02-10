@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from ..mongo_models import Notification, NotificationType
 from ..auth.security import get_current_user
+from ..models.user import User
 from ..schemas.notifications import (
     NotificationCreate,
     NotificationResponse
@@ -17,7 +18,7 @@ router = APIRouter()
 @router.post("/create", response_model=NotificationResponse)
 async def create_notification(
     notification: NotificationCreate,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Create a new notification (admin only)."""
     
@@ -26,7 +27,7 @@ async def create_notification(
     
     notif = Notification(
         user_id=notification.user_id,
-        company_id=current_user["company_id"],
+        company_id=current_user.company_id,
         type=notification.type,
         title=notification.title,
         message=notification.message,
@@ -58,11 +59,11 @@ async def get_notifications(
     limit: int = Query(50, le=100),
     unread_only: bool = False,
     type_filter: Optional[NotificationType] = None,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get user notifications."""
     
-    query = {"user_id": current_user["id"]}
+    query = {"user_id": current_user.id}
     
     if unread_only:
         query["is_read"] = False
@@ -93,7 +94,7 @@ async def get_notifications(
 @router.patch("/{notification_id}/read")
 async def mark_notification_as_read(
     notification_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Mark notification as read."""
     
@@ -102,7 +103,7 @@ async def mark_notification_as_read(
     if not notification:
         raise HTTPException(status_code=404, detail="Notification not found")
     
-    if notification.user_id != current_user["id"]:
+    if notification.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
     
     notification.is_read = True
@@ -114,13 +115,13 @@ async def mark_notification_as_read(
 
 @router.post("/mark-all-read")
 async def mark_all_as_read(
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Mark all notifications as read."""
     
     notifications = await Notification.find(
         {
-            "user_id": current_user["id"],
+            "user_id": current_user.id,
             "is_read": False
         }
     ).to_list()
@@ -136,7 +137,7 @@ async def mark_all_as_read(
 @router.delete("/{notification_id}")
 async def delete_notification(
     notification_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Delete a notification."""
     
@@ -145,7 +146,7 @@ async def delete_notification(
     if not notification:
         raise HTTPException(status_code=404, detail="Notification not found")
     
-    if notification.user_id != current_user["id"]:
+    if notification.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
     
     await notification.delete()
@@ -155,13 +156,13 @@ async def delete_notification(
 
 @router.get("/unread-count")
 async def get_unread_count(
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get count of unread notifications."""
     
     count = await Notification.find(
         {
-            "user_id": current_user["id"],
+            "user_id": current_user.id,
             "is_read": False
         }
     ).count()
