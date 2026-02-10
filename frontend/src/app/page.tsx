@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   Users,
@@ -15,9 +17,18 @@ import {
   Settings,
   User,
   LogOut,
+  CreditCard,
+  PiggyBank,
+  Clock,
+  Plus,
+  Megaphone,
+  ExternalLink,
+  Activity,
+  Zap,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,52 +40,62 @@ import {
 import { apiClient } from "@/lib/api/client";
 import { formatCurrency } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
+import { ServiceCardSkeleton, ActivityListSkeleton } from "@/components/ui/skeleton";
 
 const services = [
   {
     id: "employees",
     name: "Employees",
     icon: Users,
-    description: "Manage your team, schedules, and time-off requests",
+    description: "Manage staff, PTO, and schedules.",
     href: "/employees",
-    color: "text-blue-600 dark:text-blue-400",
-    bgColor: "bg-blue-50 dark:bg-blue-950",
-    features: ["Directory", "Schedule", "Time Off", "Reviews"],
+    stat: { label: "Active", count: 0 },
+    warning: { label: "On Leave", count: 0 },
   },
   {
     id: "finance",
     name: "Finance",
-    icon: DollarSign,
-    description: "Track revenue, expenses, and financial health",
+    icon: PiggyBank,
+    description: "Track cash flow and expenses.",
     href: "/finance",
-    color: "text-green-600 dark:text-green-400",
-    bgColor: "bg-green-50 dark:bg-green-950",
-    features: ["Ledger", "Budget", "Reports", "Categories"],
+    stat: { label: "Revenue", amount: 0 },
   },
   {
     id: "payroll",
     name: "Payroll",
-    icon: Wallet,
-    description: "Automate payroll processing and tax calculations",
+    icon: CreditCard,
+    description: "Process salaries and taxes.",
     href: "/payroll",
-    color: "text-purple-600 dark:text-purple-400",
-    bgColor: "bg-purple-50 dark:bg-purple-950",
-    features: ["Runs", "History", "Taxes", "By Employee"],
+    warning: { label: "Run Due", date: "" },
   },
   {
     id: "communication",
     name: "Communication",
     icon: MessageSquare,
-    description: "Secure messaging and company-wide announcements",
+    description: "Team chat and announcements.",
     href: "/communication",
-    color: "text-orange-600 dark:text-orange-400",
-    bgColor: "bg-orange-50 dark:bg-orange-950",
-    features: ["Inbox", "Broadcasts", "Threads", "Files"],
+    stat: { label: "Unread", count: 0 },
   },
 ];
 
+const recentActivities = [
+  { text: 'Monthly payroll processed', user: 'System', time: '2 hours ago', icon: CreditCard },
+  { text: 'New expense logged: Office Supplies', user: 'Admin', time: '4 hours ago', icon: DollarSign },
+  { text: 'PTO request submitted', user: 'Alice Freeman', time: 'Yesterday', icon: Clock },
+  { text: 'Team meeting scheduled', user: 'Bob Smith', time: 'Yesterday', icon: Calendar },
+];
+
 export default function Home() {
-  const { user, logout } = useAuthStore();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { user, logout, isAuthenticated, hasHydrated } = useAuthStore();
+
+  useEffect(() => {
+    if (hasHydrated && !isAuthenticated) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+    }
+  }, [isAuthenticated, hasHydrated, pathname, router]);
+
   const { data: dashboard, isLoading: dashboardLoading } = useQuery({
     queryKey: ["dashboard"],
     queryFn: () => apiClient.getDashboard(),
@@ -89,49 +110,52 @@ export default function Home() {
 
   const kpis = dashboard?.kpis ?? dashboard;
 
-  const stats = [
-    {
-      label: "Active Employees",
-      value: dashboardLoading ? "..." : String(kpis?.employee_stats?.active ?? 0),
-      icon: Users,
-    },
-    {
-      label: "Monthly Revenue",
-      value: dashboardLoading ? "..." : formatCurrency(Number(kpis?.financial_stats?.total_income ?? 0)),
-      icon: TrendingUp,
-    },
-    {
-      label: "Pending PTO",
-      value: dashboardLoading ? "..." : String(kpis?.pto_stats?.pending_requests ?? 0),
-      icon: Calendar,
-    },
-    {
-      label: "Unread Messages",
-      value: String(unreadData?.unread_count ?? 0),
-      icon: Mail,
-    },
-  ];
+  // Update service cards with real data
+  const updatedServices = services.map(service => {
+    if (service.id === 'employees') {
+      return {
+        ...service,
+        stat: { label: "Active", count: kpis?.employee_stats?.active ?? 0 },
+        warning: { label: "On Leave", count: kpis?.employee_stats?.on_leave ?? 0 },
+      };
+    }
+    if (service.id === 'finance') {
+      return {
+        ...service,
+        stat: { label: "Revenue", amount: Number(kpis?.financial_stats?.total_income ?? 0) },
+      };
+    }
+    if (service.id === 'communication') {
+      return {
+        ...service,
+        stat: { label: "Unread", count: unreadData?.unread_count ?? 0 },
+      };
+    }
+    return service;
+  });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-zinc-50">
       {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">StyrCan</h1>
-          </div>
+      <header className="sticky top-0 z-50 bg-white border-b border-zinc-200 shadow-sm">
+        <div className="max-w-[1600px] mx-auto px-6 py-4 md:px-8 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-black text-white flex items-center justify-center rounded-sm">
+              <Zap className="w-4 h-4 fill-current" />
+            </div>
+            <span className="font-bold text-xl tracking-tight">STYRCAN</span>
+          </Link>
           <div className="flex items-center gap-4">
             <Link href="/settings">
-              <Button variant="outline" size="icon">
+              <Button variant="ghost" size="icon">
                 <Settings className="h-5 w-5" />
               </Button>
             </Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
+                <button className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center text-sm font-bold border border-zinc-300 hover:bg-zinc-300 transition-colors">
+                  {user?.first_name?.[0]}{user?.last_name?.[0]}
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>
@@ -158,85 +182,131 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="mb-12 text-center">
-          <h2 className="text-4xl font-bold mb-4">
-            Welcome to Your Business Hub
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Manage employees, finances, payroll, and communications all in one place.
-            Choose a service below to get started.
-          </p>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-          {stats.map((stat) => (
-            <Card key={stat.label}>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
-                  </div>
-                  <stat.icon className="h-8 w-8 text-muted-foreground" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+      <main className="max-w-[1600px] mx-auto px-6 py-8 md:px-8">
+        {/* Welcome Section */}
+        <div className="flex justify-between items-end border-b border-zinc-200 pb-6 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-zinc-900">
+              Welcome back, {user?.first_name || 'User'}.
+            </h1>
+            <p className="text-zinc-500 mt-2">
+              Here is your daily overview for {user?.company?.name || 'your company'}.
+            </p>
+          </div>
+          <Button variant="secondary" className="hidden md:flex">
+            <ExternalLink className="w-4 h-4 mr-2" />
+            View Site
+          </Button>
         </div>
 
         {/* Service Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {services.map((service) => {
-            const Icon = service.icon;
-            return (
-              <Link key={service.id} href={service.href}>
-                <Card className="h-full hover:border-primary transition-colors cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-lg ${service.bgColor}`}>
-                        <Icon className={`h-8 w-8 ${service.color}`} />
-                      </div>
-                      <div>
-                        <CardTitle className="text-2xl">{service.name}</CardTitle>
-                        <CardDescription className="mt-1">
-                          {service.description}
-                        </CardDescription>
-                      </div>
+        {dashboardLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <ServiceCardSkeleton />
+            <ServiceCardSkeleton />
+            <ServiceCardSkeleton />
+            <ServiceCardSkeleton />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {updatedServices.map((service) => {
+              const Icon = service.icon;
+              return (
+                <Link key={service.id} href={service.href}>
+                  <div className="group bg-white p-6 border border-zinc-200 rounded-sm shadow-sm hover:border-black transition-all cursor-pointer h-full">
+                    <div className="w-10 h-10 bg-zinc-100 rounded-sm flex items-center justify-center mb-4 group-hover:bg-black group-hover:text-white transition-colors">
+                      <Icon className="w-5 h-5" />
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {service.features.map((feature) => (
-                        <div
-                          key={feature}
-                          className="px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-sm"
-                        >
-                          {feature}
-                        </div>
-                      ))}
+                    <h3 className="font-bold text-lg mb-1">{service.name}</h3>
+                    <p className="text-xs text-zinc-500 mb-4">{service.description}</p>
+                    <div className="flex gap-2 text-xs font-medium text-zinc-600">
+                      {service.stat && (
+                        <span className="bg-zinc-50 px-2 py-1 rounded-sm border border-zinc-100">
+                          {service.stat.count !== undefined
+                            ? `${service.stat.count} ${service.stat.label}`
+                            : `${formatCurrency(service.stat.amount || 0)} ${service.stat.label}`
+                          }
+                        </span>
+                      )}
+                      {service.warning && 'count' in service.warning && service.warning.count > 0 && (
+                        <span className="bg-rose-50 text-rose-600 px-2 py-1 rounded-sm border border-rose-100">
+                          {service.warning.count} {service.warning.label}
+                        </span>
+                      )}
+                      {service.warning && 'date' in service.warning && service.warning.date && (
+                        <span className="bg-amber-50 text-amber-700 px-2 py-1 rounded-sm border border-amber-100">
+                          {service.warning.label}
+                        </span>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
-        {/* CTA Section */}
-        <Card className="bg-primary text-primary-foreground">
-          <CardContent className="pt-6 text-center">
-            <h3 className="text-2xl font-bold mb-2">Need Help Getting Started?</h3>
-            <p className="mb-4 opacity-90">
-              Check out our guides and documentation to make the most of StyrCan.
-            </p>
-            <Button variant="secondary" size="lg">
-              View Documentation
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Recent Activity & Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader className="border-b border-zinc-100">
+              <CardTitle className="text-sm">Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {dashboardLoading ? (
+                <ActivityListSkeleton items={4} />
+              ) : (
+                <div className="divide-y divide-zinc-100">
+                  {recentActivities.map((item, i) => (
+                    <div key={i} className="p-4 flex items-center gap-3 hover:bg-zinc-50 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500">
+                        <item.icon className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-zinc-900">{item.text}</p>
+                        <p className="text-xs text-zinc-500">{item.user} • {item.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="border-b border-zinc-100">
+              <CardTitle className="text-sm">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-2 gap-3">
+                <Link href="/employees/directory">
+                  <Button variant="secondary" className="w-full justify-start h-auto py-3 px-4">
+                    <Plus className="w-4 h-4 mr-2 opacity-80" />
+                    Add Employee
+                  </Button>
+                </Link>
+                <Link href="/finance/ledger">
+                  <Button variant="secondary" className="w-full justify-start h-auto py-3 px-4">
+                    <DollarSign className="w-4 h-4 mr-2 opacity-80" />
+                    Log Expense
+                  </Button>
+                </Link>
+                <Link href="/payroll/runs">
+                  <Button variant="secondary" className="w-full justify-start h-auto py-3 px-4">
+                    <CreditCard className="w-4 h-4 mr-2 opacity-80" />
+                    Run Payroll
+                  </Button>
+                </Link>
+                <Link href="/communication/broadcast">
+                  <Button variant="secondary" className="w-full justify-start h-auto py-3 px-4">
+                    <Megaphone className="w-4 h-4 mr-2 opacity-80" />
+                    Broadcast
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </main>
     </div>
   );
