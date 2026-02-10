@@ -40,10 +40,10 @@ router = APIRouter()
 @router.get("/dashboard", response_model=dict)
 async def get_employees_dashboard(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get employee dashboard KPIs."""
-    company_id = current_user["company_id"]
+    company_id = current_user.company_id
     
     # Total employees
     total_employees = db.query(func.count(Employee.id)).filter(
@@ -110,10 +110,10 @@ async def get_employees(
     department: Optional[str] = None,
     search: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all employees for the current user's company."""
-    query = db.query(Employee).filter(Employee.company_id == current_user["company_id"])
+    query = db.query(Employee).filter(Employee.company_id == current_user.company_id)
     
     if status:
         query = query.filter(Employee.status == status)
@@ -144,27 +144,26 @@ async def get_employees(
 async def create_employee(
     employee_data: EmployeeCreate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Create a new employee."""
     # Check if email already exists
     existing = db.query(Employee).filter(
         Employee.email == employee_data.email,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
-    
+
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Employee with this email already exists"
         )
-    
+
     employee = Employee(
         id=str(uuid.uuid4()),
-        company_id=current_user["company_id"],
+        company_id=current_user.company_id,
         **employee_data.model_dump()
     )
-    
     db.add(employee)
     db.commit()
     db.refresh(employee)
@@ -189,12 +188,12 @@ async def create_employee(
 async def get_employee(
     employee_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get employee details including PTO and shifts."""
     employee = db.query(Employee).filter(
         Employee.id == employee_id,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
     
     if not employee:
@@ -211,12 +210,12 @@ async def update_employee(
     employee_id: str,
     employee_data: EmployeeUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Update an employee."""
     employee = db.query(Employee).filter(
         Employee.id == employee_id,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
     
     if not employee:
@@ -240,12 +239,12 @@ async def update_employee(
 async def delete_employee(
     employee_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_admin)
+    current_user: User = Depends(require_admin)
 ):
     """Delete an employee (admin only)."""
     employee = db.query(Employee).filter(
         Employee.id == employee_id,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
     
     if not employee:
@@ -265,7 +264,7 @@ async def get_employee_pto_balance(
     employee_id: str,
     year: int = Query(default=None),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get employee's PTO balance for a specific year."""
     if year is None:
@@ -274,7 +273,7 @@ async def get_employee_pto_balance(
     # Verify employee belongs to company
     employee = db.query(Employee).filter(
         Employee.id == employee_id,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
     
     if not employee:
@@ -303,7 +302,7 @@ async def update_pto_balance(
     balance_data: PTOBalanceUpdate,
     year: int = Query(default=None),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Update employee's PTO balance."""
     if year is None:
@@ -340,7 +339,7 @@ async def get_employee_pto_requests(
     employee_id: str,
     status_filter: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get employee's PTO requests."""
     query = db.query(PTORequest).filter(PTORequest.employee_id == employee_id)
@@ -361,13 +360,13 @@ async def create_pto_request(
     employee_id: str,
     request_data: PTORequestCreate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Create a PTO request for an employee."""
     # Verify employee exists
     employee = db.query(Employee).filter(
         Employee.id == employee_id,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
     
     if not employee:
@@ -412,11 +411,11 @@ async def create_pto_request(
 @router.get("/pto-requests/pending", response_model=PTORequestListResponse)
 async def get_pending_pto_requests(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Get all pending PTO requests for the company (managers only)."""
     requests = db.query(PTORequest).join(Employee).filter(
-        Employee.company_id == current_user["company_id"],
+        Employee.company_id == current_user.company_id,
         PTORequest.status == "pending"
     ).order_by(PTORequest.created_at.desc()).all()
     
@@ -431,11 +430,11 @@ async def update_pto_request(
     request_id: str,
     request_data: PTORequestUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Approve or deny a PTO request (managers only)."""
     pto_request = db.query(PTORequest).filter(PTORequest.id == request_id).first()
-    
+
     if not pto_request:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -445,9 +444,9 @@ async def update_pto_request(
     # Verify employee belongs to manager's company
     employee = db.query(Employee).filter(
         Employee.id == pto_request.employee_id,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
-    
+
     if not employee:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -456,7 +455,7 @@ async def update_pto_request(
     
     old_status = pto_request.status
     pto_request.status = request_data.status
-    pto_request.reviewed_by = current_user["id"]
+    pto_request.reviewed_by = current_user.id
     pto_request.reviewed_at = datetime.utcnow()
     
     # Update PTO balance if approved
@@ -484,7 +483,7 @@ async def get_employee_shifts(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get employee's shifts within a date range."""
     query = db.query(Shift).filter(Shift.employee_id == employee_id)
@@ -507,13 +506,13 @@ async def get_employee_shifts(
 async def create_shift(
     shift_data: ShiftCreate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Create a new shift."""
     # Verify employee belongs to company
     employee = db.query(Employee).filter(
         Employee.id == shift_data.employee_id,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
     
     if not employee:
@@ -540,11 +539,11 @@ async def get_all_shifts(
     end_date: Optional[date] = None,
     department: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all shifts for the company."""
     query = db.query(Shift).join(Employee).filter(
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     )
     
     if start_date:
@@ -569,11 +568,11 @@ async def update_shift(
     shift_id: str,
     shift_data: ShiftUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Update a shift."""
     shift = db.query(Shift).filter(Shift.id == shift_id).first()
-    
+
     if not shift:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -583,7 +582,7 @@ async def update_shift(
     # Verify shift belongs to company
     employee = db.query(Employee).filter(
         Employee.id == shift.employee_id,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
     
     if not employee:
@@ -606,11 +605,11 @@ async def update_shift(
 async def delete_shift(
     shift_id: str,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(require_manager)
+    current_user: User = Depends(require_manager)
 ):
     """Delete a shift."""
     shift = db.query(Shift).filter(Shift.id == shift_id).first()
-    
+
     if not shift:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -620,7 +619,7 @@ async def delete_shift(
     # Verify shift belongs to company
     employee = db.query(Employee).filter(
         Employee.id == shift.employee_id,
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).first()
     
     if not employee:
@@ -636,14 +635,14 @@ async def delete_shift(
 @router.get("/export", response_model=dict)
 async def export_employees(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Export employees to CSV format."""
     import csv
     from io import StringIO
     
     employees = db.query(Employee).filter(
-        Employee.company_id == current_user["company_id"]
+        Employee.company_id == current_user.company_id
     ).all()
     
     # Create CSV in memory
