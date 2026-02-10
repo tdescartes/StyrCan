@@ -106,6 +106,33 @@ StyrCan is built with modern technologies to ensure high performance, scalabilit
 
 ---
 
+## **Repository Structure**
+
+```
+StyrCan/
+├── backend/          # FastAPI backend application
+├── frontend/         # Next.js frontend application
+├── landing/          # Landing page website
+├── database/         # Database initialization scripts
+├── kubernetes/       # Kubernetes deployment manifests
+├── docs/            # 📚 Project documentation
+│   ├── API_TESTING_GUIDE.md
+│   ├── BACKEND_API_SPECIFICATION.md
+│   ├── DEVELOPMENT_ROADMAP.md
+│   ├── QUICKSTART.md
+│   └── ... (see docs/README.md for full index)
+├── scripts/         # 🛠️ Setup and utility scripts
+│   ├── setup.ps1
+│   └── validate-templates.sh
+├── docker-compose.yml
+└── README.md
+```
+
+**📖 Documentation**: All project documentation is organized in the [`docs/`](./docs) folder  
+**🔧 Scripts**: Setup and utility scripts are in the [`scripts/`](./scripts) folder
+
+---
+
 ## **How It Works**
 
 1. Business owners register their company on the platform.
@@ -119,14 +146,16 @@ StyrCan is built with modern technologies to ensure high performance, scalabilit
 
 ## **Development Status & Contributing**
 
-**Current Status**: � In Development - Core Features Implemented
+**Current Status**: 🚧 In Development - Core Features Implemented
 
 StyrCan is currently in active development with core features implemented and ready for testing.
 
 ### **For Developers**
 
-- 📋 **[Development Roadmap](DEVELOPMENT_ROADMAP.md)** - Complete overview of all features to be implemented
-- 📚 **[Issue Creation Guide](.github/ISSUE_CREATION_GUIDE.md)** - How to create and manage development issues
+- 📋 **[Development Roadmap](docs/DEVELOPMENT_ROADMAP.md)** - Complete overview of all features to be implemented
+- 📚 **[Quick Start Guide](docs/QUICKSTART.md)** - Get up and running quickly
+- 🔌 **[API Documentation](docs/BACKEND_API_SPECIFICATION.md)** - Complete backend API reference
+- 📝 **[Issue Creation Guide](.github/ISSUE_CREATION_GUIDE.md)** - How to create and manage development issues
 - 🗂️ **Issue Templates** - 12 detailed templates in `.github/ISSUE_TEMPLATE/` covering all major features
 
 ### **Implementation Progress**
@@ -160,12 +189,21 @@ StyrCan is currently in active development with core features implemented and re
 
 ### **Get Involved**
 
-1. Review the [Development Roadmap](DEVELOPMENT_ROADMAP.md)
+1. Review the [Development Roadmap](docs/DEVELOPMENT_ROADMAP.md)
 2. Check existing [GitHub Issues](../../issues) or create new ones using our templates
 3. Pick an issue and start contributing!
 4. Follow the development phases for optimal workflow
 
 ### **Quick Start**
+
+#### Automated Setup (Windows)
+
+```powershell
+# Run the setup script
+.\scripts\setup.ps1
+```
+
+#### Manual Setup
 
 ```bash
 # Clone the repository
@@ -182,3 +220,5 @@ cd frontend
 npm install
 npm run dev
 ```
+
+For detailed setup instructions, see [QUICKSTART.md](docs/QUICKSTART.md)
