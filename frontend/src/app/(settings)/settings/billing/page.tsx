@@ -69,7 +69,7 @@ export default function BillingPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="font-semibold text-lg">Current Plan</p>
-                                <p className="text-sm text-muted-foreground">
+                                <div className="text-sm text-muted-foreground">
                                     Your company is on the{" "}
                                     <Badge variant="secondary" className="capitalize">
                                         {currentPlan}
@@ -78,7 +78,7 @@ export default function BillingPage() {
                                     {billing?.subscription?.status && (
                                         <span> &mdash; {billing.subscription.status}</span>
                                     )}
-                                </p>
+                                </div>
                                 {billing?.payment_method && (
                                     <p className="text-sm text-muted-foreground mt-1">
                                         Payment: {billing.payment_method}
