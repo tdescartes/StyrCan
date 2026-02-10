@@ -6,6 +6,7 @@ from datetime import datetime
 
 from ..mongo_models import ChatMessage, MessageStatus
 from ..auth.security import get_current_user, RoleChecker
+from ..models.user import User
 from ..schemas.messaging import (
     MessageCreate,
     MessageResponse,
@@ -19,15 +20,15 @@ router = APIRouter()
 @router.post("/send", response_model=MessageResponse)
 async def send_message(
     message: MessageCreate,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Send a new message."""
     
     # Create message document
     chat_message = ChatMessage(
-        sender_id=current_user["id"],
+        sender_id=current_user.id,
         recipient_id=message.recipient_id,
-        company_id=current_user["company_id"],
+        company_id=current_user.company_id,
         message_type=message.message_type,
         thread_id=message.thread_id,
         subject=message.subject,
@@ -61,11 +62,11 @@ async def get_inbox(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, le=100),
     unread_only: bool = False,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get messages in user's inbox."""
     
-    query = {"recipient_id": current_user["id"]}
+    query = {"recipient_id": current_user.id}
     
     if unread_only:
         query["is_read"] = False
@@ -96,12 +97,12 @@ async def get_inbox(
 async def get_sent_messages(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, le=100),
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get messages sent by user."""
     
     messages = await ChatMessage.find(
-        {"sender_id": current_user["id"]}
+        {"sender_id": current_user.id}
     ).sort("-sent_at").skip(skip).limit(limit).to_list()
     
     return [
@@ -127,7 +128,7 @@ async def get_sent_messages(
 @router.get("/thread/{thread_id}", response_model=List[MessageResponse])
 async def get_thread(
     thread_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all messages in a thread."""
     
@@ -135,8 +136,8 @@ async def get_thread(
         {
             "thread_id": thread_id,
             "$or": [
-                {"sender_id": current_user["id"]},
-                {"recipient_id": current_user["id"]}
+                {"sender_id": current_user.id},
+                {"recipient_id": current_user.id}
             ]
         }
     ).sort("sent_at").to_list()
@@ -164,7 +165,7 @@ async def get_thread(
 @router.patch("/{message_id}/read")
 async def mark_as_read(
     message_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Mark message as read."""
     
@@ -173,7 +174,7 @@ async def mark_as_read(
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    if message.recipient_id != current_user["id"]:
+    if message.recipient_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to mark this message as read")
     
     message.is_read = True
@@ -188,7 +189,7 @@ async def mark_as_read(
 @router.delete("/{message_id}")
 async def delete_message(
     message_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Soft delete a message."""
     
@@ -197,7 +198,7 @@ async def delete_message(
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
-    if message.sender_id != current_user["id"]:
+    if message.sender_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to delete this message")
     
     message.deleted_at = datetime.utcnow()
@@ -208,13 +209,13 @@ async def delete_message(
 
 @router.get("/unread-count")
 async def get_unread_count(
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get count of unread messages."""
     
     count = await ChatMessage.find(
         {
-            "recipient_id": current_user["id"],
+            "recipient_id": current_user.id,
             "is_read": False
         }
     ).count()
