@@ -59,7 +59,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Employee } from "@/types";
 
 const departments = ["All", "Engineering", "Product", "Design", "Sales", "HR", "Finance", "Marketing", "Operations"];
-const statuses = ["All", "active", "on_leave", "inactive", "terminated"];
+const statuses = ["All", "active", "on_leave", "terminated"];
 
 interface EmployeeFormData {
     first_name: string;
@@ -69,8 +69,7 @@ interface EmployeeFormData {
     department: string;
     position: string;
     hire_date: string;
-    employment_type: string;
-    salary_amount: string;
+    salary: string;
 }
 
 const initialFormData: EmployeeFormData = {
@@ -81,8 +80,7 @@ const initialFormData: EmployeeFormData = {
     department: "",
     position: "",
     hire_date: "",
-    employment_type: "full-time",
-    salary_amount: "",
+    salary: "",
 };
 
 export default function EmployeesPage() {
@@ -117,8 +115,7 @@ export default function EmployeesPage() {
             department: data.department || undefined,
             position: data.position || undefined,
             hire_date: data.hire_date,
-            employment_type: data.employment_type as "full-time" | "part-time" | "contract",
-            salary_amount: data.salary_amount ? parseFloat(data.salary_amount) : undefined,
+            salary: data.salary || undefined,
         }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["employees"] });
@@ -182,8 +179,6 @@ export default function EmployeesPage() {
                 return <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/20">Active</Badge>;
             case "on_leave":
                 return <Badge className="bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20">On Leave</Badge>;
-            case "inactive":
-                return <Badge className="bg-gray-500/10 text-gray-500 hover:bg-gray-500/20">Inactive</Badge>;
             case "terminated":
                 return <Badge className="bg-red-500/10 text-red-500 hover:bg-red-500/20">Terminated</Badge>;
             default:
@@ -370,33 +365,16 @@ export default function EmployeesPage() {
                                             />
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="employmentType">Employment Type</Label>
-                                            <Select
-                                                value={formData.employment_type}
-                                                onValueChange={(value) => handleFormChange("employment_type", value)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="full-time">Full Time</SelectItem>
-                                                    <SelectItem value="part-time">Part Time</SelectItem>
-                                                    <SelectItem value="contract">Contract</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="salary">Salary</Label>
-                                            <Input
-                                                id="salary"
-                                                type="number"
-                                                placeholder="50000"
-                                                value={formData.salary_amount}
-                                                onChange={(e) => handleFormChange("salary_amount", e.target.value)}
-                                            />
-                                        </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="salary">Annual Salary</Label>
+                                        <Input
+                                            id="salary"
+                                            type="text"
+                                            placeholder="75000.00"
+                                            value={formData.salary}
+                                            onChange={(e) => handleFormChange("salary", e.target.value)}
+                                        />
+                                        <p className="text-xs text-muted-foreground">Enter amount with decimals (e.g., 75000.00)</p>
                                     </div>
                                 </div>
                                 <DialogFooter>
