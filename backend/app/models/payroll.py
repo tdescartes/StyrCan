@@ -31,6 +31,7 @@ class PayrollItem(Base, TimestampMixin):
     __tablename__ = "payroll_items"
     
     id = Column(String(36), primary_key=True)
+    company_id = Column(String(36), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, index=True)
     payroll_run_id = Column(String(36), ForeignKey("payroll_runs.id", ondelete="CASCADE"), nullable=False, index=True)
     employee_id = Column(String(36), ForeignKey("employees.id", ondelete="CASCADE"), nullable=False)
     base_salary = Column(Numeric(10, 2), nullable=False)
@@ -44,5 +45,6 @@ class PayrollItem(Base, TimestampMixin):
     payment_date = Column(DateTime, nullable=True)
     
     # Relationships
+    company = relationship("Company", back_populates="payroll_items")
     payroll_run = relationship("PayrollRun", back_populates="payroll_items")
     employee = relationship("Employee", back_populates="payroll_items")
