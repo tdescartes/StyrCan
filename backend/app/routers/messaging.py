@@ -66,7 +66,10 @@ async def get_inbox(
 ):
     """Get messages in user's inbox."""
     
-    query = {"recipient_id": current_user.id}
+    query = {
+        "recipient_id": current_user.id,
+        "company_id": current_user.company_id
+    }
     
     if unread_only:
         query["is_read"] = False
@@ -101,9 +104,10 @@ async def get_sent_messages(
 ):
     """Get messages sent by user."""
     
-    messages = await ChatMessage.find(
-        {"sender_id": current_user.id}
-    ).sort("-sent_at").skip(skip).limit(limit).to_list()
+    messages = await ChatMessage.find({
+        "sender_id": current_user.id,
+        "company_id": current_user.company_id
+    }).sort("-sent_at").skip(skip).limit(limit).to_list()
     
     return [
         MessageResponse(
@@ -135,6 +139,7 @@ async def get_thread(
     messages = await ChatMessage.find(
         {
             "thread_id": thread_id,
+            "company_id": current_user.company_id,
             "$or": [
                 {"sender_id": current_user.id},
                 {"recipient_id": current_user.id}
