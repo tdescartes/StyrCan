@@ -25,6 +25,10 @@ class Company(Base, TimestampMixin):
     transactions = relationship("Transaction", back_populates="company", cascade="all, delete-orphan")
     expense_categories = relationship("ExpenseCategory", back_populates="company", cascade="all, delete-orphan")
     payroll_runs = relationship("PayrollRun", back_populates="company", cascade="all, delete-orphan")
+    payroll_items = relationship("PayrollItem", back_populates="company", cascade="all, delete-orphan")
+    pto_balances = relationship("PTOBalance", back_populates="company", cascade="all, delete-orphan")
+    pto_requests = relationship("PTORequest", back_populates="company", cascade="all, delete-orphan")
+    shifts = relationship("Shift", back_populates="company", cascade="all, delete-orphan")
     messages = relationship("Message", back_populates="company", cascade="all, delete-orphan")
     
     def __repr__(self):
