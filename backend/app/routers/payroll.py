@@ -327,6 +327,7 @@ async def process_payroll(
             
             payroll_item = PayrollItem(
                 id=str(uuid.uuid4()),
+                company_id=current_user.company_id,
                 payroll_run_id=run_id,
                 employee_id=employee.id,
                 base_salary=base_salary,
@@ -487,24 +488,16 @@ async def update_payroll_item(
     current_user: User = Depends(require_manager)
 ):
     """Update a payroll item."""
-    item = db.query(PayrollItem).filter(PayrollItem.id == item_id).first()
+    # Single query with company verification
+    item = db.query(PayrollItem).filter(
+        PayrollItem.id == item_id,
+        PayrollItem.company_id == current_user.company_id
+    ).first()
     
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Payroll item not found"
-        )
-    
-    # Verify run belongs to company
-    payroll_run = db.query(PayrollRun).filter(
-        PayrollRun.id == item.payroll_run_id,
-        PayrollRun.company_id == current_user.company_id
-    ).first()
-    
-    if not payroll_run:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized"
         )
     
     update_dict = update_data.model_dump(exclude_unset=True)
@@ -536,24 +529,16 @@ async def mark_item_paid(
     current_user: User = Depends(require_manager)
 ):
     """Mark a payroll item as paid."""
-    item = db.query(PayrollItem).filter(PayrollItem.id == item_id).first()
+    # Single query with company verification
+    item = db.query(PayrollItem).filter(
+        PayrollItem.id == item_id,
+        PayrollItem.company_id == current_user.company_id
+    ).first()
     
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Payroll item not found"
-        )
-    
-    # Verify run belongs to company
-    payroll_run = db.query(PayrollRun).filter(
-        PayrollRun.id == item.payroll_run_id,
-        PayrollRun.company_id == current_user.company_id
-    ).first()
-    
-    if not payroll_run:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized"
         )
     
     item.payment_status = "paid"
