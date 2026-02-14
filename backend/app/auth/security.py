@@ -34,7 +34,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     Create a JWT access token.
     
     Args:
-        data: Dictionary containing claims to encode in the token
+        data: Dictionary containing claims to encode in the token (should include 'sub' and 'company_id')
         expires_delta: Optional custom expiration time
     
     Returns:
@@ -57,7 +57,7 @@ def create_refresh_token(data: dict) -> str:
     Create a JWT refresh token.
     
     Args:
-        data: Dictionary containing claims to encode in the token
+        data: Dictionary containing claims to encode in the token (should include 'sub' and 'company_id')
     
     Returns:
         Encoded JWT refresh token string
@@ -118,6 +118,7 @@ async def get_current_user(
     
     payload = decode_token(token)
     user_id: str = payload.get("sub")
+    token_company_id: str = payload.get("company_id")
     
     if user_id is None:
         raise credentials_exception
@@ -126,6 +127,23 @@ async def get_current_user(
     
     if user is None:
         raise credentials_exception
+    
+    # Verify company_id in token matches user's current company
+    if token_company_id and token_company_id != user.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Company context mismatch. Please log in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Verify company still exists (in case it was deleted)
+    from ..models.company import Company
+    company = db.query(Company).filter(Company.id == user.company_id).first()
+    if company is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Company no longer exists"
+        )
     
     if not user.is_active:
         raise HTTPException(
