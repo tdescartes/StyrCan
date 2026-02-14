@@ -172,6 +172,7 @@ async def create_employee(
     current_year = datetime.now().year
     pto_balance = PTOBalance(
         id=str(uuid.uuid4()),
+        company_id=current_user.company_id,
         employee_id=employee.id,
         year=current_year,
         total_days=20,  # Default PTO days
@@ -308,9 +309,12 @@ async def update_pto_balance(
     if year is None:
         year = datetime.now().year
     
-    pto_balance = db.query(PTOBalance).filter(
+    # Verify employee belongs to company and get PTO balance in single query
+    pto_balance = db.query(PTOBalance).join(Employee).filter(
         PTOBalance.employee_id == employee_id,
-        PTOBalance.year == year
+        PTOBalance.year == year,
+        PTOBalance.company_id == current_user.company_id,
+        Employee.company_id == current_user.company_id
     ).first()
     
     if not pto_balance:
@@ -342,7 +346,22 @@ async def get_employee_pto_requests(
     current_user: User = Depends(get_current_user)
 ):
     """Get employee's PTO requests."""
-    query = db.query(PTORequest).filter(PTORequest.employee_id == employee_id)
+    # Verify employee belongs to company
+    employee = db.query(Employee).filter(
+        Employee.id == employee_id,
+        Employee.company_id == current_user.company_id
+    ).first()
+    
+    if not employee:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Employee not found"
+        )
+    
+    query = db.query(PTORequest).filter(
+        PTORequest.employee_id == employee_id,
+        PTORequest.company_id == current_user.company_id
+    )
     
     if status_filter:
         query = query.filter(PTORequest.status == status_filter)
@@ -393,6 +412,7 @@ async def create_pto_request(
     
     pto_request = PTORequest(
         id=str(uuid.uuid4()),
+        company_id=current_user.company_id,
         employee_id=employee_id,
         start_date=request_data.start_date,
         end_date=request_data.end_date,
@@ -486,7 +506,22 @@ async def get_employee_shifts(
     current_user: User = Depends(get_current_user)
 ):
     """Get employee's shifts within a date range."""
-    query = db.query(Shift).filter(Shift.employee_id == employee_id)
+    # Verify employee belongs to company
+    employee = db.query(Employee).filter(
+        Employee.id == employee_id,
+        Employee.company_id == current_user.company_id
+    ).first()
+    
+    if not employee:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Employee not found"
+        )
+    
+    query = db.query(Shift).filter(
+        Shift.employee_id == employee_id,
+        Shift.company_id == current_user.company_id
+    )
     
     if start_date:
         query = query.filter(Shift.shift_date >= start_date)
@@ -523,6 +558,7 @@ async def create_shift(
     
     shift = Shift(
         id=str(uuid.uuid4()),
+        company_id=current_user.company_id,
         **shift_data.model_dump()
     )
     
@@ -571,24 +607,16 @@ async def update_shift(
     current_user: User = Depends(require_manager)
 ):
     """Update a shift."""
-    shift = db.query(Shift).filter(Shift.id == shift_id).first()
+    # Single query with company verification
+    shift = db.query(Shift).filter(
+        Shift.id == shift_id,
+        Shift.company_id == current_user.company_id
+    ).first()
 
     if not shift:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Shift not found"
-        )
-    
-    # Verify shift belongs to company
-    employee = db.query(Employee).filter(
-        Employee.id == shift.employee_id,
-        Employee.company_id == current_user.company_id
-    ).first()
-    
-    if not employee:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to update this shift"
         )
     
     update_data = shift_data.model_dump(exclude_unset=True)
@@ -608,24 +636,16 @@ async def delete_shift(
     current_user: User = Depends(require_manager)
 ):
     """Delete a shift."""
-    shift = db.query(Shift).filter(Shift.id == shift_id).first()
+    # Single query with company verification
+    shift = db.query(Shift).filter(
+        Shift.id == shift_id,
+        Shift.company_id == current_user.company_id
+    ).first()
 
     if not shift:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Shift not found"
-        )
-    
-    # Verify shift belongs to company
-    employee = db.query(Employee).filter(
-        Employee.id == shift.employee_id,
-        Employee.company_id == current_user.company_id
-    ).first()
-    
-    if not employee:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to delete this shift"
         )
     
     db.delete(shift)
