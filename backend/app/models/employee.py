@@ -44,6 +44,7 @@ class PTOBalance(Base, TimestampMixin):
     __tablename__ = "pto_balances"
     
     id = Column(String(36), primary_key=True)
+    company_id = Column(String(36), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, index=True)
     employee_id = Column(String(36), ForeignKey("employees.id", ondelete="CASCADE"), nullable=False, index=True)
     year = Column(Integer, nullable=False)
     total_days = Column(Numeric(5, 2), nullable=False)
@@ -51,6 +52,7 @@ class PTOBalance(Base, TimestampMixin):
     available_days = Column(Numeric(5, 2))
     
     # Relationships
+    company = relationship("Company", back_populates="pto_balances")
     employee = relationship("Employee", back_populates="pto_balances")
 
 
@@ -60,6 +62,7 @@ class PTORequest(Base, TimestampMixin):
     __tablename__ = "pto_requests"
     
     id = Column(String(36), primary_key=True)
+    company_id = Column(String(36), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, index=True)
     employee_id = Column(String(36), ForeignKey("employees.id", ondelete="CASCADE"), nullable=False, index=True)
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
@@ -70,6 +73,7 @@ class PTORequest(Base, TimestampMixin):
     reviewed_at = Column(DateTime, nullable=True)
     
     # Relationships
+    company = relationship("Company", back_populates="pto_requests")
     employee = relationship("Employee", back_populates="pto_requests")
 
 
@@ -79,6 +83,7 @@ class Shift(Base, TimestampMixin):
     __tablename__ = "shifts"
     
     id = Column(String(36), primary_key=True)
+    company_id = Column(String(36), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, index=True)
     employee_id = Column(String(36), ForeignKey("employees.id", ondelete="CASCADE"), nullable=False, index=True)
     shift_date = Column(Date, nullable=False, index=True)
     start_time = Column(DateTime, nullable=False)
@@ -87,4 +92,5 @@ class Shift(Base, TimestampMixin):
     notes = Column(Text)
     
     # Relationships
+    company = relationship("Company", back_populates="shifts")
     employee = relationship("Employee", back_populates="shifts")
