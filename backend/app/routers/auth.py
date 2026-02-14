@@ -97,8 +97,16 @@ async def register_company(
         )
     
     # Generate tokens
-    access_token = create_access_token(data={"sub": str(admin_user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(admin_user.id)})
+    access_token = create_access_token(data={
+        "sub": str(admin_user.id),
+        "company_id": str(company.id),
+        "role": admin_user.role
+    })
+    refresh_token = create_refresh_token(data={
+        "sub": str(admin_user.id),
+        "company_id": str(company.id),
+        "role": admin_user.role
+    })
     
     return LoginResponse(
         user=UserResponse.model_validate(admin_user),
@@ -149,8 +157,16 @@ async def login(
     company = db.query(Company).filter(Company.id == user.company_id).first()
     
     # Generate tokens
-    access_token = create_access_token(data={"sub": str(user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    access_token = create_access_token(data={
+        "sub": str(user.id),
+        "company_id": str(user.company_id),
+        "role": user.role
+    })
+    refresh_token = create_refresh_token(data={
+        "sub": str(user.id),
+        "company_id": str(user.company_id),
+        "role": user.role
+    })
     
     return LoginResponse(
         user=UserResponse.model_validate(user),
@@ -194,8 +210,16 @@ async def refresh_token(
             )
         
         # Generate new tokens
-        new_access_token = create_access_token(data={"sub": str(user_id)})
-        new_refresh_token = create_refresh_token(data={"sub": user_id})
+        new_access_token = create_access_token(data={
+            "sub": str(user.id),
+            "company_id": str(user.company_id),
+            "role": user.role
+        })
+        new_refresh_token = create_refresh_token(data={
+            "sub": str(user.id),
+            "company_id": str(user.company_id),
+            "role": user.role
+        })
         
         return Token(
             access_token=new_access_token,
