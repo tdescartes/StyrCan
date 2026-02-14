@@ -14,6 +14,7 @@ from .mongodb import connect_mongodb, close_mongodb
 from .middleware.error_handler import add_error_handlers
 from .middleware.logging import setup_logging
 from .middleware.audit import AuditLogMiddleware
+from .middleware.tenant import TenantContextMiddleware
 
 # Import routers
 from .routers import (
@@ -73,6 +74,9 @@ app.add_middleware(
     allow_headers=settings.cors_headers if settings.cors_headers else ["*"],
     expose_headers=["*"],
 )
+
+# Tenant context middleware - Extract company context from JWT
+app.add_middleware(TenantContextMiddleware, enable_logging=settings.debug)
 
 # Audit logging middleware
 app.add_middleware(AuditLogMiddleware)
