@@ -7,12 +7,19 @@ from typing import Generator
 from .config import settings
 
 # Create database engine
+engine_kwargs = {
+    "pool_pre_ping": True,  # Verify connections before using them
+    "echo": settings.debug,  # Log SQL queries in debug mode
+}
+
+# SQLite doesn't support pool_size or max_overflow
+if not settings.database_url.startswith("sqlite"):
+    engine_kwargs["pool_size"] = settings.database_pool_size
+    engine_kwargs["max_overflow"] = settings.database_max_overflow
+
 engine = create_engine(
     settings.database_url,
-    pool_size=settings.database_pool_size,
-    max_overflow=settings.database_max_overflow,
-    pool_pre_ping=True,  # Verify connections before using them
-    echo=settings.debug,  # Log SQL queries in debug mode
+    **engine_kwargs
 )
 
 # Create session factory
