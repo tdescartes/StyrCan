@@ -100,12 +100,14 @@ export default function Home() {
     queryKey: ["dashboard"],
     queryFn: () => apiClient.getDashboard(),
     retry: false,
+    enabled: hasHydrated && isAuthenticated,
   });
 
   const { data: unreadData } = useQuery({
     queryKey: ["messages", "unread-count"],
     queryFn: () => apiClient.getUnreadMessageCount(),
     retry: false,
+    enabled: hasHydrated && isAuthenticated,
   });
 
   const kpis = dashboard?.kpis ?? dashboard;
