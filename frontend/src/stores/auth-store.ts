@@ -23,6 +23,9 @@ interface AuthState {
     }) => Promise<void>;
     setUser: (user: User | null) => void;
     setCompany: (company: Company | null) => void;
+    setHasHydrated: (val: boolean) => void;
+    validateCompanyContext: () => boolean;
+    clearAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -83,13 +86,58 @@ export const useAuthStore = create<AuthState>()(
 
             setUser: (user) => set({ user, isAuthenticated: !!user }),
             setCompany: (company) => set({ company }),
+
+            setHasHydrated: (val: boolean) => set({ hasHydrated: val }),
+
+            validateCompanyContext: () => {
+                const state = useAuthStore.getState();
+
+                // Must have both user and company
+                if (!state.user || !state.company) {
+                    return false;
+                }
+
+                // User must belong to the loaded company
+                if (state.user.company_id !== state.company.id) {
+                    console.error("❌ Company context mismatch detected!", {
+                        userCompanyId: state.user.company_id,
+                        loadedCompanyId: state.company.id
+                    });
+
+                    // Force logout on mismatch (security breach)
+                    state.clearAuth();
+
+                    if (typeof window !== 'undefined') {
+                        window.location.href = '/login?error=company_mismatch';
+                    }
+
+                    return false;
+                }
+
+                return true;
+            },
+
+            clearAuth: () => {
+                // Clear tokens from localStorage
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                }
+
+                set({ user: null, company: null, isAuthenticated: false });
+            },
         }),
         {
             name: "auth-storage",
             onRehydrateStorage: () => (state) => {
                 // Mark as hydrated after loading from localStorage
                 if (state) {
-                    state.hasHydrated = true;
+                    state.setHasHydrated(true);
+
+                    // Validate company context on hydration
+                    if (state.user && state.company) {
+                        state.validateCompanyContext();
+                    }
                 }
             },
         }
