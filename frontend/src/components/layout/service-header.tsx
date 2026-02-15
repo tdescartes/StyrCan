@@ -28,7 +28,7 @@ const services = [
 
 export function ServiceHeader() {
     const pathname = usePathname();
-    const { user, logout } = useAuthStore();
+    const { user, company, logout, isAuthenticated, hasHydrated } = useAuthStore();
     const queryClient = useQueryClient();
 
     const activeService = services.find((s) => {
@@ -40,11 +40,13 @@ export function ServiceHeader() {
         queryKey: ["notifications", "unread-count"],
         queryFn: () => apiClient.getUnreadNotificationCount(),
         refetchInterval: 30000,
+        enabled: hasHydrated && isAuthenticated,
     });
 
     const { data: notifications } = useQuery({
         queryKey: ["notifications"],
         queryFn: () => apiClient.getNotifications(),
+        enabled: hasHydrated && isAuthenticated,
     });
 
     const markAllRead = useMutation({
@@ -96,6 +98,16 @@ export function ServiceHeader() {
 
                 {/* Right Side Actions */}
                 <div className="flex items-center gap-4">
+                    {/* Company Badge */}
+                    {company && (
+                        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-zinc-100 border border-zinc-200 rounded-lg">
+                            <Building2 className="h-4 w-4 text-zinc-500" />
+                            <span className="text-sm font-semibold text-zinc-700">
+                                {company.name}
+                            </span>
+                        </div>
+                    )}
+
                     {/* Notifications */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -156,6 +168,14 @@ export function ServiceHeader() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <button className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center text-sm font-bold border border-zinc-300 hover:bg-zinc-300 transition-colors">
+                                {company && (
+                                    <div className="flex items-center gap-1 mt-1 pt-1 border-t border-zinc-200">
+                                        <Building2 className="h-3 w-3 text-zinc-400" />
+                                        <span className="text-xs text-zinc-600 font-medium">
+                                            {company.name}
+                                        </span>
+                                    </div>
+                                )}
                                 {user?.first_name?.[0]}{user?.last_name?.[0]}
                             </button>
                         </DropdownMenuTrigger>
