@@ -56,7 +56,7 @@ function LoginForm() {
         try {
             await login(data.email, data.password);
             toast.success("Welcome back!");
-            // Don't redirect here - let useEffect handle it after state updates
+            setIsLoading(false); // Enable redirect effect
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Login failed");
             setIsLoading(false);
