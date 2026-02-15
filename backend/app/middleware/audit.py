@@ -41,23 +41,22 @@ class AuditLogMiddleware(BaseHTTPMiddleware):
         
         start_time = datetime.utcnow()
         
-        # Extract user info if available
-        user_id = None
-        company_id = None
-        try:
-            # Try to get user from request state (set by auth dependency)
-            if hasattr(request.state, "user"):
-                user_id = request.state.user.get("id")
-                company_id = request.state.user.get("company_id")
-        except Exception:
-            pass
-        
-        # Determine action type
-        action = self._determine_action(request.method, request.url.path)
-        
         # Process request
         response = await call_next(request)
         
+        # Extract user info if available (after dependencies have run)
+        user_id = None
+        company_id = None
+        try:
+            if hasattr(request.state, "user"):
+                user_id = request.state.user.get("id")
+                company_id = request.state.user.get("company_id")
+            elif hasattr(request.state, "user_id"): # Fallback for TenantMiddleware
+                user_id = request.state.user_id
+                company_id = getattr(request.state, "company_id", None)
+        except Exception:
+            pass
+
         # Log audit trail for write operations or failed requests
         if request.method not in self.READ_METHODS or response.status_code >= 400:
             try:
