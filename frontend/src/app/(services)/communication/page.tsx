@@ -59,7 +59,7 @@ interface Conversation {
 }
 
 export default function MessagesPage() {
-    const { user } = useAuthStore();
+    const { user, isAuthenticated, hasHydrated } = useAuthStore();
     const queryClient = useQueryClient();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedParticipantId, setSelectedParticipantId] = useState<string | null>(null);
@@ -74,6 +74,7 @@ export default function MessagesPage() {
         queryKey: ["messages", "inbox"],
         queryFn: () => apiClient.getInbox({ limit: 100 }) as Promise<Message[]>,
         refetchInterval: 10000, // poll every 10s for new messages
+        enabled: hasHydrated && isAuthenticated,
     });
 
     // Fetch sent messages
@@ -81,6 +82,7 @@ export default function MessagesPage() {
         queryKey: ["messages", "sent"],
         queryFn: () => apiClient.getSentMessages({ limit: 100 }) as Promise<Message[]>,
         refetchInterval: 10000,
+        enabled: hasHydrated && isAuthenticated,
     });
 
     // Fetch unread count
@@ -88,6 +90,7 @@ export default function MessagesPage() {
         queryKey: ["messages", "unread-count"],
         queryFn: () => apiClient.getUnreadMessageCount(),
         refetchInterval: 10000,
+        enabled: hasHydrated && isAuthenticated,
     });
 
     // Build conversations from inbox + sent messages
