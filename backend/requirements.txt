@@ -40,6 +40,7 @@ sendgrid==6.11.0
 
 # Two-Factor Authentication (Phase 2)
 pyotp==2.9.0
+qrcode[pil]==7.4.2
 
 # Rate Limiting (Phase 2)
 slowapi==0.1.9

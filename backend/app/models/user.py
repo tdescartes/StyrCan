@@ -21,6 +21,11 @@ class User(Base, TimestampMixin):
     is_active = Column(Boolean, default=True)
     last_login = Column(DateTime, nullable=True)
     
+    # Two-Factor Authentication
+    twofa_enabled = Column(Boolean, default=False, nullable=False)
+    twofa_secret = Column(String(32), nullable=True)  # TOTP secret key
+    twofa_backup_codes = Column(String(500), nullable=True)  # JSON array of backup codes
+    
     # Relationships
     company = relationship("Company", back_populates="users")
     employee = relationship("Employee", back_populates="user", uselist=False)

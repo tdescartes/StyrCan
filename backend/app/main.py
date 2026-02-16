@@ -7,6 +7,9 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import time
 import logging
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 from .config import settings
 from .database import init_db, close_db
@@ -28,6 +31,21 @@ from .routers import (
     settings_router,
 )
 from .routers.billing import router as billing_router
+
+# Initialize Sentry for error monitoring (Phase 2)
+if settings.sentry_dsn:
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        environment=settings.environment,
+        integrations=[
+            FastApiIntegration(),
+            SqlalchemyIntegration(),
+        ],
+        traces_sample_rate=0.1,  # 10% of transactions for performance monitoring
+        profiles_sample_rate=0.1,  # 10% of transactions for profiling
+        send_default_pii=False,  # Don't send personally identifiable information
+    )
+    logging.info("Sentry error monitoring initialized")
 
 # Setup logging
 setup_logging()
@@ -64,6 +82,13 @@ app = FastAPI(
     redoc_url="/api/redoc" if settings.debug else None,
     lifespan=lifespan
 )
+
+# Add rate limiting (Phase 2)
+from slowapi.errors import RateLimitExceeded
+from .middleware.rate_limit import limiter, custom_rate_limit_handler
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
 
 
 # CORS Middleware - Must be added before other middleware

@@ -20,6 +20,12 @@ from ..schemas.auth import (
     ChangePasswordRequest,
     UserUpdate,
 )
+from ..schemas.twofa import (
+    TwoFASetupResponse,
+    TwoFAVerifyRequest,
+    TwoFADisableRequest,
+    TwoFAStatusResponse,
+)
 from ..auth import (
     verify_password,
     get_password_hash,
@@ -424,3 +430,145 @@ async def update_user_profile(
     db.refresh(current_user)
     
     return UserResponse.model_validate(current_user)
+
+
+# -------------------- Two-Factor Authentication Endpoints --------------------
+
+@router.post("/2fa/setup", response_model=TwoFASetupResponse)
+async def setup_2fa(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Initiate 2FA setup for the current user.
+    
+    Returns TOTP secret, QR code, and backup codes.
+    User must verify with a code before 2FA is enabled.
+    """
+    from ..utils.twofa import TwoFAService
+    
+    if current_user.twofa_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="2FA is already enabled. Disable it first to reset."
+        )
+    
+    # Generate 2FA setup data
+    secret, qr_code, backup_codes = TwoFAService.setup_2fa(current_user.email)
+    
+    # Store secret temporarily (not enabled until verified)
+    current_user.twofa_secret = secret
+    current_user.twofa_backup_codes = TwoFAService.serialize_backup_codes(backup_codes)
+    db.commit()
+    
+    return TwoFASetupResponse(
+        secret=secret,
+        qr_code=qr_code,
+        backup_codes=backup_codes
+    )
+
+
+@router.post("/2fa/verify")
+async def verify_2fa(
+    request: TwoFAVerifyRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Verify 2FA code and enable 2FA for the user.
+    """
+    from ..utils.twofa import TwoFAService
+    
+    if current_user.twofa_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="2FA is already enabled"
+        )
+    
+    if not current_user.twofa_secret:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="2FA setup not initiated. Call /api/auth/2fa/setup first."
+        )
+    
+    # Verify code
+    if not TwoFAService.verify_code(current_user.twofa_secret, request.code):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid verification code"
+        )
+    
+    # Enable 2FA
+    current_user.twofa_enabled = True
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": "Two-factor authentication enabled successfully"
+    }
+
+
+@router.post("/2fa/disable")
+async def disable_2fa(
+    request: TwoFADisableRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Disable 2FA for the current user.
+    
+    Requires current password and valid 2FA code.
+    """
+    from ..utils.twofa import TwoFAService
+    
+    if not current_user.twofa_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="2FA is not enabled"
+        )
+    
+    # Verify password
+    if not verify_password(request.password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect password"
+        )
+    
+    # Verify 2FA code
+    if not TwoFAService.verify_code(current_user.twofa_secret, request.code):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid verification code"
+        )
+    
+    # Disable 2FA and clear secrets
+    current_user.twofa_enabled = False
+    current_user.twofa_secret = None
+    current_user.twofa_backup_codes = None
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": "Two-factor authentication disabled successfully"
+    }
+
+
+@router.get("/2fa/status", response_model=TwoFAStatusResponse)
+async def get_2fa_status(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get current user's 2FA status.
+    """
+    from ..utils.twofa import TwoFAService
+    
+    backup_codes_remaining = 0
+    if current_user.twofa_enabled and current_user.twofa_backup_codes:
+        backup_codes_remaining = TwoFAService.count_remaining_backup_codes(
+            current_user.twofa_backup_codes
+        )
+    
+    return TwoFAStatusResponse(
+        enabled=current_user.twofa_enabled,
+        backup_codes_remaining=backup_codes_remaining
+    )
