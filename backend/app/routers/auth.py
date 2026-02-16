@@ -261,8 +261,7 @@ async def forgot_password(
     """
     Request a password reset email.
     
-    In production, this would send an email with a reset token.
-    For now, we'll return the token in the response (development only).
+    Sends an email with a reset token to the user's email address.
     """
     user = db.query(User).filter(User.email == request.email).first()
     
@@ -280,12 +279,25 @@ async def forgot_password(
         expires_delta=timedelta(hours=1)
     )
     
-    # TODO: In production, send email with reset link
-    # For now, return the token (development only)
+    # Send password reset email
+    from app.utils.email import EmailService
+    from app.config import settings
+    
+    frontend_url = settings.cors_origins[0] if settings.cors_origins else "http://localhost:3000"
+    email_sent = await EmailService.send_password_reset(
+        to_email=user.email,
+        reset_token=reset_token,
+        frontend_url=frontend_url
+    )
+    
+    if not email_sent:
+        # Log warning but don't reveal to user
+        import logging
+        logging.getLogger(__name__).warning(f"Failed to send password reset email to {user.email}")
+    
     return {
         "success": True,
-        "message": "Password reset link has been sent to your email",
-        "reset_token": reset_token  # Remove this in production
+        "message": "If an account exists with that email, a password reset link has been sent"
     }
 
 

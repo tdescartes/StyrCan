@@ -27,6 +27,7 @@ from .routers import (
     dashboard_router,
     settings_router,
 )
+from .routers.billing import router as billing_router
 
 # Setup logging
 setup_logging()
@@ -122,6 +123,7 @@ async def root():
 
 # Include routers
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(billing_router)  # Billing router has its own prefix
 app.include_router(messaging_router, prefix="/api/messages", tags=["Messaging"])
 app.include_router(notifications_router, prefix="/api/notifications", tags=["Notifications"])
 app.include_router(employees_router, prefix="/api/employees", tags=["Employees"])

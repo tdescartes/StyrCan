@@ -50,6 +50,36 @@ class Settings(BaseSettings):
     max_upload_size: int = 10485760  # 10MB
     upload_dir: str = "./uploads"
     
+    # Stripe (Phase 1)
+    stripe_secret_key: str = ""
+    stripe_publishable_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_price_id_employees: str = ""
+    stripe_price_id_finance: str = ""
+    stripe_price_id_payroll: str = ""
+    stripe_price_id_communication: str = ""
+    stripe_price_id_all_access: str = ""
+    
+    # SendGrid (Phase 1)
+    sendgrid_api_key: str = ""
+    sender_email: str = "noreply@pulse.com"
+    sender_name: str = "Pulse"
+    
+    # AWS S3 (Phase 2)
+    aws_access_key_id: str = ""
+    aws_secret_access_key: str = ""
+    aws_s3_bucket_name: str = ""
+    aws_region: str = "us-east-1"
+    
+    # Sentry (Phase 2)
+    sentry_dsn: str = ""
+    sentry_environment: str = "production"
+    sentry_traces_sample_rate: float = 0.1
+    
+    # Celery (Phase 2)
+    celery_broker_url: str = ""
+    celery_result_backend: str = ""
+    
     # Logging
     log_level: str = "INFO"
     log_file: str = "logs/app.log"

@@ -19,6 +19,10 @@ class Company(Base, TimestampMixin):
     tax_id = Column(String(50))
     status = Column(String(20), default="active")
     
+    # Stripe billing fields
+    stripe_customer_id = Column(String(255), unique=True, nullable=True, index=True)
+    stripe_subscription_id = Column(String(255), unique=True, nullable=True)
+    
     # Relationships
     users = relationship("User", back_populates="company", cascade="all, delete-orphan")
     employees = relationship("Employee", back_populates="company", cascade="all, delete-orphan")
