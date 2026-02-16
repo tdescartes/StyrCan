@@ -106,8 +106,8 @@ class Subscription(Base):
         nullable=True
     )
     
-    # Metadata
-    metadata: Mapped[Optional[str]] = mapped_column(
+    # Additional data (renamed from 'metadata' to avoid SQLAlchemy reserved word)
+    extra_data: Mapped[Optional[str]] = mapped_column(
         String,
         nullable=True
     )

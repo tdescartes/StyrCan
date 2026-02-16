@@ -42,7 +42,7 @@ def upgrade() -> None:
         sa.Column('canceled_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('trial_start', sa.DateTime(timezone=True), nullable=True),
         sa.Column('trial_end', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('metadata', sa.String(), nullable=True),
+        sa.Column('extra_data', sa.String(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.text('NOW()')),
         sa.PrimaryKeyConstraint('id')

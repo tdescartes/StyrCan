@@ -10,6 +10,7 @@ import { Loader2, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Card,
     CardContent,
@@ -33,6 +34,9 @@ const registerSchema = z
             .regex(/[a-z]/, "Password must contain at least one lowercase letter")
             .regex(/[0-9]/, "Password must contain at least one number"),
         confirmPassword: z.string(),
+        acceptTerms: z.boolean().refine((val) => val === true, {
+            message: "You must accept the Terms of Service and Privacy Policy",
+        }),
     })
     .refine((data) => data.password === data.confirmPassword, {
         message: "Passwords don't match",
@@ -242,6 +246,30 @@ export default function RegisterPage() {
                                     </p>
                                 )}
                             </div>
+
+                            <div className="flex items-start space-x-2">
+                                <Checkbox id="acceptTerms" {...register("acceptTerms")} />
+                                <div className="space-y-1">
+                                    <Label
+                                        htmlFor="acceptTerms"
+                                        className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                    >
+                                        I agree to the{" "}
+                                        <Link href="/terms" className="text-primary hover:underline" target="_blank">
+                                            Terms of Service
+                                        </Link>{" "}
+                                        and{" "}
+                                        <Link href="/privacy" className="text-primary hover:underline" target="_blank">
+                                            Privacy Policy
+                                        </Link>
+                                    </Label>
+                                    {errors.acceptTerms && (
+                                        <p className="text-xs text-destructive">
+                                            {errors.acceptTerms.message}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
                         </CardContent>
                         <CardFooter className="flex flex-col space-y-4">
                             <Button type="submit" className="w-full" disabled={isLoading}>
@@ -252,16 +280,6 @@ export default function RegisterPage() {
                                 Already have an account?{" "}
                                 <Link href="/login" className="text-primary hover:underline">
                                     Sign in
-                                </Link>
-                            </p>
-                            <p className="text-xs text-center text-muted-foreground">
-                                By creating an account, you agree to our{" "}
-                                <Link href="/terms" className="underline">
-                                    Terms of Service
-                                </Link>{" "}
-                                and{" "}
-                                <Link href="/privacy" className="underline">
-                                    Privacy Policy
                                 </Link>
                             </p>
                         </CardFooter>
