@@ -66,6 +66,7 @@ python-dotenv==1.0.1
 # Testing
 pytest==7.4.4
 pytest-asyncio==0.23.4
+pytest-cov==4.1.0
 httpx==0.26.0
 
 # Code quality
