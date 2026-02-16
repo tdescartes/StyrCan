@@ -287,7 +287,7 @@ export default function PayrollRunsPage() {
                         </div>
                     ) : (
                         <div className="space-y-4 max-h-[60vh] overflow-auto">
-                            {(detail as any)?.total_net_pay != null && (
+                            {(detail as any)?.total_net_amount != null && (
                                 <div className="grid grid-cols-3 gap-4 text-sm">
                                     <div>
                                         <p className="text-muted-foreground">Total Gross</p>
@@ -299,7 +299,7 @@ export default function PayrollRunsPage() {
                                     </div>
                                     <div>
                                         <p className="text-muted-foreground">Total Net</p>
-                                        <p className="font-semibold">{formatCurrency(Number((detail as any).total_net_pay))}</p>
+                                        <p className="font-semibold">{formatCurrency(Number((detail as any).total_net_amount))}</p>
                                     </div>
                                 </div>
                             )}
@@ -319,7 +319,7 @@ export default function PayrollRunsPage() {
                                             <TableCell>{item.employee_name || item.employee_id?.slice(0, 8)}</TableCell>
                                             <TableCell className="text-right">{formatCurrency(Number(item.base_salary))}</TableCell>
                                             <TableCell className="text-right">{formatCurrency(Number(item.tax_amount))}</TableCell>
-                                            <TableCell className="text-right font-medium">{formatCurrency(Number(item.net_pay))}</TableCell>
+                                            <TableCell className="text-right font-medium">{formatCurrency(Number(item.net_amount))}</TableCell>
                                             <TableCell>
                                                 <Badge variant="secondary" className={item.payment_status === "paid" ? "bg-green-100 text-green-800" : ""}>
                                                     {item.payment_status}

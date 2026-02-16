@@ -195,10 +195,10 @@ async def get_payroll_run(
     items = []
     total_base_salary = Decimal(0)
     total_overtime = Decimal(0)
-    total_bonus = Decimal(0)
+    total_bonuses = Decimal(0)
     total_deductions = Decimal(0)
     total_tax = Decimal(0)
-    total_net_pay = Decimal(0)
+    total_net_amount = Decimal(0)
     
     for item, first_name, last_name, email, department in items_query:
         items.append(PayrollItemWithEmployee(
@@ -207,13 +207,13 @@ async def get_payroll_run(
             employee_id=item.employee_id,
             base_salary=item.base_salary,
             overtime_hours=item.overtime_hours,
-            overtime_rate=item.overtime_rate,
-            bonus=item.bonus,
+            overtime_amount=item.overtime_amount,
+            bonuses=item.bonuses,
             deductions=item.deductions,
             tax_amount=item.tax_amount,
-            net_pay=item.net_pay,
+            net_amount=item.net_amount,
             payment_status=item.payment_status,
-            paid_at=item.paid_at,
+            payment_date=item.payment_date,
             created_at=item.created_at,
             updated_at=item.updated_at,
             employee_name=f"{first_name} {last_name}",
@@ -222,11 +222,11 @@ async def get_payroll_run(
         ))
         
         total_base_salary += item.base_salary
-        total_overtime += (item.overtime_hours * item.base_salary / 160 * item.overtime_rate)
-        total_bonus += item.bonus
+        total_overtime += item.overtime_amount
+        total_bonuses += item.bonuses
         total_deductions += item.deductions
         total_tax += item.tax_amount
-        total_net_pay += item.net_pay
+        total_net_amount += item.net_amount
     
     return PayrollRunDetailResponse(
         id=payroll_run.id,
@@ -242,10 +242,10 @@ async def get_payroll_run(
         items=items,
         total_base_salary=total_base_salary,
         total_overtime=total_overtime,
-        total_bonus=total_bonus,
+        total_bonuses=total_bonuses,
         total_deductions=total_deductions,
         total_tax=total_tax,
-        total_net_pay=total_net_pay
+        total_net_amount=total_net_amount
     )
 
 
@@ -307,14 +307,14 @@ async def process_payroll(
             base_salary = employee.salary_amount
             overtime_hours = Decimal(0)  # Would come from shift tracking
             overtime_rate = Decimal("1.5")
-            bonus = Decimal(0)
+            bonuses = Decimal(0)
             
             # Calculate overtime pay
             hourly_rate = base_salary / 160  # Assuming 160 hours/month
             overtime_pay = overtime_hours * hourly_rate * overtime_rate
             
             # Calculate gross pay
-            gross_pay = base_salary + overtime_pay + bonus
+            gross_pay = base_salary + overtime_pay + bonuses
             
             # Calculate tax (simplified - 20% flat rate)
             tax_amount = gross_pay * Decimal("0.20")
@@ -322,8 +322,8 @@ async def process_payroll(
             # Calculate deductions (simplified)
             deductions = Decimal(0)
             
-            # Calculate net pay
-            net_pay = gross_pay - tax_amount - deductions
+            # Calculate net amount
+            net_amount = gross_pay - tax_amount - deductions
             
             payroll_item = PayrollItem(
                 id=str(uuid.uuid4()),
@@ -332,16 +332,16 @@ async def process_payroll(
                 employee_id=employee.id,
                 base_salary=base_salary,
                 overtime_hours=overtime_hours,
-                overtime_rate=overtime_rate,
-                bonus=bonus,
+                overtime_amount=overtime_pay,
+                bonuses=bonuses,
                 deductions=deductions,
                 tax_amount=tax_amount,
-                net_pay=net_pay,
+                net_amount=net_amount,
                 payment_status="pending"
             )
             
             db.add(payroll_item)
-            total_amount += net_pay
+            total_amount += net_amount
         
         # Update payroll run
         payroll_run.status = "completed"
@@ -463,13 +463,13 @@ async def get_payroll_items(
             employee_id=item.employee_id,
             base_salary=item.base_salary,
             overtime_hours=item.overtime_hours,
-            overtime_rate=item.overtime_rate,
-            bonus=item.bonus,
+            overtime_amount=item.overtime_amount,
+            bonuses=item.bonuses,
             deductions=item.deductions,
             tax_amount=item.tax_amount,
-            net_pay=item.net_pay,
+            net_amount=item.net_amount,
             payment_status=item.payment_status,
-            paid_at=item.paid_at,
+            payment_date=item.payment_date,
             created_at=item.created_at,
             updated_at=item.updated_at,
             employee_name=f"{first_name} {last_name}",
@@ -506,15 +506,13 @@ async def update_payroll_item(
         setattr(item, field, value)
     
     # Recalculate net pay if financial fields changed
-    if any(f in update_dict for f in ['base_salary', 'overtime_hours', 'overtime_rate', 'bonus', 'deductions', 'tax_amount']):
-        hourly_rate = item.base_salary / 160
-        overtime_pay = item.overtime_hours * hourly_rate * item.overtime_rate
-        gross_pay = item.base_salary + overtime_pay + item.bonus
-        item.net_pay = gross_pay - item.tax_amount - item.deductions
+    if any(f in update_dict for f in ['base_salary', 'overtime_hours', 'overtime_amount', 'bonuses', 'deductions', 'tax_amount']):
+        gross_pay = item.base_salary + item.overtime_amount + item.bonuses
+        item.net_amount = gross_pay - item.tax_amount - item.deductions
     
-    # Update paid_at if marked as paid
-    if update_data.payment_status == PaymentStatus.PAID and item.paid_at is None:
-        item.paid_at = datetime.utcnow()
+    # Update payment_date if marked as paid
+    if update_data.payment_status == PaymentStatus.PAID and item.payment_date is None:
+        item.payment_date = datetime.utcnow()
     
     db.commit()
     db.refresh(item)
@@ -542,7 +540,7 @@ async def mark_item_paid(
         )
     
     item.payment_status = "paid"
-    item.paid_at = datetime.utcnow()
+    item.payment_date = datetime.utcnow()
     
     db.commit()
     db.refresh(item)
@@ -586,10 +584,10 @@ async def get_employee_payroll_history(
     
     # Calculate summary
     summary_result = db.query(
-        func.sum(PayrollItem.base_salary + PayrollItem.bonus).label("total_earned"),
+        func.sum(PayrollItem.base_salary + PayrollItem.bonuses).label("total_earned"),
         func.sum(PayrollItem.deductions).label("total_deductions"),
         func.sum(PayrollItem.tax_amount).label("total_tax"),
-        func.sum(PayrollItem.net_pay).label("net_received"),
+        func.sum(PayrollItem.net_amount).label("total_net_amount"),
         func.count(PayrollItem.id).label("count")
     ).join(PayrollRun).filter(
         PayrollItem.employee_id == employee_id,
@@ -605,7 +603,7 @@ async def get_employee_payroll_history(
             total_earned=Decimal(str(summary_result.total_earned or 0)),
             total_deductions=Decimal(str(summary_result.total_deductions or 0)),
             total_tax=Decimal(str(summary_result.total_tax or 0)),
-            net_received=Decimal(str(summary_result.net_received or 0)),
+            total_net_amount=Decimal(str(summary_result.total_net_amount or 0)),
             payroll_count=summary_result.count or 0
         )
     )

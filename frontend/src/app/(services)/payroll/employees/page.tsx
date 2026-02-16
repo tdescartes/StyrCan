@@ -206,7 +206,7 @@ export default function PayrollByEmployeePage() {
                                                     {formatCurrency(Number(item.tax_amount))}
                                                 </TableCell>
                                                 <TableCell className="text-right font-medium">
-                                                    {formatCurrency(Number(item.net_pay))}
+                                                    {formatCurrency(Number(item.net_amount))}
                                                 </TableCell>
                                                 <TableCell>
                                                     <Badge

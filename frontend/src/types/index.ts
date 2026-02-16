@@ -49,7 +49,7 @@ export interface Employee {
     updated_at?: string;
 }
 
-export type EmployeeStatus = "active" | "on_leave" | "terminated";
+export type EmployeeStatus = "active" | "inactive" | "on_leave" | "terminated";
 
 // PTO types
 export interface PTOBalance {
@@ -77,7 +77,7 @@ export interface PTORequest {
     updated_at?: string;
 }
 
-export type PTOStatus = "pending" | "approved" | "rejected";
+export type PTOStatus = "pending" | "approved" | "denied" | "cancelled";
 
 // Shift types
 export interface Shift {
@@ -93,7 +93,7 @@ export interface Shift {
     updated_at?: string;
 }
 
-export type ShiftStatus = "scheduled" | "completed" | "cancelled";
+export type ShiftStatus = "scheduled" | "completed" | "missed" | "cancelled";
 
 // Financial types
 export interface Transaction {
@@ -135,21 +135,21 @@ export interface PayrollRun {
     updated_at?: string;
 }
 
-export type PayrollStatus = "draft" | "pending" | "processing" | "completed" | "cancelled";
+export type PayrollStatus = "draft" | "processing" | "completed" | "failed" | "cancelled";
 
 export interface PayrollItem {
     id: string;
     payroll_run_id: string;
     employee_id: string;
     base_salary: string;
-    overtime_pay: string;
-    bonus: string;
+    overtime_hours: string;
+    overtime_amount: string;
+    bonuses: string;
     deductions: string;
     tax_amount: string;
-    net_pay: string;
+    net_amount: string;
     payment_status: PaymentStatus;
     payment_date?: string;
-    payment_method?: string;
     notes?: string;
     created_at: string;
     updated_at?: string;

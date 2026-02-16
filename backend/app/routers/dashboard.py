@@ -143,7 +143,7 @@ async def get_dashboard(
     ).count()
     
     yearly_payroll = db.query(
-        func.coalesce(func.sum(PayrollItem.net_pay), 0)
+        func.coalesce(func.sum(PayrollItem.net_amount), 0)
     ).join(PayrollRun).filter(
         PayrollRun.company_id == company_id,
         PayrollRun.status == "completed",

@@ -38,7 +38,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { apiClient } from "@/lib/api/client";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatRelativeTime } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { ServiceCardSkeleton, ActivityListSkeleton } from "@/components/ui/skeleton";
 
@@ -78,12 +78,17 @@ const services = [
   },
 ];
 
-const recentActivities = [
-  { text: 'Monthly payroll processed', user: 'System', time: '2 hours ago', icon: CreditCard },
-  { text: 'New expense logged: Office Supplies', user: 'Admin', time: '4 hours ago', icon: DollarSign },
-  { text: 'PTO request submitted', user: 'Alice Freeman', time: 'Yesterday', icon: Clock },
-  { text: 'Team meeting scheduled', user: 'Bob Smith', time: 'Yesterday', icon: Calendar },
+const fallbackActivities = [
+  { text: 'No recent activity yet', user: 'System', time: 'Just now', icon: Activity },
 ];
+
+const activityIconMap: Record<string, typeof CreditCard> = {
+  transaction: DollarSign,
+  payroll: CreditCard,
+  pto: Clock,
+  shift: Calendar,
+  employee: Users,
+};
 
 export default function Home() {
   const router = useRouter();
@@ -259,17 +264,22 @@ export default function Home() {
                 <ActivityListSkeleton items={4} />
               ) : (
                 <div className="divide-y divide-zinc-100">
-                  {recentActivities.map((item, i) => (
-                    <div key={i} className="p-4 flex items-center gap-3 hover:bg-zinc-50 transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500">
-                        <item.icon className="w-4 h-4" />
+                  {(kpis?.recent_activities?.length ? kpis.recent_activities : fallbackActivities).map((item: any, i: number) => {
+                    const IconComponent = item.icon ?? activityIconMap[item.type] ?? Activity;
+                    return (
+                      <div key={i} className="p-4 flex items-center gap-3 hover:bg-zinc-50 transition-colors">
+                        <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500">
+                          <IconComponent className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-zinc-900">{item.text ?? item.description}</p>
+                          <p className="text-xs text-zinc-500">
+                            {item.user ?? item.type}{item.time ? ` • ${item.time}` : item.timestamp ? ` • ${formatRelativeTime(item.timestamp)}` : ''}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-zinc-900">{item.text}</p>
-                        <p className="text-xs text-zinc-500">{item.user} • {item.time}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>

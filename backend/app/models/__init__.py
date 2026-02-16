@@ -5,7 +5,7 @@ from .company import Company
 from .employee import Employee, PTOBalance, PTORequest, Shift
 from .finance import Transaction, ExpenseCategory
 from .payroll import PayrollRun, PayrollItem
-from .message import Message
+# Note: Message model is not used — messaging uses MongoDB ChatMessage (see mongo_models.py)
 
 __all__ = [
     "User",
@@ -18,5 +18,4 @@ __all__ = [
     "ExpenseCategory",
     "PayrollRun",
     "PayrollItem",
-    "Message",
 ]

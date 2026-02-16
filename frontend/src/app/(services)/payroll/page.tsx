@@ -498,7 +498,7 @@ export default function PayrollPage() {
                                                 -{formatCurrency(Number(item.deductions) || 0)}
                                             </td>
                                             <td className="py-3 px-4 text-right font-medium text-green-500">
-                                                {formatCurrency(Number(item.net_pay) || 0)}
+                                                {formatCurrency(Number(item.net_amount) || 0)}
                                             </td>
                                             <td className="py-3 px-4">
                                                 {item.payment_status === "paid" ? (

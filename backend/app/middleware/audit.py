@@ -60,6 +60,7 @@ class AuditLogMiddleware(BaseHTTPMiddleware):
         # Log audit trail for write operations or failed requests
         if request.method not in self.READ_METHODS or response.status_code >= 400:
             try:
+                action = self._determine_action(request.method, request.url.path)
                 await self._log_audit(
                     request=request,
                     response=response,
