@@ -13,6 +13,7 @@
 **Target Score:** 95/100 (Production-Ready)
 
 ### Critical Gaps Identified
+
 - ❌ No payment processing (Stripe not integrated)
 - ❌ No email service (password reset broken)
 - ❌ No 2FA/MFA security
@@ -23,6 +24,7 @@
 - ❌ No file storage integration
 
 ### What's Already Working ✅
+
 - Multi-tenancy architecture with tenant isolation
 - JWT authentication with refresh tokens
 - Basic CRUD for all modules (Employees, Finance, Payroll, Communication)
@@ -36,15 +38,18 @@
 ## 🎯 PHASED IMPLEMENTATION PLAN
 
 ### **PHASE 1: REVENUE & COMPLIANCE** (Week 1-3)
+
 **Goal:** Make it legal and profitable  
 **Status:** 🟡 Not Started  
 **Priority:** P0 - Launch Blocker
 
 #### 1.1 Stripe Integration ⬜
+
 **Estimated Effort:** 1.5 weeks  
 **Dependencies:** None
 
 ##### Backend Tasks
+
 - [ ] Add `stripe==8.0.0` to requirements.txt
 - [ ] Create `Subscription` model with fields:
   - id, company_id, stripe_subscription_id, stripe_customer_id
@@ -75,6 +80,7 @@
   - STRIPE_PRICE_IDS (4 plans)
 
 ##### Frontend Tasks
+
 - [ ] Install `@stripe/stripe-js` and `@stripe/react-stripe-js`
 - [ ] Replace mock payment data in `billing/page.tsx`
 - [ ] Create Stripe Elements payment form
@@ -85,6 +91,7 @@
 - [ ] Show current plan usage/limits
 
 ##### Testing
+
 - [ ] Test all 4 plan purchases with test cards
 - [ ] Test subscription upgrades/downgrades
 - [ ] Test failed payment handling
@@ -93,10 +100,12 @@
 ---
 
 #### 1.2 Subscription Feature Gating ⬜
+
 **Estimated Effort:** 3 days  
 **Dependencies:** Stripe integration
 
 ##### Backend Tasks
+
 - [ ] Create `backend/app/middleware/subscription.py`
 - [ ] Implement feature gate decorator `@require_plan("employees")`
 - [ ] Add plan limits to config:
@@ -108,6 +117,7 @@
 - [ ] Return 402 Payment Required when limit exceeded
 
 ##### Frontend Tasks
+
 - [ ] Create `useSubscription` hook
 - [ ] Add upgrade prompts when hitting limits
 - [ ] Disable features not in current plan
@@ -116,10 +126,12 @@
 ---
 
 #### 1.3 Email Service (SendGrid) ⬜
+
 **Estimated Effort:** 4 days  
 **Dependencies:** None
 
 ##### Backend Tasks
+
 - [ ] Add `sendgrid==6.11.0` to requirements.txt
 - [ ] Create `backend/app/utils/email.py` service class
 - [ ] Add SendGrid config to `backend/app/config.py`:
@@ -144,6 +156,7 @@
 - [ ] Add `email_verified` field to User model
 
 ##### Testing
+
 - [ ] Send test emails for all templates
 - [ ] Verify links work correctly
 - [ ] Test email delivery to spam folders
@@ -152,10 +165,12 @@
 ---
 
 #### 1.4 Terms of Service & Privacy Policy ⬜
+
 **Estimated Effort:** 1 week (including legal review)  
 **Dependencies:** None
 
 ##### Frontend Tasks
+
 - [ ] Create `frontend/src/app/(legal)/layout.tsx`
 - [ ] Create `frontend/src/app/(legal)/terms/page.tsx`
 - [ ] Create `frontend/src/app/(legal)/privacy/page.tsx`
@@ -174,15 +189,18 @@
 ---
 
 ### **PHASE 2: SECURITY & INFRASTRUCTURE** (Week 4-5)
+
 **Goal:** Production-grade security and observability  
 **Status:** 🔴 Not Started  
 **Priority:** P0 - Security Critical
 
 #### 2.1 Two-Factor Authentication (2FA) ⬜
+
 **Estimated Effort:** 1 week  
 **Dependencies:** Email service
 
 ##### Backend Tasks
+
 - [ ] Add `pyotp==2.9.0` to requirements.txt
 - [ ] Add to User model:
   - `two_factor_enabled` (Boolean)
@@ -199,6 +217,7 @@
 - [ ] Create QR code generation endpoint
 
 ##### Frontend Tasks
+
 - [ ] Update `settings/security/page.tsx` (remove "Coming Soon")
 - [ ] Add 2FA setup wizard:
   - Step 1: Scan QR code
@@ -209,6 +228,7 @@
 - [ ] Add "Disable 2FA" option with password confirm
 
 ##### Testing
+
 - [ ] Test setup with Google Authenticator
 - [ ] Test setup with Authy
 - [ ] Test login with 2FA enabled
@@ -218,10 +238,12 @@
 ---
 
 #### 2.2 Rate Limiting ⬜
+
 **Estimated Effort:** 2 days  
 **Dependencies:** Redis
 
 ##### Backend Tasks
+
 - [ ] Add `slowapi==0.1.9` to requirements.txt
 - [ ] Create `backend/app/middleware/rate_limit.py`
 - [ ] Configure limits:
@@ -234,6 +256,7 @@
 - [ ] Use Redis for distributed rate limiting
 
 ##### Testing
+
 - [ ] Test login brute force protection
 - [ ] Test API rate limits
 - [ ] Test rate limit reset
@@ -241,10 +264,12 @@
 ---
 
 #### 2.3 File Storage (AWS S3) ⬜
+
 **Estimated Effort:** 4 days  
 **Dependencies:** None
 
 ##### Backend Tasks
+
 - [ ] Add `boto3==1.34.0` to requirements.txt
 - [ ] Create `backend/app/utils/storage.py` service class
 - [ ] Add AWS config to `backend/app/config.py`:
@@ -268,6 +293,7 @@
 - [ ] Add file validation (size limits, mime types)
 
 ##### Frontend Tasks
+
 - [ ] Create `FileUpload` component (drag-and-drop)
 - [ ] Show upload progress
 - [ ] Display file list with thumbnails
@@ -275,6 +301,7 @@
 - [ ] Show file size and type
 
 ##### Testing
+
 - [ ] Test file uploads (various types)
 - [ ] Test file downloads
 - [ ] Test file deletion
@@ -283,10 +310,12 @@
 ---
 
 #### 2.4 Background Jobs (Celery + Redis) ⬜
+
 **Estimated Effort:** 1 week  
 **Dependencies:** Redis
 
 ##### Backend Tasks
+
 - [ ] Add `celery[redis]==5.3.4` to requirements.txt
 - [ ] Create `backend/app/celery_app.py`
 - [ ] Configure Celery with Redis broker
@@ -302,11 +331,13 @@
 - [ ] Add task status tracking
 
 ##### Infrastructure Tasks
+
 - [ ] Add celery worker to `docker-compose.yml`
 - [ ] Add celery beat for scheduled tasks (optional)
 - [ ] Configure task retries and error handling
 
 ##### Testing
+
 - [ ] Test email task execution
 - [ ] Test payroll task execution
 - [ ] Test task failures and retries
@@ -314,10 +345,12 @@
 ---
 
 #### 2.5 Error Monitoring (Sentry) ⬜
+
 **Estimated Effort:** 2 days  
 **Dependencies:** None
 
 ##### Backend Tasks
+
 - [ ] Add `sentry-sdk[fastapi]==1.40.0` to requirements.txt
 - [ ] Initialize Sentry in `main.py`
 - [ ] Add SENTRY_DSN to config
@@ -326,6 +359,7 @@
 - [ ] Test error capture
 
 ##### Frontend Tasks
+
 - [ ] Add `@sentry/nextjs` to package.json
 - [ ] Create `sentry.client.config.ts`
 - [ ] Create `sentry.server.config.ts`
@@ -335,15 +369,18 @@
 ---
 
 ### **PHASE 3: COMPLETE STUB FEATURES** (Week 6-8)
+
 **Goal:** Remove all "Coming Soon" pages  
 **Status:** 🔴 Not Started  
 **Priority:** P1 - Feature Completeness
 
 #### 3.1 Performance Reviews System ⬜
+
 **Estimated Effort:** 2 weeks  
 **Dependencies:** None
 
 ##### Backend Tasks
+
 - [ ] Create models in `backend/app/models/review.py`:
   - ReviewCycle (id, company_id, name, start_date, end_date, status)
   - Review (id, company_id, employee_id, reviewer_id, cycle_id, status, overall_rating)
@@ -363,6 +400,7 @@
 - [ ] Add default question templates
 
 ##### Frontend Tasks
+
 - [ ] Redesign `employees/reviews/page.tsx` (remove stub)
 - [ ] Create review cycle management UI
 - [ ] Create review form with:
@@ -377,6 +415,7 @@
   - Trend over time
 
 ##### Testing
+
 - [ ] Create test review cycle
 - [ ] Complete test reviews
 - [ ] View review history
@@ -385,10 +424,12 @@
 ---
 
 #### 3.2 Tax Documents (W-2/1099) ⬜
+
 **Estimated Effort:** 1.5 weeks  
 **Dependencies:** None
 
 ##### Backend Tasks
+
 - [ ] Add `reportlab==4.0.0` to requirements.txt
 - [ ] Add to Employee model: `ssn_encrypted`, `tax_id_type`
 - [ ] Add to PayrollItem model:
@@ -410,6 +451,7 @@
   - `POST /api/payroll/tax-documents/generate` - Batch generate
 
 ##### Frontend Tasks
+
 - [ ] Redesign `payroll/taxes/page.tsx` (remove stub)
 - [ ] Add year selector dropdown
 - [ ] Display document list (W-2s, 1099s)
@@ -418,6 +460,7 @@
 - [ ] Add tax summary dashboard
 
 ##### Testing
+
 - [ ] Generate test W-2 (verify IRS format)
 - [ ] Generate test 1099
 - [ ] Test tax calculations
@@ -426,21 +469,25 @@
 ---
 
 #### 3.3 File Attachments in Messaging ⬜
+
 **Estimated Effort:** 3 days  
 **Dependencies:** File storage (Phase 2)
 
 ##### Backend Tasks
+
 - [ ] Add `attachment_ids` field to Message model (MongoDB)
 - [ ] Update `messaging.py` to handle file references
 - [ ] Link files to messages
 
 ##### Frontend Tasks
+
 - [ ] Add file upload to message composer in `communication/page.tsx`
 - [ ] Display attached files in messages
 - [ ] Add file preview (images, PDFs)
 - [ ] Add download button for attachments
 
 ##### Testing
+
 - [ ] Send message with image
 - [ ] Send message with PDF
 - [ ] Test file preview
@@ -449,10 +496,12 @@
 ---
 
 #### 3.4 Real-Time WebSocket Chat ⬜
+
 **Estimated Effort:** 1 week  
 **Dependencies:** Redis
 
 ##### Backend Tasks
+
 - [ ] Add `python-socketio==5.11.0` to requirements.txt
 - [ ] Create `backend/app/websocket.py`
 - [ ] Initialize Socket.IO in `main.py`
@@ -467,6 +516,7 @@
 - [ ] Add WebSocket CORS config
 
 ##### Frontend Tasks
+
 - [ ] Add `socket.io-client` to package.json
 - [ ] Create `frontend/src/lib/websocket.ts` hook
 - [ ] Update `communication/page.tsx` to use WebSocket
@@ -476,6 +526,7 @@
 - [ ] Add read receipts
 
 ##### Testing
+
 - [ ] Test message delivery (real-time)
 - [ ] Test typing indicators
 - [ ] Test multi-user chat
@@ -484,10 +535,12 @@
 ---
 
 #### 3.5 Employee Benefits Management ⬜
+
 **Estimated Effort:** 1 week  
 **Dependencies:** None
 
 ##### Backend Tasks
+
 - [ ] Create models in `backend/app/models/benefits.py`:
   - Benefit (id, company_id, name, type, provider, monthly_cost)
   - EmployeeBenefit (id, employee_id, benefit_id, enrollment_date, status)
@@ -500,6 +553,7 @@
   - `DELETE /api/employees/{id}/benefits/{benefit_id}` - Unenroll
 
 ##### Frontend Tasks
+
 - [ ] Create `employees/benefits/page.tsx`
 - [ ] Benefits catalog UI
 - [ ] Enrollment form
@@ -509,15 +563,18 @@
 ---
 
 ### **PHASE 4: ADVANCED FEATURES & POLISH** (Week 9-12)
+
 **Goal:** Market-leading experience  
 **Status:** 🔴 Not Started  
 **Priority:** P2 - Competitive Edge
 
 #### 4.1 Advanced Payroll Tax Calculations ⬜
+
 **Estimated Effort:** 2 weeks  
 **Dependencies:** Tax documents
 
 ##### Implementation
+
 - [ ] Implement IRS Publication 15 tables
 - [ ] Add all 50 state tax tables
 - [ ] Local tax calculations (major cities)
@@ -528,10 +585,12 @@
 ---
 
 #### 4.2 Bank Integration (Plaid) ⬜
+
 **Estimated Effort:** 1.5 weeks  
 **Dependencies:** None
 
 ##### Backend Tasks
+
 - [ ] Add `plaid-python==16.0.0` to requirements.txt
 - [ ] Add Plaid config (client_id, secret, environment)
 - [ ] Create endpoints:
@@ -541,6 +600,7 @@
   - `POST /api/finance/plaid/webhooks` - Handle webhooks
 
 ##### Frontend Tasks
+
 - [ ] Add Plaid Link component
 - [ ] Bank connection UI
 - [ ] Auto-import transactions
@@ -549,16 +609,19 @@
 ---
 
 #### 4.3 Invoice Generation ⬜
+
 **Estimated Effort:** 1 week  
 **Dependencies:** PDF generation
 
 ##### Backend Tasks
+
 - [ ] Create Invoice model
 - [ ] Create invoice router
 - [ ] Generate invoice PDFs
 - [ ] Send invoice emails
 
 ##### Frontend Tasks
+
 - [ ] Invoice creation form
 - [ ] Invoice list
 - [ ] Invoice preview
@@ -567,10 +630,12 @@
 ---
 
 #### 4.4 Onboarding Wizard ⬜
+
 **Estimated Effort:** 1.5 weeks  
 **Dependencies:** None
 
 ##### Frontend Tasks
+
 - [ ] Create `frontend/src/app/(onboarding)/` directory
 - [ ] Create 5-step wizard:
   - Step 1: Company info
@@ -585,10 +650,12 @@
 ---
 
 #### 4.5 Customer Support Integration ⬜
+
 **Estimated Effort:** 3 days  
 **Dependencies:** None
 
 ##### Frontend Tasks
+
 - [ ] Add Intercom script
 - [ ] Configure Intercom settings
 - [ ] Add support widget to all pages
@@ -597,16 +664,19 @@
 ---
 
 #### 4.6 Advanced Reporting & Export ⬜
+
 **Estimated Effort:** 1 week  
 **Dependencies:** None
 
 ##### Backend Tasks
+
 - [ ] Add CSV export endpoints to all routers
 - [ ] Add PDF export for reports
 - [ ] Custom date range filtering
 - [ ] Advanced filtering options
 
 ##### Frontend Tasks
+
 - [ ] Export buttons on all tables
 - [ ] Date range picker
 - [ ] Filter builder UI
@@ -614,10 +684,12 @@
 ---
 
 #### 4.7 UI/UX Polish ⬜
+
 **Estimated Effort:** 1 week  
 **Dependencies:** None
 
 ##### Tasks
+
 - [ ] Add loading skeletons to all data tables
 - [ ] Beautiful empty states with CTAs
 - [ ] Form validation with real-time feedback
@@ -635,14 +707,14 @@
 
 ### Required Third-Party Services
 
-| Service | Purpose | Tier | Monthly Cost | API Keys Needed |
-|---------|---------|------|--------------|-----------------|
-| **Stripe** | Payment processing | Usage-based | 2.9% + $0.30/txn | STRIPE_SECRET_KEY<br>STRIPE_PUBLISHABLE_KEY<br>STRIPE_WEBHOOK_SECRET |
-| **SendGrid** | Transactional email | Free → Essentials | $0 → $20 | SENDGRID_API_KEY |
-| **AWS S3** | File storage | Pay-as-you-go | ~$5 | AWS_ACCESS_KEY_ID<br>AWS_SECRET_ACCESS_KEY<br>AWS_S3_BUCKET_NAME |
-| **Sentry** | Error monitoring | Developer | $0 → $26 | SENTRY_DSN |
-| **Intercom** *(Phase 4)* | Customer support | Start | $74 | INTERCOM_APP_ID |
-| **Plaid** *(Phase 4)* | Bank connections | Launch | $0 → custom | PLAID_CLIENT_ID<br>PLAID_SECRET |
+| Service                  | Purpose             | Tier              | Monthly Cost     | API Keys Needed                                                      |
+| ------------------------ | ------------------- | ----------------- | ---------------- | -------------------------------------------------------------------- |
+| **Stripe**               | Payment processing  | Usage-based       | 2.9% + $0.30/txn | STRIPE_SECRET_KEY<br>STRIPE_PUBLISHABLE_KEY<br>STRIPE_WEBHOOK_SECRET |
+| **SendGrid**             | Transactional email | Free → Essentials | $0 → $20         | SENDGRID_API_KEY                                                     |
+| **AWS S3**               | File storage        | Pay-as-you-go     | ~$5              | AWS_ACCESS_KEY_ID<br>AWS_SECRET_ACCESS_KEY<br>AWS_S3_BUCKET_NAME     |
+| **Sentry**               | Error monitoring    | Developer         | $0 → $26         | SENTRY_DSN                                                           |
+| **Intercom** _(Phase 4)_ | Customer support    | Start             | $74              | INTERCOM_APP_ID                                                      |
+| **Plaid** _(Phase 4)_    | Bank connections    | Launch            | $0 → custom      | PLAID_CLIENT_ID<br>PLAID_SECRET                                      |
 
 ### Python Package Additions
 
@@ -817,9 +889,9 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 
 ### Alembic Migrations to Create
 
-1. ✅ `001_initial_schema.py` - *Already exists*
-2. ✅ `002_add_company_id_to_child_tables.py` - *Already exists*
-3. ✅ `004_company_constraints.py` - *Already exists*
+1. ✅ `001_initial_schema.py` - _Already exists_
+2. ✅ `002_add_company_id_to_child_tables.py` - _Already exists_
+3. ✅ `004_company_constraints.py` - _Already exists_
 4. ⬜ `005_add_subscriptions.py` - Phase 1
 5. ⬜ `006_add_2fa_to_users.py` - Phase 2
 6. ⬜ `007_add_files_table.py` - Phase 2
@@ -833,18 +905,21 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 ## ✅ TESTING STRATEGY
 
 ### Unit Tests (Backend)
+
 - [ ] All routers (80% coverage target)
 - [ ] All models
 - [ ] All utilities (email, storage, tax calculator)
 - [ ] Middleware
 
 ### Integration Tests
+
 - [ ] Auth flow (signup → login → 2FA)
 - [ ] Payroll processing end-to-end
 - [ ] Payment flow (Stripe checkout → webhook)
 - [ ] File upload/download
 
 ### E2E Tests (Frontend)
+
 - [ ] Critical user flows with Playwright:
   - Signup + onboarding
   - Create employee → run payroll
@@ -852,11 +927,13 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
   - Generate report
 
 ### Performance Tests
+
 - [ ] Load testing with k6 (1000 concurrent users)
 - [ ] Database query optimization
 - [ ] API response times (<200ms)
 
 ### Security Tests
+
 - [ ] OWASP Top 10 checklist
 - [ ] SQL injection prevention
 - [ ] XSS prevention
@@ -865,6 +942,7 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 - [ ] 2FA bypass attempts
 
 ### Accessibility Tests
+
 - [ ] WCAG 2.1 AA compliance
 - [ ] Screen reader testing
 - [ ] Keyboard navigation
@@ -875,6 +953,7 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 ## 🚀 DEPLOYMENT CHECKLIST
 
 ### Pre-Launch
+
 - [ ] All Phase 1-2 tasks complete
 - [ ] All critical tests passing
 - [ ] Security audit passed
@@ -888,6 +967,7 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 - [ ] Load testing passed (1000 users)
 
 ### Launch Day
+
 - [ ] Deploy to production
 - [ ] Run smoke tests
 - [ ] Monitor error rates
@@ -897,6 +977,7 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 - [ ] Announce launch 🎉
 
 ### Post-Launch
+
 - [ ] Monitor for 48 hours
 - [ ] Fix critical bugs immediately
 - [ ] Gather user feedback
@@ -907,6 +988,7 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 ## 📊 PROGRESS TRACKING
 
 ### Overall Progress
+
 - **Phase 1:** 0% (0/10 tasks)
 - **Phase 2:** 0% (0/10 tasks)
 - **Phase 3:** 0% (0/12 tasks)
@@ -914,6 +996,7 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 - **Total:** 0% (0/47 major tasks)
 
 ### Time Tracking
+
 - **Estimated Total:** 8-12 weeks
 - **Elapsed:** 0 weeks
 - **Remaining:** 8-12 weeks
@@ -924,6 +1007,7 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 ## 🎯 SUCCESS METRICS
 
 ### Technical Metrics
+
 - **Test Coverage:** Target 80%
 - **API Response Time:** <200ms (p95)
 - **Error Rate:** <0.1%
@@ -931,6 +1015,7 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 - **Page Load Time:** <2s
 
 ### Business Metrics
+
 - **Successful Payments:** >95%
 - **Email Deliverability:** >99%
 - **User Onboarding Completion:** >60%
@@ -941,6 +1026,7 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 ## 📝 NOTES & DECISIONS
 
 ### Architecture Decisions
+
 1. **Stripe over Paddle:** Better feature set, lower fees for SaaS
 2. **SendGrid over AWS SES:** Easier setup, better templates
 3. **AWS S3 over Azure Blob:** Cost-effective for small files
@@ -948,12 +1034,14 @@ ALTER TABLE payroll_items ADD COLUMN medicare_tax DECIMAL(10,2);
 5. **Socket.IO over raw WebSockets:** Fallback support, rooms built-in
 
 ### Security Decisions
+
 1. **2FA using TOTP (not SMS):** More secure, no SMS costs
 2. **Pre-signed URLs for files:** No direct S3 access from frontend
 3. **Rate limiting with Redis:** Distributed, fast
 4. **JWT with refresh tokens:** Stateless, scalable
 
 ### UI/UX Decisions
+
 1. **Keep existing design system:** Don't change styles/layout
 2. **Progressive disclosure:** Show advanced features gradually
 3. **Empty states with CTAs:** Guide users to next action

@@ -4,130 +4,50 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Shield } from "lucide-react";
+import { Loader2, Shield, Copy, Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 
-const passwordSchema = z
-    .object({
-        currentPassword: z.string().min(1, "Current password is required"),
-        newPassword: z
-            .string()
-            .min(8, "Password must be at least 8 characters")
-            .regex(/[A-Z]/, "Must contain an uppercase letter")
-            .regex(/[a-z]/, "Must contain a lowercase letter")
-            .regex(/[0-9]/, "Must contain a number"),
-        confirmPassword: z.string(),
-    })
-    .refine((data) => data.newPassword === data.confirmPassword, {
-        message: "Passwords don't match",
-        path: ["confirmPassword"],
-    });
+const passwordSchema = z.object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z.string().min(8, "Password must be at least 8 characters").regex(/[A-Z]/, "Must contain an uppercase letter").regex(/[a-z]/, "Must contain a lowercase letter").regex(/[0-9]/, "Must contain a number"),
+    confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, { message: "Passwords don't match", path: ["confirmPassword"] });
 
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
+const twoFAVerifySchema = z.object({ code: z.string().length(6, "Code must be 6 digits") });
+type TwoFAVerifyData = z.infer<typeof twoFAVerifySchema>;
+
+const twoFADisableSchema = z.object({ password: z.string().min(1, "Password is required"), code: z.string().length(6, "Code must be 6 digits") });
+type TwoFADisableData = z.infer<typeof twoFADisableSchema>;
+
 export default function SecurityPage() {
     const [isLoading, setIsLoading] = useState(false);
+    const [showSetupDialog, setShowSetupDialog] = useState(false);
+    const [showDisableDialog, setShowDisableDialog] = useState(false);
+    const [setupData, setSetupData] = useState<{ secret: string; qr_code: string; backup_codes: string[] } | null>(null);
+    const [copiedCodes, setCopiedCodes] = useState(false);
+    const queryClient = useQueryClient();
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        reset,
-    } = useForm<PasswordFormData>({
-        resolver: zodResolver(passwordSchema),
-    });
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<PasswordFormData>({ resolver: zodResolver(passwordSchema) });
+    const { register: register2FAVerify, handleSubmit: handleSubmit2FAVerify, formState: { errors: errors2FAVerify }, reset: reset2FAVerify } = useForm<TwoFAVerifyData>({ resolver: zodResolver(twoFAVerifySchema) });
+    const { register: register2FADisable, handleSubmit: handleSubmit2FADisable, formState: { errors: errors2FADisable }, reset: reset2FADisable } = useForm<TwoFADisableData>({ resolver: zodResolver(twoFADisableSchema) });
 
-    const onSubmit = async (data: PasswordFormData) => {
-        setIsLoading(true);
-        try {
-            await apiClient.changePassword({
-                current_password: data.currentPassword,
-                new_password: data.newPassword,
-                confirm_password: data.confirmPassword,
-            });
-            toast.success("Password changed successfully");
-            reset();
-        } catch (error: any) {
-            toast.error(error.message || "Failed to change password");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const { data: twoFAStatus } = useQuery({ queryKey: ["twofa", "status"], queryFn: () => apiClient.get2FAStatus() });
+    const setup2FA = useMutation({ mutationFn: () => apiClient.setup2FA(), onSuccess: (data) => { setSetupData(data); setShowSetupDialog(true); }, onError: (err: any) => toast.error(err.message || "Failed to setup 2FA") });
+    const verify2FA = useMutation({ mutationFn: (data: TwoFAVerifyData) => apiClient.verify2FA(data.code), onSuccess: () => { toast.success("Two-factor authentication enabled successfully!"); setShowSetupDialog(false); setSetupData(null); reset2FAVerify(); queryClient.invalidateQueries({ queryKey: ["twofa", "status"] }); }, onError: (err: any) => toast.error(err.message || "Invalid verification code") });
+    const disable2FA = useMutation({ mutationFn: (data: TwoFADisableData) => apiClient.disable2FA(data.password, data.code), onSuccess: () => { toast.success("Two-factor authentication disabled"); setShowDisableDialog(false); reset2FADisable(); queryClient.invalidateQueries({ queryKey: ["twofa", "status"] }); }, onError: (err: any) => toast.error(err.message || "Failed to disable 2FA") });
 
-    return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Security</h1>
-                <p className="text-muted-foreground">Manage password and account security</p>
-            </div>
+    const onSubmit = async (data: PasswordFormData) => { setIsLoading(true); try { await apiClient.changePassword({ current_password: data.currentPassword, new_password: data.newPassword, confirm_password: data.confirmPassword }); toast.success("Password changed successfully"); reset(); } catch (error: any) { toast.error(error.message || "Failed to change password"); } finally { setIsLoading(false); } };
+    const handleCopyBackupCodes = () => { if (setupData) { navigator.clipboard.writeText(setupData.backup_codes.join("\n")); setCopiedCodes(true); setTimeout(() => setCopiedCodes(false), 2000); } };
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Change Password</CardTitle>
-                    <CardDescription>
-                        Update your password to keep your account secure
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md">
-                        <div className="space-y-2">
-                            <Label htmlFor="currentPassword">Current Password</Label>
-                            <Input id="currentPassword" type="password" {...register("currentPassword")} />
-                            {errors.currentPassword && (
-                                <p className="text-sm text-red-500">{errors.currentPassword.message}</p>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="newPassword">New Password</Label>
-                            <Input id="newPassword" type="password" {...register("newPassword")} />
-                            {errors.newPassword && (
-                                <p className="text-sm text-red-500">{errors.newPassword.message}</p>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                            <Input id="confirmPassword" type="password" {...register("confirmPassword")} />
-                            {errors.confirmPassword && (
-                                <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
-                            )}
-                        </div>
-                        <Button type="submit" disabled={isLoading}>
-                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Update Password
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Shield className="h-5 w-5" /> Two-Factor Authentication
-                    </CardTitle>
-                    <CardDescription>
-                        Add an extra layer of security to your account
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">
-                        Two-factor authentication is not yet available. This feature is coming soon.
-                    </p>
-                    <Button variant="outline" disabled>
-                        Enable 2FA (Coming Soon)
-                    </Button>
-                </CardContent>
-            </Card>
-        </div>
-    );
+    return (<div className="space-y-6"><div><h1 className="text-3xl font-bold tracking-tight">Security</h1><p className="text-muted-foreground">Manage password and account security</p></div><Card><CardHeader><CardTitle>Change Password</CardTitle><CardDescription>Update your password to keep your account secure</CardDescription></CardHeader><CardContent><form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md"><div className="space-y-2"><Label htmlFor="currentPassword">Current Password</Label><Input id="currentPassword" type="password" {...register("currentPassword")} />{errors.currentPassword && <p className="text-sm text-red-500">{errors.currentPassword.message}</p>}</div><div className="space-y-2"><Label htmlFor="newPassword">New Password</Label><Input id="newPassword" type="password" {...register("newPassword")} />{errors.newPassword && <p className="text-sm text-red-500">{errors.newPassword.message}</p>}</div><div className="space-y-2"><Label htmlFor="confirmPassword">Confirm New Password</Label><Input id="confirmPassword" type="password" {...register("confirmPassword")} />{errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>}</div><Button type="submit" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Update Password</Button></form></CardContent></Card><Card><CardHeader><CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5" />Two-Factor Authentication</CardTitle><CardDescription>Add an extra layer of security with TOTP</CardDescription></CardHeader><CardContent>{twoFAStatus?.enabled ? <div className="space-y-4"><div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950 rounded-lg"><Check className="h-5 w-5 text-green-600" /><span className="text-sm font-medium">2FA is enabled</span></div><p className="text-sm text-muted-foreground">Backup codes remaining: {twoFAStatus.backup_codes_remaining}</p><Button variant="destructive" onClick={() => setShowDisableDialog(true)}>Disable 2FA</Button></div> : <div className="space-y-4"><p className="text-sm text-muted-foreground">Protect your account with time-based one-time passwords (TOTP). You&apos;ll need an authenticator app like Google Authenticator or Authy.</p><Button onClick={() => setup2FA.mutate()} disabled={setup2FA.isPending}>{setup2FA.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}<Shield className="mr-2 h-4 w-4" />Enable 2FA</Button></div>}</CardContent></Card><Dialog open={showSetupDialog} onOpenChange={setShowSetupDialog}><DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>Set Up Two-Factor Authentication</DialogTitle><DialogDescription>Scan the QR code with your authenticator app and enter the 6-digit code</DialogDescription></DialogHeader>{setupData && <div className="space-y-6"><div className="flex justify-center p-4 bg-white rounded-lg"><Image src={setupData.qr_code} alt="2FA QR Code" width={256} height={256} /></div><div className="space-y-2"><Label>Or enter this code manually:</Label><div className="flex gap-2"><Input value={setupData.secret} readOnly className="font-mono" /><Button type="button" variant="outline" onClick={() => { navigator.clipboard.writeText(setupData.secret); toast.success("Secret copied!"); }}><Copy className="h-4 w-4" /></Button></div></div><div className="space-y-2"><div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg"><AlertTriangle className="h-5 w-5 text-yellow-600" /><span className="text-sm font-medium">Save your backup codes</span></div><p className="text-sm text-muted-foreground">Store these codes in a safe place. You can use them to access your account if you lose your device.</p><div className="relative"><div className="grid grid-cols-2 gap-2 p-4 bg-muted rounded-lg font-mono text-sm">{setupData.backup_codes.map((code, i) => <div key={i}>{code}</div>)}</div><Button type="button" variant="outline" size="sm" className="absolute top-2 right-2" onClick={handleCopyBackupCodes}>{copiedCodes ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}</Button></div></div><form onSubmit={handleSubmit2FAVerify((data) => verify2FA.mutate(data))} className="space-y-4"><div className="space-y-2"><Label htmlFor="verifyCode">Enter 6-digit code from your app</Label><Input id="verifyCode" maxLength={6} placeholder="000000" className="font-mono text-center text-xl tracking-widest" {...register2FAVerify("code")} />{errors2FAVerify.code && <p className="text-sm text-red-500">{errors2FAVerify.code.message}</p>}</div><div className="flex gap-2"><Button type="button" variant="outline" onClick={() => { setShowSetupDialog(false); setSetupData(null); reset2FAVerify(); }}>Cancel</Button><Button type="submit" disabled={verify2FA.isPending}>{verify2FA.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Verify & Enable</Button></div></form></div>}</DialogContent></Dialog><Dialog open={showDisableDialog} onOpenChange={setShowDisableDialog}><DialogContent><DialogHeader><DialogTitle>Disable Two-Factor Authentication</DialogTitle><DialogDescription>Enter your password and a 6-digit code to disable 2FA</DialogDescription></DialogHeader><form onSubmit={handleSubmit2FADisable((data) => disable2FA.mutate(data))} className="space-y-4"><div className="space-y-2"><Label htmlFor="disablePassword">Current Password</Label><Input id="disablePassword" type="password" {...register2FADisable("password")} />{errors2FADisable.password && <p className="text-sm text-red-500">{errors2FADisable.password.message}</p>}</div><div className="space-y-2"><Label htmlFor="disableCode">6-digit code</Label><Input id="disableCode" maxLength={6} placeholder="000000" className="font-mono" {...register2FADisable("code")} />{errors2FADisable.code && <p className="text-sm text-red-500">{errors2FADisable.code.message}</p>}</div><div className="flex gap-2"><Button type="button" variant="outline" onClick={() => { setShowDisableDialog(false); reset2FADisable(); }}>Cancel</Button><Button type="submit" variant="destructive" disabled={disable2FA.isPending}>{disable2FA.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Disable 2FA</Button></div></form></DialogContent></Dialog></div>);
 }
