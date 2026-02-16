@@ -33,6 +33,7 @@ from .routers import (
 from .routers.billing import router as billing_router
 from .routers.files import router as files_router
 from .routers.reports import router as reports_router
+from .routers.websocket import router as websocket_router
 
 # Initialize Sentry for error monitoring (Phase 2)
 if settings.sentry_dsn:
@@ -153,6 +154,7 @@ app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(billing_router)  # Billing router has its own prefix
 app.include_router(files_router, prefix="/api/files", tags=["Files"])
 app.include_router(reports_router, prefix="/api/reports", tags=["Reports"])
+app.include_router(websocket_router, prefix="/api/notifications", tags=["WebSocket"])
 app.include_router(messaging_router, prefix="/api/messages", tags=["Messaging"])
 app.include_router(notifications_router, prefix="/api/notifications", tags=["Notifications"])
 app.include_router(employees_router, prefix="/api/employees", tags=["Employees"])
