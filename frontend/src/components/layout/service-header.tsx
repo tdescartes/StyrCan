@@ -17,21 +17,26 @@ import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/stores/auth-store";
 import { apiClient } from "@/lib/api/client";
 import { formatRelativeTime } from "@/lib/utils";
+import { useRoleAccess } from "@/hooks/use-role-access";
+import { UserRole } from "@/types";
 
-const services = [
-    { name: "Home", href: "/", id: "home" },
-    { name: "Employees", href: "/employees", id: "employees" },
-    { name: "Finance", href: "/finance", id: "finance" },
-    { name: "Payroll", href: "/payroll", id: "payroll" },
-    { name: "Communication", href: "/communication", id: "communication" },
+const services: { name: string; href: string; id: string; minRole: UserRole }[] = [
+    { name: "Home", href: "/", id: "home", minRole: "employee" },
+    { name: "Employees", href: "/employees", id: "employees", minRole: "employee" },
+    { name: "Finance", href: "/finance", id: "finance", minRole: "manager" },
+    { name: "Payroll", href: "/payroll", id: "payroll", minRole: "employee" },
+    { name: "Communication", href: "/communication", id: "communication", minRole: "employee" },
 ];
 
 export function ServiceHeader() {
     const pathname = usePathname();
     const { user, company, logout, isAuthenticated, hasHydrated } = useAuthStore();
+    const { hasMinRole } = useRoleAccess();
     const queryClient = useQueryClient();
 
-    const activeService = services.find((s) => {
+    const visibleServices = services.filter((s) => hasMinRole(s.minRole));
+
+    const activeService = visibleServices.find((s) => {
         if (s.href === "/") return pathname === "/";
         return pathname?.startsWith(s.href);
     });
@@ -77,7 +82,7 @@ export function ServiceHeader() {
 
                 {/* Service Tabs */}
                 <nav className="hidden md:flex items-center gap-1 flex-1">
-                    {services.map((service) => {
+                    {visibleServices.map((service) => {
                         const isActive = service.href === "/"
                             ? pathname === "/"
                             : pathname?.startsWith(service.href);
