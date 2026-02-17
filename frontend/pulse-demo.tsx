@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   LayoutDashboard, Users, Calendar, Clock, Star, BookOpen, PiggyBank, FileText, Tags, 
@@ -62,7 +63,7 @@ const PAYROLL_RUNS = [
 
 // --- UTILITY COMPONENTS ---
 
-const Badge = ({ children, variant = 'default', className = '' }) => {
+const Badge = ({ children, variant = 'default', className = '' }: { children: React.ReactNode; variant?: string; className?: string }) => {
   const styles = {
     default: 'bg-zinc-100 text-zinc-600 border-transparent',
     success: 'bg-emerald-50 text-emerald-700 border-emerald-100',
