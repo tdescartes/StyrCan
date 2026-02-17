@@ -56,6 +56,8 @@ import {
 import { cn, getInitials } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRoleAccess } from "@/hooks/use-role-access";
+import { MyEmployeeProfile } from "@/components/employee/my-profile";
 import type { Employee } from "@/types";
 
 const departments = ["All", "Engineering", "Product", "Design", "Sales", "HR", "Finance", "Marketing", "Operations"];
@@ -84,12 +86,22 @@ const initialFormData: EmployeeFormData = {
 };
 
 export default function EmployeesPage() {
+    const { isEmployee } = useRoleAccess();
+
+    // Employee role sees self-service profile view
+    if (isEmployee) {
+        return <MyEmployeeProfile />;
+    }
+
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedDepartment, setSelectedDepartment] = useState("All");
     const [selectedStatus, setSelectedStatus] = useState("All");
     const [currentPage, setCurrentPage] = useState(1);
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
     const [formData, setFormData] = useState<EmployeeFormData>(initialFormData);
+    const [editFormData, setEditFormData] = useState<EmployeeFormData>(initialFormData);
     const itemsPerPage = 10;
 
     const { toast } = useToast();
@@ -154,6 +166,28 @@ export default function EmployeesPage() {
         },
     });
 
+    // Update employee mutation
+    const updateEmployeeMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Record<string, any> }) =>
+            apiClient.updateEmployee(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["employees"] });
+            setIsEditDialogOpen(false);
+            setEditingEmployee(null);
+            toast({
+                title: "Employee updated",
+                description: "Employee information has been saved.",
+            });
+        },
+        onError: (error: Error) => {
+            toast({
+                title: "Error",
+                description: error.message || "Failed to update employee",
+                variant: "destructive",
+            });
+        },
+    });
+
     // Extract employees and total from response
     const employees: Employee[] = employeesData?.employees || [];
     const totalEmployees = employeesData?.total || 0;
@@ -193,6 +227,43 @@ export default function EmployeesPage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         createEmployeeMutation.mutate(formData);
+    };
+
+    const handleEditClick = (employee: Employee) => {
+        setEditingEmployee(employee);
+        setEditFormData({
+            first_name: employee.first_name,
+            last_name: employee.last_name,
+            email: employee.email,
+            phone: employee.phone || "",
+            department: employee.department || "",
+            position: employee.position || "",
+            hire_date: employee.hire_date,
+            salary: employee.salary?.toString() || "",
+        });
+        setIsEditDialogOpen(true);
+    };
+
+    const handleEditFormChange = (field: keyof EmployeeFormData, value: string) => {
+        setEditFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingEmployee) return;
+        updateEmployeeMutation.mutate({
+            id: editingEmployee.id,
+            data: {
+                first_name: editFormData.first_name,
+                last_name: editFormData.last_name,
+                email: editFormData.email,
+                phone: editFormData.phone || undefined,
+                department: editFormData.department || undefined,
+                position: editFormData.position || undefined,
+                hire_date: editFormData.hire_date,
+                salary: editFormData.salary || undefined,
+            },
+        });
     };
 
     const handleExport = () => {
@@ -536,10 +607,8 @@ export default function EmployeesPage() {
                                                                     View Profile
                                                                 </Link>
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem asChild>
-                                                                <Link href={`/dashboard/employees/${employee.id}/edit`}>
-                                                                    Edit
-                                                                </Link>
+                                                            <DropdownMenuItem onClick={() => handleEditClick(employee)}>
+                                                                Edit
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
                                                                 <Mail className="mr-2 h-4 w-4" />
@@ -600,6 +669,126 @@ export default function EmployeesPage() {
                     )}
                 </CardContent>
             </Card>
+
+            {/* Edit Employee Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogContent className="sm:max-w-[500px]">
+                    <form onSubmit={handleEditSubmit}>
+                        <DialogHeader>
+                            <DialogTitle>Edit Employee</DialogTitle>
+                            <DialogDescription>
+                                Update the employee&apos;s information below.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="editFirstName">First Name *</Label>
+                                    <Input
+                                        id="editFirstName"
+                                        value={editFormData.first_name}
+                                        onChange={(e) => handleEditFormChange("first_name", e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="editLastName">Last Name *</Label>
+                                    <Input
+                                        id="editLastName"
+                                        value={editFormData.last_name}
+                                        onChange={(e) => handleEditFormChange("last_name", e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="editEmail">Email *</Label>
+                                <Input
+                                    id="editEmail"
+                                    type="email"
+                                    value={editFormData.email}
+                                    onChange={(e) => handleEditFormChange("email", e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="editDepartment">Department</Label>
+                                    <Select
+                                        value={editFormData.department}
+                                        onValueChange={(value) => handleEditFormChange("department", value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select department" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {departments.filter(d => d !== "All").map((dept) => (
+                                                <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="editPosition">Position</Label>
+                                    <Input
+                                        id="editPosition"
+                                        value={editFormData.position}
+                                        onChange={(e) => handleEditFormChange("position", e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="editPhone">Phone</Label>
+                                    <Input
+                                        id="editPhone"
+                                        value={editFormData.phone}
+                                        onChange={(e) => handleEditFormChange("phone", e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="editHireDate">Hire Date *</Label>
+                                    <Input
+                                        id="editHireDate"
+                                        type="date"
+                                        value={editFormData.hire_date}
+                                        onChange={(e) => handleEditFormChange("hire_date", e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="editSalary">Annual Salary</Label>
+                                <Input
+                                    id="editSalary"
+                                    type="text"
+                                    placeholder="75000.00"
+                                    value={editFormData.salary}
+                                    onChange={(e) => handleEditFormChange("salary", e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsEditDialogOpen(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={updateEmployeeMutation.isPending}
+                            >
+                                {updateEmployeeMutation.isPending && (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                Save Changes
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
