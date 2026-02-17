@@ -6,7 +6,7 @@ from .employee import Employee, PTOBalance, PTORequest, Shift
 from .finance import Transaction, ExpenseCategory
 from .payroll import PayrollRun, PayrollItem
 from .subscription import Subscription, SubscriptionStatus, PlanTier
-# Note: Message model is not used — messaging uses MongoDB ChatMessage (see mongo_models.py)
+from .message import Message
 
 __all__ = [
     "User",
@@ -22,4 +22,5 @@ __all__ = [
     "Subscription",
     "SubscriptionStatus",
     "PlanTier",
+    "Message"
 ]
