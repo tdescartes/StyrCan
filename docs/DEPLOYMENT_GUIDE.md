@@ -1,6 +1,7 @@
 # Production Deployment Guide
 
 ## Table of Contents
+
 1. [Prerequisites](#prerequisites)
 2. [Environment Setup](#environment-setup)
 3. [Database Migrations](#database-migrations)
@@ -17,6 +18,7 @@
 ## Prerequisites
 
 ### Required Services
+
 - **PostgreSQL 16+** (Primary database)
 - **MongoDB 7.0+** (Audit logs, messaging)
 - **Redis 7+** (Caching, sessions, Celery broker)
@@ -24,12 +26,14 @@
 - **SMTP Service** (SendGrid or similar for emails)
 
 ### Required Tools
+
 - Docker 24+ & Docker Compose
 - kubectl (for Kubernetes deployment)
 - Python 3.11+
 - Node.js 20+
 
 ### External Services
+
 - Stripe account (payment processing)
 - SendGrid account (transactional emails)
 - AWS account (S3 storage)
@@ -107,17 +111,20 @@ openssl rand -base64 32
 ### Initial Setup
 
 1. **Ensure PostgreSQL is accessible:**
+
 ```bash
 psql -h <host> -U <user> -d pulse_db -c "SELECT version();"
 ```
 
 2. **Run Alembic migrations:**
+
 ```bash
 cd backend
 alembic upgrade head
 ```
 
 3. **Verify migrations:**
+
 ```bash
 alembic current
 alembic history
@@ -163,6 +170,7 @@ docker-compose up -d --build
 ### Production Deployment
 
 1. **Update docker-compose.prod.yml:**
+
 ```yaml
 version: "3.8"
 
@@ -178,12 +186,12 @@ services:
       replicas: 2
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 1G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
-  
+
   frontend:
     image: ghcr.io/yourorg/pulse-frontend:latest
     restart: always
@@ -193,7 +201,7 @@ services:
       - "3000"
     deploy:
       replicas: 2
-  
+
   nginx:
     image: nginx:alpine
     restart: always
@@ -209,6 +217,7 @@ services:
 ```
 
 2. **Deploy:**
+
 ```bash
 docker-compose -f docker-compose.prod.yml up -d
 ```
@@ -232,11 +241,13 @@ kubectl get nodes
 ### Deploy to Kubernetes
 
 1. **Create namespace:**
+
 ```bash
 kubectl apply -f kubernetes/namespace.yaml
 ```
 
 2. **Create secrets:**
+
 ```bash
 kubectl create secret generic pulse-secrets \
   --from-literal=database-url=postgresql://... \
@@ -246,6 +257,7 @@ kubectl create secret generic pulse-secrets \
 ```
 
 3. **Apply configurations:**
+
 ```bash
 kubectl apply -f kubernetes/configmap.yaml
 kubectl apply -f kubernetes/postgres-pv.yaml
@@ -258,6 +270,7 @@ kubectl apply -f kubernetes/ingress.yaml
 ```
 
 4. **Verify deployment:**
+
 ```bash
 kubectl get pods -n pulse
 kubectl get services -n pulse
@@ -265,6 +278,7 @@ kubectl get ingress -n pulse
 ```
 
 5. **View logs:**
+
 ```bash
 kubectl logs -f deployment/pulse-backend -n pulse
 kubectl logs -f deployment/pulse-frontend -n pulse
@@ -279,6 +293,7 @@ kubectl logs -f deployment/pulse-frontend -n pulse
 1. Create Sentry project at https://sentry.io
 2. Copy DSN and add to environment variables
 3. Verify error tracking:
+
 ```bash
 # Trigger test error
 curl -X POST https://api.yourdomain.com/test-sentry
@@ -287,6 +302,7 @@ curl -X POST https://api.yourdomain.com/test-sentry
 ### Application Logs
 
 Backend logs are stored in `backend/logs/`:
+
 - `app.log` - General application logs
 - `error.log` - Error logs only
 - `audit.log` - Audit trail logs
@@ -391,6 +407,7 @@ Files are already stored in S3 with versioning enabled. Configure S3 lifecycle p
 ### Backend Optimization
 
 1. **Enable connection pooling:**
+
 ```python
 # In database.py
 engine = create_engine(
@@ -403,6 +420,7 @@ engine = create_engine(
 ```
 
 2. **Configure Redis caching:**
+
 ```python
 # Cache frequently accessed data
 @cache.cached(timeout=300, key_prefix='company_stats')
@@ -412,6 +430,7 @@ def get_company_statistics(company_id):
 ```
 
 3. **Optimize database queries:**
+
 ```python
 # Use eager loading
 employees = db.query(Employee).options(
@@ -423,19 +442,21 @@ employees = db.query(Employee).options(
 ### Frontend Optimization
 
 1. **Enable Next.js optimizations in `next.config.ts`:**
+
 ```typescript
 const config = {
   reactStrictMode: true,
   swcMinify: true,
   compress: true,
   images: {
-    domains: ['yourdomain.com'],
-    formats: ['image/avif', 'image/webp'],
+    domains: ["yourdomain.com"],
+    formats: ["image/avif", "image/webp"],
   },
 };
 ```
 
 2. **Implement code splitting:**
+
 ```typescript
 // Dynamic imports
 const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
@@ -446,6 +467,7 @@ const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
 ### CDN Configuration
 
 Use CloudFront or similar CDN for static assets:
+
 - Cache frontend bundle files
 - Cache images and media
 - Set appropriate cache headers
@@ -457,6 +479,7 @@ Use CloudFront or similar CDN for static assets:
 ### Common Issues
 
 **Issue: Database connection fails**
+
 ```bash
 # Check PostgreSQL is running
 systemctl status postgresql
@@ -469,6 +492,7 @@ sudo ufw status
 ```
 
 **Issue: Redis connection fails**
+
 ```bash
 # Check Redis is running
 redis-cli ping
@@ -478,6 +502,7 @@ redis-cli -h <host> -p 6379 -a <password>
 ```
 
 **Issue: File uploads fail**
+
 ```bash
 # Verify S3 credentials
 aws s3 ls s3://your-bucket-name --profile production
@@ -487,6 +512,7 @@ aws iam get-user-policy --user-name pulse-app --policy-name S3Access
 ```
 
 **Issue: Emails not sending**
+
 ```bash
 # Test SendGrid API key
 curl -X POST https://api.sendgrid.com/v3/mail/send \
@@ -559,16 +585,19 @@ docker stats
 ### Regular Maintenance Tasks
 
 **Daily:**
+
 - Monitor error logs
 - Check Sentry for new errors
 - Verify backup completion
 
 **Weekly:**
+
 - Review performance metrics
 - Check disk space
 - Update dependencies (if critical security patches)
 
 **Monthly:**
+
 - Full security audit
 - Database maintenance (VACUUM, ANALYZE)
 - Review and rotate logs
@@ -577,12 +606,14 @@ docker stats
 ### Scaling Considerations
 
 **Horizontal Scaling:**
+
 - Add more backend pods/containers
 - Use load balancer (Nginx, AWS ALB)
 - Implement Redis Cluster for caching
 - Use read replicas for PostgreSQL
 
 **Vertical Scaling:**
+
 - Increase container resources
 - Upgrade database instance size
 - Optimize application code
