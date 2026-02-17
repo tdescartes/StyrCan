@@ -48,6 +48,8 @@ import { Label } from "@/components/ui/label";
 import { formatCurrency } from "@/lib/utils";
 import { apiClient } from "@/lib/api/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRoleAccess } from "@/hooks/use-role-access";
+import { MyPayStubsView } from "@/components/employee/my-paystubs";
 import type { PayrollRun, PayrollItem } from "@/types";
 
 interface PayrollRunFormData {
@@ -69,6 +71,13 @@ const initialFormData: PayrollRunFormData = {
 };
 
 export default function PayrollPage() {
+    const { isEmployee } = useRoleAccess();
+
+    // Employee role sees personal pay stubs view
+    if (isEmployee) {
+        return <MyPayStubsView />;
+    }
+
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("All");
     const [isRunPayrollDialogOpen, setIsRunPayrollDialogOpen] = useState(false);
@@ -92,7 +101,7 @@ export default function PayrollPage() {
     });
 
     // Fetch current/pending payroll run details
-    const pendingRun = payrollRunsData?.payroll_runs?.find((r: PayrollRun) => r.status === "pending");
+    const pendingRun = payrollRunsData?.payroll_runs?.find((r: PayrollRun) => r.status === "draft" || r.status === "processing");
 
     // Fetch items for selected run
     const { data: selectedRunDetails, isLoading: detailsLoading } = useQuery({
@@ -237,11 +246,11 @@ export default function PayrollPage() {
                         Completed
                     </Badge>
                 );
-            case "pending":
+            case "draft":
                 return (
                     <Badge className="bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20">
                         <Clock className="mr-1 h-3 w-3" />
-                        Pending
+                        Draft
                     </Badge>
                 );
             case "processing":
@@ -617,7 +626,7 @@ export default function PayrollPage() {
                                                             Download Report
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>View Pay Stubs</DropdownMenuItem>
-                                                        {run.status === "pending" && (
+                                                        {run.status === "draft" && (
                                                             <>
                                                                 <DropdownMenuSeparator />
                                                                 <DropdownMenuItem
