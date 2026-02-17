@@ -41,6 +41,8 @@ import { apiClient } from "@/lib/api/client";
 import { formatCurrency, formatRelativeTime } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { ServiceCardSkeleton, ActivityListSkeleton } from "@/components/ui/skeleton";
+import { useRoleAccess } from "@/hooks/use-role-access";
+import type { UserRole } from "@/types";
 
 const services = [
   {
@@ -51,6 +53,7 @@ const services = [
     href: "/employees",
     stat: { label: "Active", count: 0 },
     warning: { label: "On Leave", count: 0 },
+    minRole: "employee" as UserRole,
   },
   {
     id: "finance",
@@ -59,6 +62,7 @@ const services = [
     description: "Track cash flow and expenses.",
     href: "/finance",
     stat: { label: "Revenue", amount: 0 },
+    minRole: "manager" as UserRole,
   },
   {
     id: "payroll",
@@ -67,6 +71,7 @@ const services = [
     description: "Process salaries and taxes.",
     href: "/payroll",
     warning: { label: "Run Due", date: "" },
+    minRole: "employee" as UserRole,
   },
   {
     id: "communication",
@@ -75,6 +80,7 @@ const services = [
     description: "Team chat and announcements.",
     href: "/communication",
     stat: { label: "Unread", count: 0 },
+    minRole: "employee" as UserRole,
   },
 ];
 
@@ -94,6 +100,7 @@ export default function Home() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout, isAuthenticated, hasHydrated } = useAuthStore();
+  const { hasMinRole, isEmployee } = useRoleAccess();
 
   useEffect(() => {
     if (hasHydrated && !isAuthenticated) {
@@ -139,7 +146,7 @@ export default function Home() {
       };
     }
     return service;
-  });
+  }).filter(service => hasMinRole(service.minRole));
 
   return (
     <div className="min-h-screen bg-zinc-50">
@@ -197,7 +204,9 @@ export default function Home() {
               Welcome back, {user?.first_name || 'User'}.
             </h1>
             <p className="text-zinc-500 mt-2">
-              Here is your daily overview for {user?.company?.name || 'your company'}.
+              {isEmployee
+                ? "Here's your personal snapshot."
+                : `Here is your daily overview for ${user?.company?.name || 'your company'}.`}
             </p>
           </div>
           <Button variant="secondary" className="hidden md:flex">
