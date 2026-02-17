@@ -1,11 +1,11 @@
 // @ts-nocheck
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  LayoutDashboard, Users, Calendar, Clock, Star, BookOpen, PiggyBank, FileText, Tags, 
-  Play, History, FileCheck, User, Inbox, Megaphone, MessageSquare, FolderOpen, 
-  Bell, Search, Plus, Filter, MoreHorizontal, ChevronRight, Lock, Check, Menu, X, 
-  CreditCard, Shield, Briefcase, ArrowUpRight, Download, Zap, LogOut, ChevronDown, 
-  AlertCircle, File, Moon, Sun, Laptop, Archive, Eye, Trash2, Command, 
+import {
+  LayoutDashboard, Users, Calendar, Clock, Star, BookOpen, PiggyBank, FileText, Tags,
+  Play, History, FileCheck, User, Inbox, Megaphone, MessageSquare, FolderOpen,
+  Bell, Search, Plus, Filter, MoreHorizontal, ChevronRight, Lock, Check, Menu, X,
+  CreditCard, Shield, Briefcase, ArrowUpRight, Download, Zap, LogOut, ChevronDown,
+  AlertCircle, File, Moon, Sun, Laptop, Archive, Eye, Trash2, Command,
   ChevronLeft, Layout, Copy, ExternalLink, HelpCircle, GripVertical, CheckSquare, Square,
   Send, Paperclip, RefreshCw, DollarSign, PieChart, BarChart, Activity
 } from 'lucide-react';
@@ -98,8 +98,8 @@ const Button = ({ children, variant = 'primary', size = 'md', icon: Icon, onClic
   };
 
   return (
-    <button 
-      onClick={onClick} 
+    <button
+      onClick={onClick}
       disabled={disabled || loading}
       className={`${base} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
     >
@@ -145,9 +145,9 @@ const Card = ({ children, className = '', noPadding = false, title, subtitle, ac
 const SearchBar = ({ placeholder = "Search..." }) => (
   <div className="relative group w-full max-w-md">
     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-black transition-colors" />
-    <input 
-      type="text" 
-      placeholder={placeholder} 
+    <input
+      type="text"
+      placeholder={placeholder}
       className="w-full pl-9 pr-12 py-2 bg-zinc-50 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:bg-white focus:border-black/20 focus:ring-4 focus:ring-black/5 transition-all"
     />
   </div>
@@ -173,10 +173,10 @@ export default function PulseApp() {
   const [currentService, setCurrentService] = useState('home'); // home, employees, finance, payroll, communication, settings
   const [currentView, setCurrentView] = useState('dashboard'); // Specific view within service
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  
+
   // UI State
   const [toast, setToast] = useState(null);
-  
+
   const showToast = (msg, type = 'success') => {
     setToast({ message: msg, type });
     setTimeout(() => setToast(null), 3000);
@@ -184,13 +184,13 @@ export default function PulseApp() {
 
   // --- SERVICE CONFIGURATION ---
   const services = useMemo(() => ({
-    home: { 
-      label: 'Home', 
+    home: {
+      label: 'Home',
       icon: LayoutDashboard,
-      sidebar: [] 
+      sidebar: []
     },
-    employees: { 
-      label: 'Employees', 
+    employees: {
+      label: 'Employees',
       icon: Users,
       sidebar: [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -199,8 +199,8 @@ export default function PulseApp() {
         { id: 'pto', label: 'Time Off', icon: Clock },
       ]
     },
-    finance: { 
-      label: 'Finance', 
+    finance: {
+      label: 'Finance',
       icon: PiggyBank,
       sidebar: [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -209,8 +209,8 @@ export default function PulseApp() {
         { id: 'categories', label: 'Categories', icon: Tags },
       ]
     },
-    payroll: { 
-      label: 'Payroll', 
+    payroll: {
+      label: 'Payroll',
       icon: CreditCard,
       sidebar: [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -219,8 +219,8 @@ export default function PulseApp() {
         { id: 'documents', label: 'Tax Docs', icon: FileCheck, locked: true }, // Ent only
       ]
     },
-    communication: { 
-      label: 'Communication', 
+    communication: {
+      label: 'Communication',
       icon: MessageSquare,
       sidebar: [
         { id: 'inbox', label: 'Inbox', icon: Inbox },
@@ -301,7 +301,7 @@ export default function PulseApp() {
           </div>
         </div>
       </div>
-      
+
       {/* Global Dashboard Widgets (Spec 10.1) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card title="Recent Activity" noPadding>
@@ -326,10 +326,10 @@ export default function PulseApp() {
         </Card>
         <Card title="Quick Actions">
           <div className="grid grid-cols-2 gap-3">
-             <Button variant="secondary" className="justify-start h-auto py-3 px-4" icon={Plus} onClick={() => { setCurrentService('employees'); setCurrentView('directory'); }}>Add Employee</Button>
-             <Button variant="secondary" className="justify-start h-auto py-3 px-4" icon={CreditCard} onClick={() => { setCurrentService('finance'); setCurrentView('ledger'); }}>Log Expense</Button>
-             <Button variant="secondary" className="justify-start h-auto py-3 px-4" icon={Play} onClick={() => { setCurrentService('payroll'); setCurrentView('runs'); }}>Run Payroll</Button>
-             <Button variant="secondary" className="justify-start h-auto py-3 px-4" icon={Megaphone} onClick={() => { setCurrentService('communication'); setCurrentView('broadcasts'); }}>Send Broadcast</Button>
+            <Button variant="secondary" className="justify-start h-auto py-3 px-4" icon={Plus} onClick={() => { setCurrentService('employees'); setCurrentView('directory'); }}>Add Employee</Button>
+            <Button variant="secondary" className="justify-start h-auto py-3 px-4" icon={CreditCard} onClick={() => { setCurrentService('finance'); setCurrentView('ledger'); }}>Log Expense</Button>
+            <Button variant="secondary" className="justify-start h-auto py-3 px-4" icon={Play} onClick={() => { setCurrentService('payroll'); setCurrentView('runs'); }}>Run Payroll</Button>
+            <Button variant="secondary" className="justify-start h-auto py-3 px-4" icon={Megaphone} onClick={() => { setCurrentService('communication'); setCurrentView('broadcasts'); }}>Send Broadcast</Button>
           </div>
         </Card>
       </div>
@@ -362,7 +362,7 @@ export default function PulseApp() {
                 <td className="px-6 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold text-zinc-600">
-                      {emp.name.substring(0,2).toUpperCase()}
+                      {emp.name.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
                       <div className="font-bold text-zinc-900">{emp.name}</div>
@@ -456,7 +456,7 @@ export default function PulseApp() {
           <Button icon={Plus} onClick={() => showToast('Add Transaction modal')}>Add Entry</Button>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-4 border border-zinc-200 rounded-sm">
           <div className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Total Revenue</div>
@@ -552,8 +552,8 @@ export default function PulseApp() {
           </div>
           <div className="flex-1 overflow-y-auto">
             {THREADS_DATA.map(thread => (
-              <div 
-                key={thread.id} 
+              <div
+                key={thread.id}
                 onClick={() => setSelectedThreadId(thread.id)}
                 className={`p-4 border-b border-zinc-100 cursor-pointer hover:bg-zinc-50 transition-colors ${selectedThreadId === thread.id ? 'bg-zinc-100 shadow-inner' : ''}`}
               >
@@ -576,36 +576,36 @@ export default function PulseApp() {
             </div>
             <Button size="xs" variant="ghost" icon={MoreHorizontal} />
           </div>
-          
+
           <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-zinc-50/50">
-             {/* Mock Messages */}
-             <div className="flex gap-3">
-               <div className="w-8 h-8 rounded-full bg-zinc-200 flex-shrink-0" />
-               <div className="bg-white border border-zinc-200 p-3 rounded-sm rounded-tl-none text-sm shadow-sm max-w-[80%]">
-                 <p className="text-zinc-800">Hi everyone, just a reminder about the all-hands meeting tomorrow.</p>
-                 <span className="text-[10px] text-zinc-400 mt-1 block">Yesterday 2:30 PM</span>
-               </div>
-             </div>
-             
-             <div className="flex gap-3 flex-row-reverse">
-               <div className="w-8 h-8 rounded-full bg-black flex-shrink-0 text-white flex items-center justify-center text-xs font-bold">JD</div>
-               <div className="bg-black text-white p-3 rounded-sm rounded-tr-none text-sm shadow-sm max-w-[80%]">
-                 <p>Thanks for the reminder! I'll be there.</p>
-                 <span className="text-[10px] text-white/50 mt-1 block">Yesterday 2:35 PM</span>
-               </div>
-             </div>
+            {/* Mock Messages */}
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-zinc-200 flex-shrink-0" />
+              <div className="bg-white border border-zinc-200 p-3 rounded-sm rounded-tl-none text-sm shadow-sm max-w-[80%]">
+                <p className="text-zinc-800">Hi everyone, just a reminder about the all-hands meeting tomorrow.</p>
+                <span className="text-[10px] text-zinc-400 mt-1 block">Yesterday 2:30 PM</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 flex-row-reverse">
+              <div className="w-8 h-8 rounded-full bg-black flex-shrink-0 text-white flex items-center justify-center text-xs font-bold">JD</div>
+              <div className="bg-black text-white p-3 rounded-sm rounded-tr-none text-sm shadow-sm max-w-[80%]">
+                <p>Thanks for the reminder! I'll be there.</p>
+                <span className="text-[10px] text-white/50 mt-1 block">Yesterday 2:35 PM</span>
+              </div>
+            </div>
           </div>
 
           <div className="p-4 border-t border-zinc-200 bg-white">
             <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Type a message..." 
+              <input
+                type="text"
+                placeholder="Type a message..."
                 className="w-full pl-4 pr-12 py-3 bg-zinc-50 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
-                 <button className="p-1.5 text-zinc-400 hover:text-black"><Paperclip className="w-4 h-4" /></button>
-                 <button className="p-1.5 text-zinc-400 hover:text-black"><Send className="w-4 h-4" /></button>
+                <button className="p-1.5 text-zinc-400 hover:text-black"><Paperclip className="w-4 h-4" /></button>
+                <button className="p-1.5 text-zinc-400 hover:text-black"><Send className="w-4 h-4" /></button>
               </div>
             </div>
           </div>
@@ -615,7 +615,7 @@ export default function PulseApp() {
   };
 
   // --- MAIN LAYOUT RENDERER ---
-  
+
   const SidebarItem = ({ item }) => {
     const isActive = currentView === item.id;
     return (
@@ -659,7 +659,7 @@ export default function PulseApp() {
               const ServiceIcon = services[svc].icon;
               const isActive = currentService === svc;
               return (
-                <button 
+                <button
                   key={svc}
                   onClick={() => { setCurrentService(svc); setCurrentView(services[svc].sidebar[0]?.id || 'dashboard'); }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide transition-all ${isActive ? 'bg-black text-white' : 'text-zinc-500 hover:text-black hover:bg-zinc-100'}`}
@@ -675,7 +675,7 @@ export default function PulseApp() {
         <div className="flex items-center gap-4">
           <button className="text-zinc-400 hover:text-black transition-colors" onClick={() => setCurrentService('settings')}><Shield className="w-5 h-5" /></button>
           <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold border border-zinc-300">
-             {CURRENT_USER.avatar}
+            {CURRENT_USER.avatar}
           </div>
         </div>
       </div>
@@ -683,15 +683,15 @@ export default function PulseApp() {
       {/* SERVICE SIDEBAR (Spec 3.3) */}
       {services[currentService].sidebar.length > 0 && (
         <aside className={`fixed left-0 top-16 bottom-0 z-40 bg-white border-r border-zinc-200 transition-all duration-300 ${sidebarCollapsed ? 'w-16' : 'w-64'}`}>
-           <div className="p-4 space-y-1">
-             {services[currentService].sidebar.map(item => <SidebarItem key={item.id} item={item} />)}
-           </div>
-           
-           <button 
+          <div className="p-4 space-y-1">
+            {services[currentService].sidebar.map(item => <SidebarItem key={item.id} item={item} />)}
+          </div>
+
+          <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="absolute right-[-12px] top-6 bg-white border border-zinc-200 rounded-full p-1 shadow-sm text-zinc-400 hover:text-black hover:scale-110 transition-transform"
           >
-             {sidebarCollapsed ? <ChevronRight className="w-3 h-3"/> : <ChevronLeft className="w-3 h-3"/>}
+            {sidebarCollapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
           </button>
         </aside>
       )}
@@ -710,51 +710,51 @@ export default function PulseApp() {
           {currentService === 'home' && <HomeView />}
           {currentService === 'employees' && (
             currentView === 'directory' ? <EmployeeDirectory /> :
-            currentView === 'pto' ? <PTOManager /> :
-            <div className="text-center py-20 text-zinc-400">Dashboard / Schedule View Placeholder</div>
+              currentView === 'pto' ? <PTOManager /> :
+                <div className="text-center py-20 text-zinc-400">Dashboard / Schedule View Placeholder</div>
           )}
           {currentService === 'finance' && (
             currentView === 'ledger' ? <FinanceLedger /> :
-            currentView === 'dashboard' ? <div className="text-center py-20 text-zinc-400">Finance Dashboard Placeholder</div> :
-            <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed border-zinc-200 rounded-sm bg-zinc-50">
-              <Lock className="w-8 h-8 text-zinc-300 mb-4" />
-              <p className="text-zinc-500 font-medium">This feature requires a Professional Plan.</p>
-            </div>
+              currentView === 'dashboard' ? <div className="text-center py-20 text-zinc-400">Finance Dashboard Placeholder</div> :
+                <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed border-zinc-200 rounded-sm bg-zinc-50">
+                  <Lock className="w-8 h-8 text-zinc-300 mb-4" />
+                  <p className="text-zinc-500 font-medium">This feature requires a Professional Plan.</p>
+                </div>
           )}
           {currentService === 'payroll' && (
             currentView === 'runs' ? <PayrollManager /> :
-            <div className="text-center py-20 text-zinc-400">Dashboard / History View Placeholder</div>
+              <div className="text-center py-20 text-zinc-400">Dashboard / History View Placeholder</div>
           )}
           {currentService === 'communication' && (
             currentView === 'inbox' ? <InboxView /> :
-            <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed border-zinc-200 rounded-sm bg-zinc-50">
-               <Megaphone className="w-8 h-8 text-zinc-300 mb-4" />
-               <p className="text-zinc-500 font-medium">Broadcasts are available on the Professional Plan.</p>
-            </div>
+              <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed border-zinc-200 rounded-sm bg-zinc-50">
+                <Megaphone className="w-8 h-8 text-zinc-300 mb-4" />
+                <p className="text-zinc-500 font-medium">Broadcasts are available on the Professional Plan.</p>
+              </div>
           )}
-           {currentService === 'settings' && (
+          {currentService === 'settings' && (
             <div className="max-w-2xl mx-auto py-10">
-               <h2 className="text-2xl font-bold mb-6">Settings</h2>
-               <div className="space-y-6">
-                  <Card title="Profile">
-                     <div className="flex gap-4 items-center">
-                        <div className="w-16 h-16 rounded-full bg-zinc-200 flex items-center justify-center text-xl font-bold text-zinc-500">{CURRENT_USER.avatar}</div>
-                        <div>
-                           <Button variant="secondary" size="sm">Change Avatar</Button>
-                        </div>
-                     </div>
-                     <div className="grid grid-cols-2 gap-4 mt-6">
-                        <div>
-                           <label className="block text-xs font-bold uppercase text-zinc-500 mb-1">First Name</label>
-                           <input type="text" value="John" className="w-full p-2 border border-zinc-200 rounded-sm text-sm" readOnly />
-                        </div>
-                        <div>
-                           <label className="block text-xs font-bold uppercase text-zinc-500 mb-1">Last Name</label>
-                           <input type="text" value="Doe" className="w-full p-2 border border-zinc-200 rounded-sm text-sm" readOnly />
-                        </div>
-                     </div>
-                  </Card>
-               </div>
+              <h2 className="text-2xl font-bold mb-6">Settings</h2>
+              <div className="space-y-6">
+                <Card title="Profile">
+                  <div className="flex gap-4 items-center">
+                    <div className="w-16 h-16 rounded-full bg-zinc-200 flex items-center justify-center text-xl font-bold text-zinc-500">{CURRENT_USER.avatar}</div>
+                    <div>
+                      <Button variant="secondary" size="sm">Change Avatar</Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mt-6">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-zinc-500 mb-1">First Name</label>
+                      <input type="text" value="John" className="w-full p-2 border border-zinc-200 rounded-sm text-sm" readOnly />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-zinc-500 mb-1">Last Name</label>
+                      <input type="text" value="Doe" className="w-full p-2 border border-zinc-200 rounded-sm text-sm" readOnly />
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </div>
           )}
         </div>
