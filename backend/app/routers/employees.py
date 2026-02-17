@@ -100,6 +100,187 @@ async def get_employees_dashboard(
     }
 
 
+# ============== Self-Service (My Data) ==============
+
+def _get_my_employee(db: Session, current_user: User) -> Employee:
+    """Resolve the Employee record linked to the current user."""
+    employee = db.query(Employee).filter(
+        Employee.user_id == current_user.id,
+        Employee.company_id == current_user.company_id
+    ).first()
+    if not employee:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No employee record linked to your account. Contact your administrator."
+        )
+    return employee
+
+
+@router.get("/me", response_model=dict)
+async def get_my_employee_profile(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get the current user's own employee profile, PTO balance, and upcoming shifts."""
+    employee = _get_my_employee(db, current_user)
+    
+    # PTO balance for current year
+    pto_balance = db.query(PTOBalance).filter(
+        PTOBalance.employee_id == employee.id,
+        PTOBalance.year == datetime.utcnow().year
+    ).first()
+    
+    # Upcoming shifts (next 14 days)
+    today = date.today()
+    upcoming_shifts = db.query(Shift).filter(
+        Shift.employee_id == employee.id,
+        Shift.date >= today
+    ).order_by(Shift.date, Shift.start_time).limit(10).all()
+    
+    # Pending PTO requests
+    pending_pto = db.query(PTORequest).filter(
+        PTORequest.employee_id == employee.id,
+        PTORequest.status == "pending"
+    ).all()
+    
+    return {
+        "employee": EmployeeResponse.model_validate(employee),
+        "pto_balance": PTOBalanceResponse.model_validate(pto_balance) if pto_balance else None,
+        "upcoming_shifts": [ShiftResponse.model_validate(s) for s in upcoming_shifts],
+        "pending_pto_requests": [PTORequestResponse.model_validate(r) for r in pending_pto],
+    }
+
+
+@router.get("/me/schedule", response_model=ShiftListResponse)
+async def get_my_schedule(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get the current user's own shift schedule."""
+    employee = _get_my_employee(db, current_user)
+    
+    query = db.query(Shift).filter(Shift.employee_id == employee.id)
+    if start_date:
+        query = query.filter(Shift.date >= start_date)
+    if end_date:
+        query = query.filter(Shift.date <= end_date)
+    
+    shifts = query.order_by(Shift.date, Shift.start_time).all()
+    return ShiftListResponse(
+        shifts=[ShiftResponse.model_validate(s) for s in shifts],
+        total=len(shifts)
+    )
+
+
+@router.get("/me/pto", response_model=dict)
+async def get_my_pto(
+    year: Optional[int] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get the current user's PTO balance and request history."""
+    employee = _get_my_employee(db, current_user)
+    target_year = year or datetime.utcnow().year
+    
+    pto_balance = db.query(PTOBalance).filter(
+        PTOBalance.employee_id == employee.id,
+        PTOBalance.year == target_year
+    ).first()
+    
+    pto_requests = db.query(PTORequest).filter(
+        PTORequest.employee_id == employee.id
+    ).order_by(PTORequest.start_date.desc()).all()
+    
+    return {
+        "balance": PTOBalanceResponse.model_validate(pto_balance) if pto_balance else None,
+        "requests": [PTORequestResponse.model_validate(r) for r in pto_requests],
+        "total_requests": len(pto_requests)
+    }
+
+
+@router.post("/me/pto-requests", response_model=PTORequestResponse, status_code=status.HTTP_201_CREATED)
+async def create_my_pto_request(
+    request_data: PTORequestCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Submit a PTO request for the current user's employee record."""
+    employee = _get_my_employee(db, current_user)
+    
+    pto_request = PTORequest(
+        id=str(uuid.uuid4()),
+        company_id=current_user.company_id,
+        employee_id=employee.id,
+        start_date=request_data.start_date,
+        end_date=request_data.end_date,
+        reason=request_data.reason,
+        status="pending"
+    )
+    db.add(pto_request)
+    db.commit()
+    db.refresh(pto_request)
+    return PTORequestResponse.model_validate(pto_request)
+
+
+@router.get("/me/payroll", response_model=dict)
+async def get_my_payroll(
+    year: Optional[int] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get the current user's payroll history (pay stubs)."""
+    from ..models import PayrollItem, PayrollRun
+    
+    employee = _get_my_employee(db, current_user)
+    
+    query = db.query(PayrollItem).join(
+        PayrollRun, PayrollItem.payroll_run_id == PayrollRun.id
+    ).filter(
+        PayrollItem.employee_id == employee.id,
+        PayrollRun.company_id == current_user.company_id
+    )
+    
+    if year:
+        query = query.filter(
+            func.extract('year', PayrollRun.period_start) == year
+        )
+    
+    items = query.order_by(PayrollRun.period_start.desc()).all()
+    
+    # Build summary
+    total_gross = sum(float(item.base_salary or 0) for item in items)
+    total_tax = sum(float(item.tax_amount or 0) for item in items)
+    total_net = sum(float(item.net_amount or 0) for item in items)
+    
+    return {
+        "payroll_items": [
+            {
+                "id": item.id,
+                "payroll_run_id": item.payroll_run_id,
+                "base_salary": str(item.base_salary),
+                "overtime_hours": str(item.overtime_hours or 0),
+                "overtime_amount": str(item.overtime_amount or 0),
+                "bonuses": str(item.bonuses or 0),
+                "deductions": str(item.deductions or 0),
+                "tax_amount": str(item.tax_amount or 0),
+                "net_amount": str(item.net_amount or 0),
+                "payment_status": item.payment_status,
+                "period_start": str(item.payroll_run.period_start) if item.payroll_run else None,
+                "period_end": str(item.payroll_run.period_end) if item.payroll_run else None,
+            }
+            for item in items
+        ],
+        "summary": {
+            "total_gross": str(total_gross),
+            "total_tax": str(total_tax),
+            "total_net": str(total_net),
+            "pay_periods": len(items),
+        }
+    }
+
+
 # ============== Employee CRUD ==============
 
 @router.get("", response_model=EmployeeListResponse)
