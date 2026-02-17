@@ -83,8 +83,8 @@ async def websocket_endpoint(websocket: WebSocket, token: Optional[str] = None):
                     )
                 
                 elif message_type == "broadcast":
-                    # Broadcast message to all company users (admin only)
-                    if user.role in ["admin", "manager"]:
+                    # Broadcast message to all company users (admin/manager only)
+                    if user.role in ["company_admin", "super_admin", "manager"]:
                         await manager.broadcast_to_company(
                             company_id=user.company_id,
                             message={
