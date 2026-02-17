@@ -8,8 +8,26 @@ import {
     FolderOpen,
 } from "lucide-react";
 import { ServiceSidebar } from "@/components/layout/service-sidebar";
+import { useRoleAccess } from "@/hooks/use-role-access";
+import { UserRole } from "@/types";
 
-const communicationSidebarItems = [
+type SidebarItem = {
+    title: string;
+    href: string;
+    icon: typeof LayoutDashboard;
+    description: string;
+    badge?: string;
+    minRole?: UserRole;
+};
+
+const ROLE_HIERARCHY: Record<UserRole, number> = {
+    employee: 0,
+    manager: 1,
+    company_admin: 2,
+    super_admin: 3,
+};
+
+const communicationSidebarItems: SidebarItem[] = [
     {
         title: "Dashboard",
         href: "/communication",
@@ -28,6 +46,7 @@ const communicationSidebarItems = [
         href: "/communication/broadcast",
         icon: Megaphone,
         description: "Announcements",
+        minRole: "manager",
     },
     {
         title: "Threads",
@@ -48,10 +67,18 @@ export default function CommunicationLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const { role } = useRoleAccess();
+    const roleLevel = ROLE_HIERARCHY[role];
+
+    const visibleItems = communicationSidebarItems.filter((item) => {
+        if (item.minRole && roleLevel < ROLE_HIERARCHY[item.minRole]) return false;
+        return true;
+    });
+
     return (
         <div className="flex h-[calc(100vh-4rem)]">
             <ServiceSidebar
-                items={communicationSidebarItems}
+                items={visibleItems}
                 serviceTitle="Communication"
                 serviceIcon={MessageSquare}
             />
