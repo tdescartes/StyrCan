@@ -6,7 +6,7 @@ from datetime import datetime
 import uuid
 
 from ..database import get_db
-from ..models import User, Company
+from ..models import User, Company, Employee
 from ..schemas.auth import (
     CompanyCreate,
     LoginRequest,
@@ -36,6 +36,19 @@ from ..auth import (
 )
 
 router = APIRouter()
+
+
+def _build_user_response(user: User, db: Session) -> UserResponse:
+    """Build UserResponse including the linked employee_id if it exists."""
+    employee = db.query(Employee).filter(
+        Employee.user_id == user.id,
+        Employee.company_id == user.company_id
+    ).first()
+    
+    response = UserResponse.model_validate(user)
+    if employee:
+        response.employee_id = employee.id
+    return response
 
 
 @router.post("/register", response_model=LoginResponse, status_code=status.HTTP_201_CREATED)
@@ -115,7 +128,7 @@ async def register_company(
     })
     
     return LoginResponse(
-        user=UserResponse.model_validate(admin_user),
+        user=_build_user_response(admin_user, db),
         company=CompanyResponse.model_validate(company),
         access_token=access_token,
         refresh_token=refresh_token
@@ -175,7 +188,7 @@ async def login(
     })
     
     return LoginResponse(
-        user=UserResponse.model_validate(user),
+        user=_build_user_response(user, db),
         company=CompanyResponse.model_validate(company),
         access_token=access_token,
         refresh_token=refresh_token
@@ -243,12 +256,13 @@ async def refresh_token(
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """
     Get current authenticated user information.
     """
-    return UserResponse.model_validate(current_user)
+    return _build_user_response(current_user, db)
 
 
 @router.post("/logout")
