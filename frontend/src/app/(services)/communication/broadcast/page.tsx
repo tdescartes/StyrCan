@@ -61,8 +61,8 @@ export default function BroadcastPage() {
         targetFilter === "all"
             ? employees
             : targetFilter === "selected"
-            ? employees
-            : employees.filter((e) => e.department === targetFilter);
+                ? employees
+                : employees.filter((e) => e.department === targetFilter);
 
     // Determine recipients
     const recipients =
