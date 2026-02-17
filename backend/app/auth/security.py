@@ -195,7 +195,9 @@ async def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Your account is inactive. Please contact your administrator."
         )
-        logger.info(f"✅ Auth successful for user {user.email} (Company: {user.company_id})")    return user
+    
+    logger.info(f"✅ Auth successful for user {user.email} (Company: {user.company_id})")
+    return user
 
 
 async def get_current_active_user(
