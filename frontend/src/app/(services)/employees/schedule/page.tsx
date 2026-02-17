@@ -8,6 +8,9 @@ import {
     Loader2,
     Plus,
     Clock,
+    Pencil,
+    Trash2,
+    MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,10 +26,18 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
     Select,
     SelectContent,
@@ -40,6 +51,8 @@ import { apiClient } from "@/lib/api/client";
 import { toast } from "sonner";
 import type { Employee, Shift } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRoleAccess } from "@/hooks/use-role-access";
+import { MyScheduleView } from "@/components/employee/my-schedule";
 
 const statusColors: Record<string, string> = {
     scheduled: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
@@ -66,9 +79,18 @@ function formatDate(d: Date) {
 }
 
 export default function SchedulePage() {
+    const { isEmployee } = useRoleAccess();
+
+    // Employee role sees personal schedule view
+    if (isEmployee) {
+        return <MyScheduleView />;
+    }
+
     const queryClient = useQueryClient();
     const [weekOffset, setWeekOffset] = useState(0);
     const [addOpen, setAddOpen] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
+    const [editingShift, setEditingShift] = useState<Shift | null>(null);
     const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
     const [shiftDate, setShiftDate] = useState("");
     const [startTime, setStartTime] = useState("09:00");
@@ -105,6 +127,26 @@ export default function SchedulePage() {
         onError: (err: any) => toast.error(err.message || "Failed to create shift"),
     });
 
+    const updateShiftMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: any }) => apiClient.updateShift(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["shifts"] });
+            setEditOpen(false);
+            setEditingShift(null);
+            toast.success("Shift updated");
+        },
+        onError: (err: any) => toast.error(err.message || "Failed to update shift"),
+    });
+
+    const deleteShiftMutation = useMutation({
+        mutationFn: (id: string) => apiClient.deleteShift(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["shifts"] });
+            toast.success("Shift deleted");
+        },
+        onError: (err: any) => toast.error(err.message || "Failed to delete shift"),
+    });
+
     const handleCreateShift = () => {
         if (!selectedEmployeeId || !shiftDate) return;
         createShiftMutation.mutate({
@@ -113,6 +155,30 @@ export default function SchedulePage() {
             start_time: `${shiftDate}T${startTime}:00`,
             end_time: `${shiftDate}T${endTime}:00`,
             notes: notes || undefined,
+        });
+    };
+
+    const handleEditShift = (shift: Shift) => {
+        setEditingShift(shift);
+        setSelectedEmployeeId(shift.employee_id);
+        setShiftDate(shift.shift_date);
+        setStartTime(new Date(shift.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }));
+        setEndTime(new Date(shift.end_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }));
+        setNotes(shift.notes || "");
+        setEditOpen(true);
+    };
+
+    const handleUpdateShift = () => {
+        if (!editingShift || !shiftDate) return;
+        updateShiftMutation.mutate({
+            id: editingShift.id,
+            data: {
+                employee_id: selectedEmployeeId,
+                shift_date: shiftDate,
+                start_time: `${shiftDate}T${startTime}:00`,
+                end_time: `${shiftDate}T${endTime}:00`,
+                notes: notes || undefined,
+            },
         });
     };
 
@@ -248,11 +314,38 @@ export default function SchedulePage() {
                                         dayShifts.map((shift) => (
                                             <div
                                                 key={shift.id}
-                                                className="rounded bg-accent p-1.5 text-xs space-y-0.5"
+                                                className="rounded bg-accent p-1.5 text-xs space-y-0.5 group relative"
                                             >
-                                                <p className="font-medium truncate">
-                                                    {empMap.get(shift.employee_id) || shift.employee_id.slice(0, 8)}
-                                                </p>
+                                                <div className="flex items-start justify-between">
+                                                    <p className="font-medium truncate flex-1">
+                                                        {empMap.get(shift.employee_id) || shift.employee_id.slice(0, 8)}
+                                                    </p>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <button className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-background/50">
+                                                                <MoreHorizontal className="h-3 w-3" />
+                                                            </button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem onClick={() => handleEditShift(shift)}>
+                                                                <Pencil className="mr-2 h-3 w-3" />
+                                                                Edit
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
+                                                                className="text-destructive"
+                                                                onClick={() => {
+                                                                    if (confirm("Delete this shift?")) {
+                                                                        deleteShiftMutation.mutate(shift.id);
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <Trash2 className="mr-2 h-3 w-3" />
+                                                                Delete
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
                                                 <div className="flex items-center gap-1 text-muted-foreground">
                                                     <Clock className="h-3 w-3" />
                                                     <span>
@@ -273,6 +366,58 @@ export default function SchedulePage() {
                     })}
                 </div>
             )}
+
+            {/* Edit Shift Dialog */}
+            <Dialog open={editOpen} onOpenChange={(open) => { setEditOpen(open); if (!open) setEditingShift(null); }}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Shift</DialogTitle>
+                        <DialogDescription>Update shift details</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-4">
+                        <div className="space-y-2">
+                            <Label>Employee</Label>
+                            <Select value={selectedEmployeeId} onValueChange={setSelectedEmployeeId}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select employee..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {employees.map((emp) => (
+                                        <SelectItem key={emp.id} value={emp.id}>
+                                            {emp.first_name} {emp.last_name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Date</Label>
+                            <Input type="date" value={shiftDate} onChange={(e) => setShiftDate(e.target.value)} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Start Time</Label>
+                                <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>End Time</Label>
+                                <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Notes (optional)</Label>
+                            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Shift notes..." />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+                        <Button onClick={handleUpdateShift} disabled={!selectedEmployeeId || !shiftDate || updateShiftMutation.isPending}>
+                            {updateShiftMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Save Changes
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
