@@ -9,6 +9,7 @@ export interface User {
     role: UserRole;
     company_id: string;
     company?: Company;
+    employee_id?: string;
     is_active: boolean;
     created_at: string;
     updated_at?: string;
@@ -277,4 +278,48 @@ export interface ChartDataPoint {
     name: string;
     value: number;
     [key: string]: string | number;
+}
+
+// Self-service (My Data) types
+export interface MyProfileResponse {
+    employee: Employee;
+    pto_balance: PTOBalance | null;
+    upcoming_shifts: Shift[];
+    pending_pto_requests: PTORequest[];
+}
+
+export interface MyScheduleResponse {
+    shifts: Shift[];
+    total: number;
+}
+
+export interface MyPTOResponse {
+    balance: PTOBalance | null;
+    requests: PTORequest[];
+    total_requests: number;
+}
+
+export interface PayrollItemDetail {
+    id: string;
+    payroll_run_id: string;
+    base_salary: string;
+    overtime_hours: string;
+    overtime_amount: string;
+    bonuses: string;
+    deductions: string;
+    tax_amount: string;
+    net_amount: string;
+    payment_status: string;
+    period_start: string | null;
+    period_end: string | null;
+}
+
+export interface MyPayrollResponse {
+    payroll_items: PayrollItemDetail[];
+    summary: {
+        total_gross: string;
+        total_tax: string;
+        total_net: string;
+        pay_periods: number;
+    };
 }
