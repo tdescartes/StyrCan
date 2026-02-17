@@ -34,6 +34,7 @@ class UserResponse(UserBase):
     company_id: str
     role: str
     is_active: bool
+    employee_id: Optional[str] = None
     last_login: Optional[datetime] = None
     created_at: datetime
     
