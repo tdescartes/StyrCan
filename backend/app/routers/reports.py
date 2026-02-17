@@ -9,10 +9,8 @@ import logging
 from ..auth.security import get_current_active_user
 from ..database import get_db
 from ..models.user import User
-from ..models.payroll import Payroll
-from ..models.invoice import Invoice
-from ..models.revenue import Revenue
-from ..models.expense import Expense
+from ..models.payroll import PayrollRun, PayrollItem
+from ..models.finance import Transaction
 from ..utils.pdf_reports import pdf_service
 from ..utils.s3_storage import s3_service
 
@@ -45,19 +43,21 @@ async def generate_financial_report(
         company_name = current_user.company.name if current_user.company else "Company"
         
         # Aggregate revenue data
-        revenues = db.query(Revenue).filter(
-            Revenue.company_id == current_user.company_id,
-            Revenue.date >= start_date,
-            Revenue.date <= end_date
+        revenues = db.query(Transaction).filter(
+            Transaction.company_id == current_user.company_id,
+            Transaction.type == "income",
+            Transaction.transaction_date >= start_date,
+            Transaction.transaction_date <= end_date
         ).all()
         
         total_income = sum(r.amount for r in revenues)
         
         # Aggregate expense data
-        expenses = db.query(Expense).filter(
-            Expense.company_id == current_user.company_id,
-            Expense.date >= start_date,
-            Expense.date <= end_date
+        expenses = db.query(Transaction).filter(
+            Transaction.company_id == current_user.company_id,
+            Transaction.type == "expense",
+            Transaction.transaction_date >= start_date,
+            Transaction.transaction_date <= end_date
         ).all()
         
         total_expenses = sum(e.amount for e in expenses)
@@ -156,7 +156,7 @@ async def generate_payroll_report(
     """
     try:
         # Check authorization (admin or manager only)
-        if current_user.role not in ["admin", "manager"]:
+        if current_user.role not in ["company_admin", "super_admin", "manager"]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Only admins and managers can generate payroll reports"
@@ -165,14 +165,15 @@ async def generate_payroll_report(
         # Get company name
         company_name = current_user.company.name if current_user.company else "Company"
         
-        # Get payroll data
-        payrolls = db.query(Payroll).filter(
-            Payroll.company_id == current_user.company_id,
-            Payroll.pay_period_start >= start_date,
-            Payroll.pay_period_end <= end_date
+        # Get payroll records (runs for the company in period)
+        # Using PayrollItem since it has the detailed breakdown per employee
+        payroll_items = db.query(PayrollItem).filter(
+            PayrollItem.company_id == current_user.company_id,
+            PayrollItem.created_at >= datetime.combine(start_date, datetime.min.time()),
+            PayrollItem.created_at <= datetime.combine(end_date, datetime.max.time())
         ).all()
         
-        if not payrolls:
+        if not payroll_items:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No payroll data found for the specified period"
@@ -180,13 +181,13 @@ async def generate_payroll_report(
         
         # Prepare payroll data for PDF
         payroll_data = []
-        for payroll in payrolls:
-            employee_name = f"{payroll.employee.first_name} {payroll.employee.last_name}" if payroll.employee else "Unknown"
+        for item in payroll_items:
+            employee_name = f"{item.employee.first_name} {item.employee.last_name}" if item.employee else "Unknown"
             payroll_data.append({
                 "employee_name": employee_name,
-                "gross_pay": float(payroll.gross_pay),
-                "deductions": float(payroll.total_deductions),
-                "net_pay": float(payroll.net_pay)
+                "gross_pay": float(item.base_salary),
+                "deductions": float(item.deductions),
+                "net_pay": float(item.net_amount)
             })
         
         # Generate PDF
