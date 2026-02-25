@@ -19,7 +19,10 @@ async def connect_mongodb():
     
     try:
         logger.info(f"Connecting to MongoDB: {settings.mongodb_url}")
-        mongodb_client = AsyncIOMotorClient(settings.mongodb_url)
+        mongodb_client = AsyncIOMotorClient(
+            settings.mongodb_url,
+            serverSelectionTimeoutMS=5000  # 5 second timeout
+        )
         
         # Ping the database to verify connection
         await mongodb_client.admin.command('ping')
@@ -49,8 +52,9 @@ async def connect_mongodb():
         logger.info("Beanie ODM initialized successfully")
         
     except Exception as e:
-        logger.error(f"Failed to connect to MongoDB: {str(e)}")
-        raise
+        logger.warning(f"MongoDB unavailable (non-fatal): {str(e)}")
+        logger.warning("Audit logs, notifications, and chat features will be disabled until MongoDB is available")
+        mongodb_client = None
 
 
 async def close_mongodb():
@@ -62,8 +66,6 @@ async def close_mongodb():
         logger.info("MongoDB connection closed")
 
 
-def get_mongodb_client() -> AsyncIOMotorClient:
-    """Get MongoDB client instance."""
-    if mongodb_client is None:
-        raise RuntimeError("MongoDB client not initialized. Call connect_mongodb() first.")
+def get_mongodb_client() -> Optional[AsyncIOMotorClient]:
+    """Get MongoDB client instance. Returns None if MongoDB is unavailable."""
     return mongodb_client
