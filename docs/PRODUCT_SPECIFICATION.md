@@ -68,10 +68,10 @@ Pulse replaces the patchwork with **four integrated service packages** plus glob
 
 Pulse operates across two web properties:
 
-| Site               | URL               | Purpose                        | Technology             |
-| ------------------ | ----------------- | ------------------------------ | ---------------------- |
+| Site               | URL             | Purpose                        | Technology             |
+| ------------------ | --------------- | ------------------------------ | ---------------------- |
 | **Marketing Site** | `pulse.com`     | Landing page, pricing, contact | Eleventy (SSG) + Nginx |
-| **Application**    | `use.pulse.com` | The full SaaS product          | Next.js 14 + FastAPI   |
+| **Application**    | `use.pulse.com` | The full SaaS product          | Next.js 15 + FastAPI   |
 
 ---
 
@@ -176,7 +176,7 @@ Owner (super_admin)
                            │ Link to "Get Started"
 ┌──────────────────────────▼──────────────────────────────┐
 │              APPLICATION LAYER (use.pulse.com)          │
-│   Next.js 14 · TypeScript · Tailwind CSS · shadcn/ui     │
+│   Next.js 15 · TypeScript · Tailwind CSS · shadcn/ui     │
 │   React Query · Zustand · React Hook Form · Zod          │
 └──────────────────────────┬──────────────────────────────┘
                            │ REST API + WebSocket
@@ -1915,21 +1915,21 @@ DEBUG=False
 
 Deployed to a self-hosted Kubernetes cluster with:
 
-| Resource          | Description                                                                               |
-| ----------------- | ----------------------------------------------------------------------------------------- |
-| Namespace         | `pulse` — isolates all resources                                                        |
-| ConfigMap         | Environment variables (non-sensitive)                                                     |
-| Secrets           | Passwords, JWT secret, API keys                                                           |
-| Deployments       | Backend (2 replicas), Frontend (2 replicas), Landing (1 replica)                          |
-| Services          | ClusterIP for internal communication                                                      |
+| Resource          | Description                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| Namespace         | `pulse` — isolates all resources                                                    |
+| ConfigMap         | Environment variables (non-sensitive)                                               |
+| Secrets           | Passwords, JWT secret, API keys                                                     |
+| Deployments       | Backend (2 replicas), Frontend (2 replicas), Landing (1 replica)                    |
+| Services          | ClusterIP for internal communication                                                |
 | Ingress           | Routes `pulse.com` → Landing, `use.pulse.com` → Frontend, `api.pulse.com` → Backend |
-| PersistentVolumes | PostgreSQL data, MongoDB data, Redis data                                                 |
-| NodePort          | Dev access — Frontend: 30300, Backend: 30800                                              |
+| PersistentVolumes | PostgreSQL data, MongoDB data, Redis data                                           |
+| NodePort          | Dev access — Frontend: 30300, Backend: 30800                                        |
 
 ### 18.4 Access Points
 
-| URL                                 | Service  | Purpose             |
-| ----------------------------------- | -------- | ------------------- |
+| URL                               | Service  | Purpose             |
+| --------------------------------- | -------- | ------------------- |
 | `https://pulse.com`               | Landing  | Marketing site      |
 | `https://use.pulse.com`           | Frontend | Application         |
 | `https://api.pulse.com/api/v1`    | Backend  | REST API            |
