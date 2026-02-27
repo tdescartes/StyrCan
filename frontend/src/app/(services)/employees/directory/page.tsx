@@ -12,6 +12,7 @@ import {
     Plus,
     Filter,
     MoreHorizontal,
+    Download,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,10 @@ export default function DirectoryPage() {
                     <p className="text-zinc-500 text-sm mt-1">Browse and manage all team members</p>
                 </div>
                 <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => apiClient.exportEmployees("csv").then(() => {}).catch(() => {})}>
+                        <Download className="w-4 h-4 mr-2" />
+                        Export
+                    </Button>
                     <Button variant="secondary" size="sm">
                         <Filter className="w-4 h-4 mr-2" />
                         Filter
@@ -157,7 +162,7 @@ export default function DirectoryPage() {
                                         </Badge>
                                     </td>
                                     <td className="px-6 py-3 text-right">
-                                        <button className="text-zinc-400 hover:text-black transition-colors">
+                                        <button className="text-zinc-400 hover:text-black transition-colors" title="More options">
                                             <MoreHorizontal className="w-4 h-4" />
                                         </button>
                                     </td>
