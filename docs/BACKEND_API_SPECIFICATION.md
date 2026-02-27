@@ -28,52 +28,62 @@
 
 ### Base Configuration
 
-| Property       | Value                             |
-| -------------- | --------------------------------- |
-| **Base URL**   | `https://api.pulse.com/api/v1`  |
-| **Protocol**   | HTTPS (TLS 1.3)                   |
-| **Format**     | JSON                              |
-| **Encoding**   | UTF-8                             |
-| **Versioning** | URL path (`/api/v1/`, `/api/v2/`) |
+| Property       | Value                                                                                |
+| -------------- | ------------------------------------------------------------------------------------ |
+| **Base URL**   | `http://localhost:8000/api` (development) / `https://api.pulse.com/api` (production) |
+| **Protocol**   | HTTP (dev) / HTTPS (production)                                                      |
+| **Format**     | JSON                                                                                 |
+| **Encoding**   | UTF-8                                                                                |
+| **Versioning** | No version prefix                                                                    |
 
 ### Authentication Headers
 
 ```http
 Authorization: Bearer <jwt_access_token>
-X-Company-ID: <company_uuid>  # Optional, for admin cross-company access
 Content-Type: application/json
 Accept: application/json
 ```
 
-### Standard Response Format
+> **Note:** Company context is extracted from the JWT token — no separate `X-Company-ID` header is needed.
 
-**Success Response:**
+### Response Patterns
 
-```json
-{
-  "success": true,
-  "data": { ... },
-  "meta": {
-    "timestamp": "2026-02-05T10:30:00Z",
-    "request_id": "req_abc123"
-  }
-}
-```
+The API does **not** use a single standard response wrapper. Response shapes vary by endpoint type:
 
-**Paginated Response:**
+- **Auth endpoints** (`/auth/login`, `/auth/register`, `/auth/me`): Return Pydantic models directly as flat JSON objects.
+- **Mutation endpoints** (create, update, delete): Return `{"success": true, "message": "..."}` or `{"status": "success", "message": "..."}` patterns.
+- **File endpoints**: Return `{"success": true, "file": {...}}`.
+- **List endpoints**: Return Pydantic response models or JSON arrays directly.
+
+**Example — Login Response (POST `/auth/login`):**
 
 ```json
 {
-  "success": true,
-  "data": [ ... ],
-  "pagination": {
-    "page": 1,
-    "per_page": 20,
-    "total_items": 150,
-    "total_pages": 8,
-    "has_next": true,
-    "has_prev": false
-  }
+  "user": {
+    "id": "...",
+    "company_id": "...",
+    "email": "admin@company.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "role": "company_admin",
+    "is_active": true,
+    "employee_id": null,
+    "last_login": "2026-02-05T10:30:00Z",
+    "created_at": "2026-02-05T10:00:00Z"
+  },
+  "company": {
+    "id": "...",
+    "name": "Acme Corp",
+    "email": "admin@company.com",
+    "phone": null,
+    "address": null,
+    "tax_id": null,
+    "status": "active",
+    "created_at": "2026-02-05T10:00:00Z"
+  },
+  "access_token": "eyJ...",
+  "refresh_token": "eyJ...",
+  "token_type": "bearer"
 }
 ```
 
@@ -81,18 +91,7 @@ Accept: application/json
 
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid email format",
-    "details": [
-      { "field": "email", "message": "Must be a valid email address" }
-    ]
-  },
-  "meta": {
-    "timestamp": "2026-02-05T10:30:00Z",
-    "request_id": "req_abc123"
-  }
+  "detail": "Invalid email or password"
 }
 ```
 
@@ -126,21 +125,15 @@ Creates a new company and the initial admin user.
 
 ```json
 {
-  "company": {
-    "name": "Acme Corp",
-    "industry": "technology",
-    "size": "11-50",
-    "country": "USA",
-    "timezone": "America/New_York"
-  },
-  "admin": {
-    "email": "admin@acmecorp.com",
-    "password": "SecurePassword123!",
-    "first_name": "John",
-    "last_name": "Doe",
-    "phone": "+1-555-123-4567"
-  },
-  "plan": "standard" // standard | professional | enterprise
+  "name": "Acme Corp",
+  "email": "admin@acmecorp.com",
+  "phone": "+1-555-123-4567",
+  "address": "123 Main St",
+  "tax_id": "12-3456789",
+  "admin_first_name": "John",
+  "admin_last_name": "Doe",
+  "admin_email": "admin@acmecorp.com",
+  "admin_password": "SecurePassword123!"
 }
 ```
 
@@ -148,27 +141,31 @@ Creates a new company and the initial admin user.
 
 ```json
 {
-  "success": true,
-  "data": {
-    "company": {
-      "id": "comp_abc123",
-      "name": "Acme Corp",
-      "slug": "acme-corp",
-      "created_at": "2026-02-05T10:30:00Z"
-    },
-    "user": {
-      "id": "usr_xyz789",
-      "email": "admin@acmecorp.com",
-      "role": "admin",
-      "company_id": "comp_abc123"
-    },
-    "tokens": {
-      "access_token": "eyJhbGciOiJIUzI1NiIs...",
-      "refresh_token": "eyJhbGciOiJIUzI1NiIs...",
-      "token_type": "Bearer",
-      "expires_in": 3600
-    }
-  }
+  "user": {
+    "id": "...",
+    "company_id": "...",
+    "email": "admin@acmecorp.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "role": "company_admin",
+    "is_active": true,
+    "employee_id": null,
+    "last_login": null,
+    "created_at": "2026-02-05T10:30:00Z"
+  },
+  "company": {
+    "id": "...",
+    "name": "Acme Corp",
+    "email": "admin@acmecorp.com",
+    "phone": "+1-555-123-4567",
+    "address": "123 Main St",
+    "tax_id": "12-3456789",
+    "status": "active",
+    "created_at": "2026-02-05T10:30:00Z"
+  },
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "bearer"
 }
 ```
 
@@ -183,8 +180,7 @@ Creates a new company and the initial admin user.
 ```json
 {
   "email": "admin@acmecorp.com",
-  "password": "SecurePassword123!",
-  "remember_me": true
+  "password": "SecurePassword123!"
 }
 ```
 
@@ -192,37 +188,31 @@ Creates a new company and the initial admin user.
 
 ```json
 {
-  "success": true,
-  "data": {
-    "user": {
-      "id": "usr_xyz789",
-      "email": "admin@acmecorp.com",
-      "first_name": "John",
-      "last_name": "Doe",
-      "full_name": "John Doe",
-      "role": "admin",
-      "company_id": "comp_abc123",
-      "avatar_url": "https://storage.pulse.com/avatars/usr_xyz789.jpg",
-      "last_login": "2026-02-05T10:30:00Z"
-    },
-    "company": {
-      "id": "comp_abc123",
-      "name": "Acme Corp",
-      "logo_url": "https://storage.pulse.com/logos/comp_abc123.png",
-      "subscription": {
-        "plan": "professional",
-        "status": "active",
-        "member_limit": 50,
-        "member_count": 23
-      }
-    },
-    "tokens": {
-      "access_token": "eyJhbGciOiJIUzI1NiIs...",
-      "refresh_token": "eyJhbGciOiJIUzI1NiIs...",
-      "token_type": "Bearer",
-      "expires_in": 3600
-    }
-  }
+  "user": {
+    "id": "...",
+    "company_id": "...",
+    "email": "admin@acmecorp.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "role": "company_admin",
+    "is_active": true,
+    "employee_id": null,
+    "last_login": "2026-02-05T10:30:00Z",
+    "created_at": "2026-02-05T10:00:00Z"
+  },
+  "company": {
+    "id": "...",
+    "name": "Acme Corp",
+    "email": "admin@acmecorp.com",
+    "phone": null,
+    "address": null,
+    "tax_id": null,
+    "status": "active",
+    "created_at": "2026-02-05T10:00:00Z"
+  },
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "bearer"
 }
 ```
 
@@ -2555,8 +2545,8 @@ services:
 
 ## Document History
 
-| Version | Date       | Author       | Changes               |
-| ------- | ---------- | ------------ | --------------------- |
+| Version | Date       | Author     | Changes               |
+| ------- | ---------- | ---------- | --------------------- |
 | 1.0.0   | 2026-02-05 | Pulse Team | Initial specification |
 
 ---
