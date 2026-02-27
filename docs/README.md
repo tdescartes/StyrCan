@@ -1,34 +1,34 @@
 # Pulse Documentation
 
-This folder contains all project documentation.
+> **Pulse** is a FastAPI + Next.js SaaS business management platform by StyrCan.
 
 ## 📚 Documentation Index
 
-### API Documentation
+### Getting Started
 
-- **[API_TESTING_GUIDE.md](./API_TESTING_GUIDE.md)** - Guide for testing API endpoints
-- **[BACKEND_API_SPECIFICATION.md](./BACKEND_API_SPECIFICATION.md)** - Complete backend API specification
-- **[FRONTEND_API_INTEGRATION.md](./FRONTEND_API_INTEGRATION.md)** - Frontend-backend integration guide
+- **[QUICKSTART.md](./QUICKSTART.md)** — Setup guide to get the project running locally
+- **[PROJECT_README.md](./PROJECT_README.md)** — Project overview, architecture, and current status
 
-### Development Guides
+### Product & Requirements
 
-- **[QUICKSTART.md](./QUICKSTART.md)** - Quick setup guide to get started
-- **[DEVELOPMENT_ROADMAP.md](./DEVELOPMENT_ROADMAP.md)** - Project roadmap and milestones
-- **[MIGRATION_PLAN.md](./MIGRATION_PLAN.md)** - Migration strategy and execution plan
+- **[PRODUCT_SPECIFICATION.md](./PRODUCT_SPECIFICATION.md)** — Product requirements, features, and user stories
+- **[MARKET_READINESS_ROADMAP.md](./MARKET_READINESS_ROADMAP.md)** — Production readiness tracking and launch checklist
 
-### Product Documentation
+### API
 
-- **[PRODUCT_SPECIFICATION.md](./PRODUCT_SPECIFICATION.md)** - Product features and requirements
-- **[PROJECT_README.md](./PROJECT_README.md)** - Detailed project overview
+- **[BACKEND_API_SPECIFICATION.md](./BACKEND_API_SPECIFICATION.md)** — Complete backend API specification
+- **[API_TESTING_GUIDE.md](./API_TESTING_GUIDE.md)** — Curl examples and manual API testing guide
 
-### Technical Alignment
+### Architecture & Security
 
-- **[FRONTEND_BACKEND_ALIGNMENT.md](./FRONTEND_BACKEND_ALIGNMENT.md)** - Frontend-backend alignment documentation
-- **[FRONTEND_UPDATES_SUMMARY.md](./FRONTEND_UPDATES_SUMMARY.md)** - Summary of frontend updates
+- **[RBAC_AND_DB_CONSOLIDATION.md](./RBAC_AND_DB_CONSOLIDATION.md)** — Role-based access control and database consolidation
+- **[MULTI_TENANCY_GUIDE.md](./MULTI_TENANCY_GUIDE.md)** — Multi-tenancy architecture and implementation
+- **[MULTI_TENANCY_QUICK_REFERENCE.md](./MULTI_TENANCY_QUICK_REFERENCE.md)** — Multi-tenancy cheat sheet for developers
 
-### Planning
+### Data & Deployment
 
-- **[Plan.md](./Plan.md)** - Project planning and tasks
+- **[MASTER_DATA_REFERENCE.md](./MASTER_DATA_REFERENCE.md)** — Seed data, test accounts, and reference data
+- **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** — Docker, Kubernetes, and production deployment
 
 ---
 
