@@ -23,7 +23,7 @@ The application has four roles defined in the backend (`super_admin`, `company_a
 
 ### 1.3 Broken Role String References
 
-Two backend files (`reports.py`, `websocket.py`) check for `"admin"` instead of `"company_admin"`, meaning those role checks never pass.
+~~Two backend files (`reports.py`, `websocket.py`) checked for `"admin"` instead of `"company_admin"`~~ — **Fixed.** Both files now correctly check for `"company_admin"` and `"super_admin"`.
 
 ---
 
@@ -255,7 +255,7 @@ On pages shared between roles, action buttons (Create, Edit, Delete, Approve) ar
 
 - **Single database:** `pulse_db` on port 5432 (Docker) / 5433 (local)
 - **No consolidation needed** — there is no second database
-- **11 tables:** companies, users, employees, pto_balances, pto_requests, shifts, payroll_runs, payroll_items, expense_categories, transactions, messages
+- **12 tables:** companies, users, employees, pto_balances, pto_requests, shifts, payroll_runs, payroll_items, expense_categories, transactions, messages, subscriptions
 
 ### MongoDB
 
