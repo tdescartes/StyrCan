@@ -159,6 +159,14 @@ export function ServiceHeader() {
                                     ))}
                                 </div>
                             )}
+                            {notifList.length > 0 && (
+                                <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem asChild className="justify-center text-xs font-medium text-primary cursor-pointer">
+                                        <Link href="/notifications">View all notifications</Link>
+                                    </DropdownMenuItem>
+                                </>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
 
