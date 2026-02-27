@@ -116,8 +116,7 @@ export default function PTOPage() {
 
     // Create PTO request mutation
     const createMutation = useMutation({
-        mutationFn: (data: typeof newPTO) => apiClient.createPTORequest({
-            employee_id: data.employee_id,
+        mutationFn: (data: typeof newPTO) => apiClient.createPTORequest(data.employee_id, {
             start_date: data.start_date,
             end_date: data.end_date,
             reason: data.reason || undefined,
